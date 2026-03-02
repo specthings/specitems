@@ -1,0 +1,42 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: reference-type
+  spec-value: booklet
+  uid: reference
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      author:
+        description: |
+          It shall be the author or the list of authors of the booklet.
+        spec-type: str-or-list-str
+      howpublished:
+        description: |
+          It shall be the publishing method.
+        spec-type: str
+      month:
+        description: |
+          It shall be the month of publication.
+        spec-type: month
+      note:
+        description: |
+          It shall be associated miscellaneous information.
+        spec-type: str
+      year:
+        description: |
+          It shall be the year of publication.
+        spec-type: str
+    description: |
+      This set of attributes specifies a reference to a booklet.
+    mandatory-attributes: none
+spec-name: Booklet Reference
+spec-type: reference-booklet
+type: spec

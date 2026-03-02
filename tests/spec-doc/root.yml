@@ -1,0 +1,93 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links: []
+spec-description: null
+spec-example: null
+spec-info:
+  bool:
+    assert: true
+    description: |
+      A reference to ${.:/spec-name}.
+  dict:
+    attributes:
+      type:
+        description: null
+        spec-type: name
+    description: null
+    generic-attributes:
+      description: null
+      key-spec-type: name
+      value-spec-type: root
+    mandatory-attributes: all
+  float:
+    assert:
+      eq: 0.0
+    description: null
+    spec-type: float
+  int:
+    assert:
+      eq: 0
+    description: null
+    spec-type: int
+  list:
+    description: null
+    spec-type: root
+  none: null
+  str:
+    assert:
+    - and:
+      - contains:
+        - a
+        - b
+        - c
+      - eq: d
+      - ge: e
+      - gt: f
+      - in:
+        - g
+        - h
+      - le: i
+      - lt: j
+      - ne: k
+      - re: l
+      - true
+      - uid: null
+    - or:
+      - and:
+        - in: []
+      - in:
+        - x
+    - not:
+      - not:
+          contains:
+          - a
+          - b
+          - c
+      - not:
+          eq: d
+      - not:
+          ge: e
+      - not:
+          gt: f
+      - not:
+          in:
+          - g
+          - h
+      - not:
+          le: i
+      - not:
+          lt: j
+      - not:
+          ne: k
+      - not:
+          re: l
+      - not: true
+      - not:
+          uid: null
+    description: null
+    spec-type: str
+spec-name: Root
+spec-type: root
+type: spec

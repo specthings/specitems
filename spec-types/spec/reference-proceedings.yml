@@ -1,0 +1,62 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: reference-type
+  spec-value: proceedings
+  uid: reference
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      editor:
+        description: |
+          It shall be the editor or the list of editors of the conference
+          proceedings.
+        spec-type: str-or-list-str
+      month:
+        description: |
+          It shall be the month of publication.
+        spec-type: month
+      note:
+        description: |
+          It shall be associated miscellaneous information.
+        spec-type: str
+      number:
+        description: |
+          It shall be the issue number of the conference proceedings.
+        spec-type: str
+      organization:
+        description: |
+          It shall be the associated organization.
+        spec-type: str
+      publisher:
+        description: |
+          It shall be the name of the publisher.
+        spec-type: str
+      series:
+        description: |
+          It shall be the series of the conference proceedings the article was
+          published.
+        spec-type: str
+      volume:
+        description: |
+          It shall be the volume of the conference proceedings.
+        spec-type: str
+      year:
+        description: |
+          It shall be the year of publication.
+        spec-type: str
+    description: |
+      This set of attributes specifies a reference to the proceedings of a
+      conference.
+    mandatory-attributes:
+    - year
+spec-name: Conference Proceedings Reference
+spec-type: reference-proceedings
+type: spec

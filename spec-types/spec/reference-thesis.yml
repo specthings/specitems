@@ -1,0 +1,54 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: reference-type
+  spec-value: mastersthesis
+  uid: reference
+- role: spec-refinement
+  spec-key: reference-type
+  spec-value: phdthesis
+  uid: reference
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      author:
+        description: |
+          It shall be the author or the list of authors of the thesis.
+        spec-type: str-or-list-str
+      month:
+        description: |
+          It shall be the month of publication.
+        spec-type: month
+      note:
+        description: |
+          It shall be associated miscellaneous information.
+        spec-type: str
+      publication-type:
+        description: |
+          If the attribute is present, it shall be the publication type
+          overriding the default.
+        spec-type: str
+      school:
+        description: |
+          It shall be the school where the thesis was written.
+        spec-type: str
+      year:
+        description: |
+          It shall be the year of publication.
+        spec-type: str
+    description: |
+      This set of attributes specifies a reference to a masters or Ph.D. thesis.
+    mandatory-attributes:
+    - author
+    - school
+    - year
+spec-name: Masters or Ph.D. Thesis Reference
+spec-type: reference-thesis
+type: spec

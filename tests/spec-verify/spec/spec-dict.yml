@@ -1,0 +1,37 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      attributes:
+        description: |
+          It shall specify the explicit attributes of the attribute set.
+        spec-type: spec-attributes
+      description:
+        description: |
+          It shall be the description of the attribute set.
+        spec-type: optional-str
+      generic-attributes:
+        description: |
+          It shall specify the generic attributes of the attribute set.
+        spec-type: spec-generic-attributes
+      mandatory-attributes:
+        description: |
+          It shall specify the mandatory attributes of the attribute set.
+        spec-type: spec-mandatory-attributes
+    description: |
+      This set of attributes specifies a set of attributes.
+    mandatory-attributes:
+    - attributes
+    - description
+    - mandatory-attributes
+spec-name: Specification Attribute Set
+spec-type: spec-dict
+type: spec

@@ -1,0 +1,18 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  str:
+    assert:
+    - re: '^([a-z][a-z0-9-]*|SPDX-License-Identifier)$'
+    description: |
+      It shall be an attribute name.
+spec-name: Name
+spec-type: name
+type: spec

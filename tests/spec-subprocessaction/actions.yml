@@ -1,0 +1,42 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+actions:
+- command:
+  - env
+  env:
+  - action: clear
+    name: null
+    value: null
+  - action: ignore
+    name: null
+    value: null
+  - action: set
+    name: FOO
+    value: bar
+  - action: set
+    name: UNSET_ME
+    value: value
+  - action: unset
+    name: UNSET_ME
+    value: value
+  - action: set
+    name: THE_PATH
+    value: first
+  - action: path-append
+    name: THE_PATH
+    value: append
+  - action: path-prepend
+    name: THE_PATH
+    value: prepend
+  expected-return-code: null
+  working-directory: w
+- command:
+  - stdout
+  env: []
+  expected-return-code: 0
+  stdout: stdout
+  working-directory: w
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links: []
+type: other

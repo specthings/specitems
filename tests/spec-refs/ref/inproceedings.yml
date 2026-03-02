@@ -1,0 +1,24 @@
+SPDX-License-Identifier: CC-BY-SA-4.0
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+author: Author
+booktitle: Conference Proceedings
+editor:
+- Editor A
+- Editor B
+enabled-by: true
+links: []
+month: January
+note: Note
+number: '1'
+organization: Organization
+pages: '2'
+publisher: Publisher
+reference-type: inproceedings
+series: '3'
+title: In Proceedings
+type: reference
+volume: '4'
+work-hash: null
+work-url: null
+year: '5'

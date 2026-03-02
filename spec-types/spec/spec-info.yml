@@ -1,0 +1,46 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      bool:
+        description: |
+          It shall specify a boolean value.
+        spec-type: spec-bool
+      dict:
+        description: |
+          It shall specify a set of attributes.
+        spec-type: spec-dict
+      float:
+        description: |
+          It shall specify a floating-point value.
+        spec-type: spec-float
+      int:
+        description: |
+          It shall specify an integer value.
+        spec-type: spec-int
+      list:
+        description: |
+          It shall specify a list of attributes or values.
+        spec-type: spec-list
+      none:
+        description: |
+          It specifies that no value is required.
+        spec-type: none
+      str:
+        description: |
+          It shall specify a string.
+        spec-type: spec-str
+    description: |
+      This set of attributes specifies attribute values.
+    mandatory-attributes: at-least-one
+spec-name: Specification Information
+spec-type: spec-info
+type: spec

@@ -1,0 +1,40 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: reference
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      reference-type:
+        description: |
+          It shall be the reference type.
+        spec-type: str
+      title:
+        description: |
+          It shall be the title of the work.
+        spec-type: str
+      work-url:
+        description: |
+          If the value is present, then it shall be the URL to the referenced
+          work.
+        spec-type: optional-str
+      work-hash:
+        description: |
+          If the value is present, then it shall be the SHA256 hash value of
+          the referenced work.
+        spec-type: optional-sha256
+    description: |
+      This set of attributes specifies a reference to something with a title.
+    mandatory-attributes: all
+spec-name: Reference
+spec-type: reference
+type: spec

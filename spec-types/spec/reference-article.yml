@@ -1,0 +1,62 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: reference-type
+  spec-value: article
+  uid: reference
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      author:
+        description: |
+          It shall be the author or the list of authors of the article.
+        spec-type: str-or-list-str
+      doi:
+        description: |
+          It shall be the digital object identifier (DOI) of the article.
+        spec-type: str
+      journal:
+        description: |
+          It shall be the name of the journal, magazine, report, or newspaper
+          in which the article was published.
+        spec-type: str
+      month:
+        description: |
+          It shall be the month of publication.
+        spec-type: month
+      note:
+        description: |
+          It shall be associated miscellaneous information.
+        spec-type: str
+      number:
+        description: |
+          It shall be the issue number of the journal, magazine, or report.
+        spec-type: str
+      pages:
+        description: |
+          It shall be the page numbers on which the article appears.
+        spec-type: str
+      volume:
+        description: |
+          It shall be the volume number of the journal.
+        spec-type: str
+      year:
+        description: |
+          It shall be the year of publication.
+        spec-type: str
+    description: |
+      This set of attributes specifies a reference to an article.
+    mandatory-attributes:
+    - author
+    - journal
+    - year
+spec-name: Article Reference
+spec-type: reference-article
+type: spec

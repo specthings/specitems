@@ -1,0 +1,84 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: reference-type
+  spec-value: incollection
+  uid: reference
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      author:
+        description: |
+          It shall be the author or the list of authors of the book.
+        spec-type: str-or-list-str
+      booktitle:
+        description: |
+          It shall be the title of the book.
+        spec-type: str
+      chapter:
+        description: |
+          It shall be the chapter number.
+        spec-type: str
+      edition:
+        description: |
+          It shall be the edition of the book.
+        spec-type: str
+      editor:
+        description: |
+          It shall be the editor or the list of editors of the book.
+        spec-type: str-or-list-str
+      month:
+        description: |
+          It shall be the month of publication.
+        spec-type: month
+      note:
+        description: |
+          It shall be associated miscellaneous information.
+        spec-type: str
+      number:
+        description: |
+          It shall be the issue number of the journal, magazine, or
+          tech-report.
+        spec-type: str
+      pages:
+        description: |
+          It shall be the page numbers, separated either by commas or double-hyphens.
+        spec-type: str
+      publication-type:
+        description: |
+          If the attribute is present, it shall be the publication type
+          overriding the default.
+        spec-type: str
+      publisher:
+        description: |
+          It shall be the name of the publisher.
+        spec-type: str
+      series:
+        description: |
+          It shall be the series of books the book was published.
+        spec-type: str
+      volume:
+        description: |
+          It shall be the volume of a multi-volume book.
+        spec-type: str
+      year:
+        description: |
+          It shall be the year of publication.
+        spec-type: str
+    description: |
+      This set of attributes specifies a reference to a work in a book.
+    mandatory-attributes:
+    - author
+    - booktitle
+    - publisher
+    - year
+spec-name: In Collection Reference
+spec-type: reference-incollection
+type: spec

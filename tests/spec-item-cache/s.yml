@@ -1,0 +1,12 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2023 embedded brains GmbH & Co. KG
+enabled-by: foobar
+links:
+- role: proxy-member
+  uid: proxy2
+type: other
+v: s
+w:
+- x
+- y

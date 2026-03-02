@@ -1,0 +1,72 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: spec
+  uid: root
+spec-description: null
+spec-example: |
+  SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+  copyrights:
+  - Copyright (C) 2020 embedded brains GmbH & Co. KG
+  enabled-by: true
+  links:
+  - role: spec-member
+    uid: root
+  - role: spec-refinement
+    spec-key: type
+    spec-value: example
+    uid: root
+  spec-description: null
+  spec-example: null
+  spec-info:
+    dict:
+      attributes:
+        an-example-attribute:
+          description: |
+            It shall be an example.
+          spec-type: optional-str
+        example-number:
+          description: |
+            It shall be the example number.
+          spec-type: int
+      description: |
+        This set of attributes specifies an example.
+      mandatory-attributes: all
+  spec-name: Example Item Type
+  spec-type: spec
+  type: spec
+spec-info:
+  dict:
+    attributes:
+      spec-description:
+        description: |
+          It shall be the description of the specification type.
+        spec-type: optional-str
+      spec-example:
+        description: |
+          If the value is present, then it shall be an example of the
+          specification type.
+        spec-type: optional-str
+      spec-info:
+        description: null
+        spec-type: spec-info
+      spec-name:
+        description: |
+          It shall be the human readable name of the specification type.
+        spec-type: optional-str
+      spec-type:
+        description: |
+          It shall the specification type.
+        spec-type: name
+    description: |
+      This set of attributes specifies specification types.
+    mandatory-attributes: all
+spec-name: Specification Item Type
+spec-type: spec
+type: spec

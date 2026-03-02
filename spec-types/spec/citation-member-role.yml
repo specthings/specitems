@@ -1,0 +1,28 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: role
+  spec-value: citation-group-member
+  uid: link
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      citation-group-key:
+        description: |
+          It shall be the citation group key.
+        spec-type: str
+    description: |
+      This set of attributes specifies a citation group membership role of
+      links.  A group citation lists citations for all group members with the
+      associated group key.
+    mandatory-attributes: all
+spec-name: Citation Group Member Link Role
+spec-type: citation-group-member-role
+type: spec

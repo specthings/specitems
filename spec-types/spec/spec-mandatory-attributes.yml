@@ -1,0 +1,30 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: |
+  It defines which explicit attributes are mandatory.
+spec-example: null
+spec-info:
+  list:
+    description: |
+      The list defines the mandatory attributes through their key names.
+    spec-type: name
+  str:
+    assert:
+      in:
+      - all
+      - at-least-one
+      - at-most-one
+      - exactly-one
+      - none
+    description: |
+      It defines how many explicit attributes are mandatory.  If `none` is
+      used, then none of the explicit attributes is mandatory, they are all
+      optional.
+spec-name: Specification Mandatory Attributes
+spec-type: spec-mandatory-attributes
+type: spec

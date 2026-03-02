@@ -1,0 +1,30 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: glossary-type
+  spec-value: group
+  uid: glossary
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      name:
+        description: |
+          It shall be the human readable name of the glossary group.
+        spec-type: str
+      text:
+        description: |
+          It shall state the requirement for the glossary group.
+        spec-type: str
+    description: |
+      This set of attributes specifies a glossary group.
+    mandatory-attributes: all
+spec-name: Glossary Group Item Type
+spec-type: glossary-group
+type: spec

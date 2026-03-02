@@ -1,0 +1,30 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2024, 2025 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      action:
+        description: |
+          It shall be the enabled set action.
+        spec-type: enabled-set-actions
+      enabled-by:
+        description: |
+          It shall define the conditions under which the action is enabled.
+        spec-type: enabled-by
+      value:
+        description: |
+          If shall be the action value.
+        spec-type: str-or-list-str
+    description: |
+      This set of attributes specifies an action to alter the enabled set.
+    mandatory-attributes: all
+spec-name: Enabled Set Action
+spec-type: enabled-set-action
+type: spec

@@ -1,0 +1,18 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  str:
+    assert:
+    - re: ^[A-Fa-f0-9]{128}$
+    description: |
+      It shall be a SHA512 digest encoded in hexadecimal digits.
+spec-name: SHA512 Hex Digest
+spec-type: sha512-hex
+type: spec

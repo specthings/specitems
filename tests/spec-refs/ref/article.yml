@@ -1,0 +1,24 @@
+SPDX-License-Identifier: CC-BY-SA-4.0
+copyrights:
+- Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
+author: Author ${other:/name}
+work-hash: null
+work-url: null
+enabled-by: true
+journal: Journal ${other:/name}
+links:
+- citation-group-key: the-citation-group-key
+  role: citation-group-member
+  uid: other
+- citation-group-key: another-citation-group-key
+  role: citation-group-member
+  uid: other
+month: January
+note: Note ${other:/name}
+number: 1 ${other:/name}
+pages: 2 ${other:/name}
+reference-type: article
+title: Article ${other:/name}
+type: reference
+volume: 3 ${other:/name}
+year: 4 ${other:/name}

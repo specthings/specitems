@@ -1,0 +1,19 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2021 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  none: null
+  str:
+    assert:
+    - re: ^[A-Za-z0-9+_=-]{44}$
+    description: |
+      It shall be a SHA256 digest encoded in base64url.
+spec-name: Optional SHA256 Digest
+spec-type: optional-sha256
+type: spec

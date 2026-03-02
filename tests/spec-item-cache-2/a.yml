@@ -1,0 +1,5 @@
+enabled-by: true
+links:
+- role: role
+  uid: nix
+type: proxy

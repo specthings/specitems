@@ -1,0 +1,29 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      assert:
+        description: |
+          This optional attribute defines the constraints of the specified
+          string.  In case the assert attribute is not present, then the
+          specified string may be every valid string.
+        spec-type: spec-assert-str
+      description:
+        description: |
+          It shall be the description of the specified string attribute.
+        spec-type: optional-str
+    description: |
+      This set of attributes specifies a string.
+    mandatory-attributes:
+    - description
+spec-name: Specification String Value
+spec-type: spec-str
+type: spec

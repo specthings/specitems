@@ -1,0 +1,26 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      description:
+        description: |
+          It shall be the description of the list.
+        spec-type: optional-str
+      spec-type:
+        description: |
+          It shall be the specification type of elements of the list.
+        spec-type: name
+    description: |
+      This set of attributes specifies a list of attributes or values.
+    mandatory-attributes: all
+spec-name: Specification List
+spec-type: spec-list
+type: spec

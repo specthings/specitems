@@ -1,0 +1,46 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2022, 2024 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      command:
+        description: |
+          It shall be the command and argument list to run as a subprocess.  A
+          variable substitution is performed on the list elements.  For
+          example, you can use ``$${.:/input-file}.bin`` or
+          `$${.:/output-file}`.
+        spec-type: list-str
+      env:
+        description: null
+        spec-type: action-subprocess-env-list
+      expected-return-code:
+        description: |
+          If the value is present, then it shall be the expected return code of
+          the subprocess.
+        spec-type: optional-int
+      stdout:
+        description: |
+          It the value is present, then it shall be the target file of the
+          standard output stream.
+        spec-type: optional-str
+      working-directory:
+        description: |
+          It shall be the working directory of the subprocess.
+        spec-type: str
+    description: |
+      This set of attributes specifies a subprocess to run.
+    mandatory-attributes:
+    - command
+    - env
+    - expected-return-code
+    - working-directory
+spec-name: Subprocess Action
+spec-type: action-subprocess
+type: spec

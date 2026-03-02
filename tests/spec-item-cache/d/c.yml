@@ -1,0 +1,22 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020, 2023 embedded brains GmbH & Co. KG
+a:
+  b: e
+  f:
+  - 1
+  - 2
+  - 3
+  - g:
+    - 4
+    - 5
+dict: {}
+enabled-by: true
+links:
+- role: ''
+  uid: ../p
+- role: ''
+  uid: ../r
+type: other
+v: c
+r6: ${../p:/r7}

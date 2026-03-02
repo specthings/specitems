@@ -1,0 +1,11 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: proxy-member-default
+links:
+- role: proxy-member-default
+  uid: proxy
+- role: proxy-member-default
+  uid: proxy2
+type: other
+whoami: proxy-default-member

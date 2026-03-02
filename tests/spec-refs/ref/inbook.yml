@@ -1,0 +1,23 @@
+SPDX-License-Identifier: CC-BY-SA-4.0
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
+author: Author
+chapter: '1'
+editor: Editor
+edition: '2'
+enabled-by: true
+links: []
+month: January
+note: Note
+number: '3'
+pages: '4'
+publication-type: Publication type
+publisher: Publisher
+reference-type: inbook
+series: '5'
+title: In Book
+type: reference
+volume: '6'
+work-hash: null
+work-url: null
+year: '7'
