@@ -171,19 +171,16 @@ def make_text(content: Optional[GenericContent]) -> str:
     return "\n".join(content._lines)
 
 
-def _indent(lines: list[str], indent: str,
-            empty_line_indent: str) -> list[str]:
-    if indent:
-        return [
-            indent + line if line else empty_line_indent + line
-            for line in lines
-        ]
-    return lines
-
-
 @contextmanager
 def _add_context(_content: "Content") -> Iterator[None]:
     yield
+
+
+def _empty_line_indent(indents: list[str]) -> str:
+    indent = "".join(indents)
+    if indent.isspace():
+        return ""
+    return indent
 
 
 _SPECIAL_BLOCK = re.compile(r"( *[-*] | *[0-9]+\. | +)")
@@ -216,10 +213,16 @@ class Content(abc.ABC):
             the_license = {the_license}
         self._license = the_license
         self._tab = "  "
+        self._is_initial_indents: list[bool] = [False]
         self._indents = [""]
-        self._indent = ""
+        self._initial_indents = [[""]]
+        self._subsequent_indents = [""]
         self._empty_line_indents = [""]
+        self._line_indent = ""
         self._empty_line_indent = ""
+        self._last_line: str | None = None
+        self._last_is_initial_indent = True
+        self._last_is_not_empty = False
         self._pop_indent_gap = False
         self._comment_prefix = "#"
 
@@ -255,16 +258,47 @@ class Content(abc.ABC):
     def last(self, line: str) -> None:
         self._lines[-1] = line
 
+    def is_at_empty_list_item(self) -> bool:
+        """
+        Returns true, if the content end is at an empty list item, otherwise
+        false.
+        """
+        return self._is_initial_indents[-1] and self._indents[-1] == "- "
+
+    def _indent(self, lines: list[str], gap: bool) -> None:
+        if not lines:
+            return
+        self._last_line = lines[-1]
+        last_is_not_empty = self._last_is_not_empty
+        self._last_is_not_empty = bool(lines[-1])
+        indent = self._line_indent
+        if self._is_initial_indents[-1]:
+            self._lines.append(f"{indent}{lines[0]}")
+            self._last_is_initial_indent = True
+            self._is_initial_indents = [
+                False for _ in self._is_initial_indents
+            ]
+            self._indents = self._subsequent_indents.copy()
+            indent = "".join(self._indents)
+            self._line_indent = indent
+            lines = lines[1:]
+            gap = False
+        if lines:
+            empty = self._empty_line_indent
+            if gap and last_is_not_empty:
+                self._lines.append(empty)
+            self._last_is_initial_indent = False
+            self._lines.extend(f"{indent if line_2 else empty}{line_2}"
+                               for line_2 in lines)
+
     def append(self, content: Optional[GenericContent]) -> None:
         """ Append the content. """
-        self._lines.extend(
-            _indent(make_lines(content), self._indent,
-                    self._empty_line_indent))
+        self._indent(make_lines(content), False)
+        self.gap = True
 
     def prepend(self, content: Optional[GenericContent]) -> None:
         """ Prepend the content. """
-        self._lines[0:0] = _indent(make_lines(content), self._indent,
-                                   self._empty_line_indent)
+        self._lines[0:0] = make_lines(content)
 
     def add(self,
             content: Optional[GenericContent],
@@ -277,11 +311,9 @@ class Content(abc.ABC):
         lines = make_lines(content)
         for index, line in enumerate(lines):
             if line:
-                self._add_gap()
                 with context(self):
-                    self._lines.extend(
-                        _indent(lines[index:], self._indent,
-                                self._empty_line_indent))
+                    self._indent(lines[index:], self.gap)
+                    self.gap = True
                 break
 
     def _add_verbatim(self, prefix: str, block: str,
@@ -322,7 +354,6 @@ class Content(abc.ABC):
                   subsequent_indent: Optional[str] = None,
                   context: ContentAddContext = _add_context) -> None:
         """ Add a gap if needed, then add the wrapped text.  """
-        self._add_gap()
         with context(self):
             if subsequent_indent is None:
                 if initial_indent:
@@ -332,8 +363,7 @@ class Content(abc.ABC):
             wrapper = textwrap.TextWrapper()
             wrapper.break_long_words = False
             wrapper.break_on_hyphens = False
-            wrapper.width = self.text_width - len(self._indent)
-            gap: list[str] = []
+            wrapper.width = self.text_width - len(self._line_indent)
             blocks = collections.deque(text.split("\n\n"))
             while blocks:
                 block = blocks.popleft()
@@ -342,7 +372,7 @@ class Content(abc.ABC):
                     self.add_directive_begin(mobj.group(1), mobj.group(2))
                     self._add_verbatim(mobj.group(1),
                                        block[len(mobj.group(0)) + 1:], blocks)
-                    gap = [self._empty_line_indent]
+                    self.gap = True
                     continue
                 mobj = _SPECIAL_BLOCK.match(block)
                 if mobj:
@@ -352,17 +382,12 @@ class Content(abc.ABC):
                     wrapper.subsequent_indent = f"{subsequent_indent}{space}"
                     block = block[length:].replace(f"\n{space}", "\n")
                 else:
+                    wrapper.initial_indent = initial_indent
                     wrapper.subsequent_indent = subsequent_indent
-                    if gap:
-                        wrapper.initial_indent = subsequent_indent
-                    else:
-                        wrapper.initial_indent = initial_indent
                 block = self.convert(block)
-                self._lines.extend(gap)
-                self._lines.extend(
-                    _indent(wrapper.wrap(block), self._indent,
-                            self._empty_line_indent))
-                gap = [self._empty_line_indent]
+                self._indent(wrapper.wrap(block), self.gap)
+                self.gap = True
+                initial_indent = subsequent_indent
 
     def wrap(self,
              content: Optional[GenericContent],
@@ -380,83 +405,84 @@ class Content(abc.ABC):
         text = make_text(content).strip()
         if not text:
             return
-        indent_len = len(self._indent)
-        last_index = len(self._lines) - 1
-        if last_index >= 0:
-            last = self._lines[-1]
-            if last:
-                self._lines.pop()
-                more = last[indent_len:]
-                if more:
-                    text = f"{more} {text}"
+        last_line = self._last_line
+        if not last_line:
+            self.wrap_text(text)
+            return
+        self._is_initial_indents[-1] = self._last_is_initial_indent
+        if self._last_is_initial_indent:
+            self._indents = self._initial_indents[-1].copy()
+        else:
+            self._indents = self._subsequent_indents.copy()
+        self._line_indent = "".join(self._indents)
+        self._lines.pop()
         self.gap = False
-        self.wrap_text(text)
-        if last_index >= 0:
-            line = self._lines[last_index][indent_len:]
-            self._lines[last_index] = f"{last[:indent_len]}{line}"
-
-    def _add_gap(self) -> None:
-        if self.gap and self._lines and self._lines[-1]:
-            self._lines.extend(
-                _indent([""], self._indent, self._empty_line_indent))
-        self.gap = True
+        self.wrap_text(f"{last_line.rstrip()} {text}")
 
     def set_pop_indent_gap(self, pop_indent_gap: bool) -> None:
-        """ Set the gap indicator used after popping an indendation. """
+        """ Set the gap indicator used after popping an indentation. """
         self._pop_indent_gap = pop_indent_gap
 
-    def _update_indent(self) -> None:
-        self._indent = "".join(self._indents)
-        empty_line_indent = "".join(self._empty_line_indents)
-        if empty_line_indent.isspace():
-            self._empty_line_indent = ""
-        else:
-            self._empty_line_indent = empty_line_indent
-
     def push_indent(self,
-                    indent: Optional[str] = None,
+                    initial_indent: Optional[str] = None,
+                    subsequent_indent: Optional[str] = None,
                     empty_line_indent: Optional[str] = None) -> None:
-        """ Push the indent level. """
-        self._indents.append(indent if indent is not None else self._tab)
-        self._empty_line_indents.append(
-            empty_line_indent if empty_line_indent is not None else self._tab)
-        self._update_indent()
+        """ Push the indentation level. """
+        if initial_indent is None:
+            initial_indent = self._tab
+        if subsequent_indent is None:
+            subsequent_indent = initial_indent
+        if empty_line_indent is None:
+            empty_line_indent = self._tab
+        self._is_initial_indents.append(True)
+        self._indents.append(initial_indent)
+        self._initial_indents.append(self._indents.copy())
+        self._subsequent_indents.append(subsequent_indent)
+        self._empty_line_indents.append(empty_line_indent)
+        self._line_indent = "".join(self._indents)
+        self._empty_line_indent = _empty_line_indent(self._empty_line_indents)
+        self._last_line = None
         self.gap = False
 
     def pop_indent(self) -> None:
-        """ Pop the top indent level. """
+        """ Pop the indentation level. """
+        self._is_initial_indents.pop()
         self._indents.pop()
+        self._initial_indents.pop()
+        self._subsequent_indents.pop()
         self._empty_line_indents.pop()
-        self._update_indent()
+        self._line_indent = "".join(self._indents)
+        self._empty_line_indent = _empty_line_indent(self._empty_line_indents)
+        self._last_line = None
         self.gap = self._pop_indent_gap
 
     @contextmanager
     def indent(self,
-               indent: Optional[str] = None,
+               initial_indent: Optional[str] = None,
+               subsequent_indent: Optional[str] = None,
                empty_line_indent: Optional[str] = None,
                levels: int = 1) -> Iterator[None]:
-        """ Open an indent context. """
+        """ Open an indentation context. """
         for _ in range(levels):
-            self.push_indent(indent, empty_line_indent)
+            self.push_indent(initial_indent, subsequent_indent,
+                             empty_line_indent)
         yield
         for _ in range(levels):
             self.pop_indent()
 
     def indent_lines(self, level: int) -> None:
-        """ Indent all lines by the specified indent level. """
+        """ Indent all lines by the specified indentation level. """
         prefix = level * self._tab
         self._lines = [prefix + line if line else line for line in self._lines]
 
     def add_blank_line(self):
         """ Add a blank line. """
-        self._lines.append("")
-        self.gap = False
+        self._indent([""], False)
 
     def ensure_blank_line(self):
         """ Ensure that the last line is blank. """
-        if self._lines and self._lines[-1]:
-            self._lines.append("")
-            self.gap = False
+        if self._last_is_not_empty:
+            self.add_blank_line()
 
     def register_license(self, the_license: str) -> None:
         """ Register the licence for the content. """
@@ -487,7 +513,8 @@ class Content(abc.ABC):
         """ Open a comment block. """
         if self.gap:
             self.ensure_blank_line()
-        self.push_indent(f"{self._comment_prefix} ", self._comment_prefix)
+        prefix = f"{self._comment_prefix} "
+        self.push_indent(prefix, prefix, self._comment_prefix)
 
     def close_comment_block(self) -> None:
         """ Close the comment block. """
@@ -503,32 +530,31 @@ class Content(abc.ABC):
 
     def add_list_item(self, content: GenericContent) -> None:
         """ Add the list item. """
-        self.wrap(content, initial_indent="- ", subsequent_indent="  ")
+        self.ensure_blank_line()
+        with self.indent("- ", "  "):
+            self.wrap(content)
 
     def add_list(self,
                  items: GenericContentIterable,
                  prologue: Optional[GenericContent] = None,
                  epilogue: Optional[GenericContent] = None,
-                 add_blank_line: bool = False,
                  empty: Optional[GenericContent] = None) -> None:
-        # pylint: disable=too-many-arguments
-        # pylint: disable=too-many-positional-arguments
-        """ Add the list with introduction. """
+        """
+        Add the list with prologue and epilogue or the empty list statement.
+        """
         if items:
             self.wrap(prologue)
             for item in items:
                 self.add_list_item(item)
-            if add_blank_line:
-                self.add_blank_line()
             self.wrap(epilogue)
         else:
             self.wrap(empty)
 
     def open_list_item(self, content: GenericContent) -> None:
         """ Open a list item. """
-        self.add(["- "])
-        self.push_indent("  ", "")
-        self.paste(content)
+        self.ensure_blank_line()
+        self.push_indent("- ", "  ", "")
+        self.wrap(content)
 
     def close_list_item(self) -> None:
         """ Close the list item. """

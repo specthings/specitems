@@ -141,7 +141,7 @@ def _document_op_and_or(ctx: _AssertContext, negate: bool, assert_info: Any,
     if len(assert_info) == 1:
         _document_assert(ctx, negate, assert_info[0])
     else:
-        if negate or ctx.content.last.endswith("- "):
+        if negate or ctx.content.is_at_empty_list_item():
             ctx.paste(f"shall {_negate(negate)}meet")
         intro = ""
         for element in assert_info:
@@ -448,8 +448,7 @@ class _Documenter:
             self._content.paste(self._description)
         else:
             self._content.add_list(refines,
-                                   "This type refines the following types:",
-                                   add_blank_line=True)
+                                   "This type refines the following types:")
             self._content.wrap(self._description)
         if self._description:
             self._content.add_blank_line()

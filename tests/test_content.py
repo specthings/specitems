@@ -97,8 +97,8 @@ b
 """
     with content.indent():
         content.prepend(["c", "d"])
-        assert str(content) == """  c
-  d
+        assert str(content) == """c
+d
 a
 b
 
@@ -337,7 +337,7 @@ next
     ) == """ I - xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
  S   def
 
- I - abc
+ S - abc
 """
 
 
@@ -410,13 +410,63 @@ y
 """
 
 
-def test_indent():
+def test_indent_lines():
     content = Content("BSD-2-Clause")
     content.add_blank_line()
     content.append("x")
     content.indent_lines(3)
     assert str(content) == """
       x
+"""
+
+
+def test_indent():
+    content = Content("BSD-2-Clause")
+    with content.indent("A ", "a ", "a."):
+        with content.indent("B ", "b ", "b."):
+            with content.indent("C ", "c ", "c."):
+                with content.indent("D ", "d ", "d."):
+                    pass
+        with content.indent("B ", "b ", "b."):
+            with content.indent("C ", "c ", "c."):
+                with content.indent("D ", "d ", "d."):
+                    content.add("l")
+                    content.add("m")
+                    content.append("n")
+                content.append("o")
+            content.add("p")
+            with content.indent("E ", "e ", "e."):
+                content.add("q")
+            with content.indent("F ", "f ", "f."):
+                content.add("r")
+                content.paste("s")
+            with content.indent("G ", "g ", "g."):
+                for i in range(100):
+                    content.paste(str(i))
+            with content.indent("H ", "h ", "h."):
+                content.wrap([str(i) for i in range(100)])
+            with content.indent("J ", "j ", "j."):
+                content.wrap([str(i) for i in range(100)])
+    assert str(content) == """A B C D l
+a.b.c.d.
+a b c d m
+a b c d n
+a b c o
+a b p
+a b E q
+a b F r s
+a b G 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+a b g 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+a b g 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75
+a b g 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99
+a b H 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+a b h 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+a b h 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75
+a b h 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99
+a b J 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+a b j 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+a b j 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75
+a b j 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99
 """
 
 

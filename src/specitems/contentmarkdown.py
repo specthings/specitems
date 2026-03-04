@@ -120,9 +120,8 @@ class MarkdownContent(TextContent):
             self.append(lines[1:])
 
     def add_glossary_term(self, term: str, definition: str) -> None:
-        self.add(term)
+        self.add([term, ""])
         with self.indent("  "):
-            self.add_blank_line()
             self.append(
                 mdformat.text(definition, options=_MDFORMAT_TERM_OPTIONS))
 

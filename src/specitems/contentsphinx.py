@@ -228,10 +228,10 @@ class SphinxContent(TextContent):
                        name: str,
                        value: Optional[str] = None,
                        options: Optional[list[str]] = None) -> None:
-        value = " " + value if value else ""
         self.ensure_blank_line()
+        self.push_indent("", self._tab)
+        value = f" {value}" if value else ""
         self.append(f".. {name.strip()}::{value}")
-        self.push_indent()
         self.append(options)
         self.add_blank_line()
 
@@ -244,7 +244,7 @@ class SphinxContent(TextContent):
         @contextmanager
         def _definition_item_context(content: Content) -> Iterator[None]:
             assert isinstance(content, Content)
-            content.append(name)
+            content.add(name)
             content.push_indent()
             yield
             content.pop_indent()

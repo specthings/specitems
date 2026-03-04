@@ -328,7 +328,9 @@ def test_list_item():
 
   - ij kl
 
-    mn op qr st
+    mn op
+
+  qr st
 
 - uv
 
@@ -350,11 +352,10 @@ def test_add_list():
 d
 """
     content = SphinxContent()
-    content.add_list(["b", "c"], add_blank_line=True)
+    content.add_list(["b", "c"])
     assert str(content) == """- b
 
 - c
-
 """
 
 
