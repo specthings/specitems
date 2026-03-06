@@ -53,6 +53,7 @@ class _Subprocess:
     hide_output: bool = False
     hidden_args: list[str] = dataclasses.field(default_factory=list)
     indent: int = 0
+    font_size: int = -4
     shell: bool = True
     stderr: int | BinaryIO = subprocess.STDOUT
     stdin: int | BinaryIO = subprocess.DEVNULL
@@ -92,7 +93,7 @@ def _parse_subprocess_args(ctx: ItemGetValueContext, substitute: _Substitute,
             value_2 = _subprocess_escape(value, substitute)
             if isinstance(getattr(process, name), bool):
                 value_2 = bool(int(value_2))
-            elif name == "indent":
+            elif name in ("indent", "font_size"):
                 value_2 = int(value_2)
             elif name in "stdin":
                 value_2 = open(value_2, "rb")
@@ -148,5 +149,7 @@ def get_value_subprocess(substitute: _Substitute,
                 assert isinstance(stdout, str)
                 lines.extend(stdout.rstrip("\r\n").split("\n"))
             lines, data_ranges = augment_report(lines)
-            content.add_program_output(lines, data_ranges)
-        return "\n".join(content)
+            content.add_program_output(lines,
+                                       data_ranges,
+                                       font_size=process.font_size)
+        return content.join()

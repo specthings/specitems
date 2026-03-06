@@ -96,7 +96,7 @@ ${.:/subprocess:args=stdin stderr,stdin=%(.:/dir)/stderr}
 ${.:/subprocess:args=stdin stdout,stdin=%(.:/dir)/stdout}
 ${.:/subprocess:args=no-output,cwd=%(.:/dir),indent=1}
 ${.:/subprocess:args=a b c \\\\\\%\\(\\)\\0\\a\\b\\c\\f\\n\\r\\s\\t\\v,hidden_args=hidden,hide_args=1,encoding=latin-1}
-${.:/subprocess:args=./%(.:/dir) --help,cwd=%(.:/dir)}"""
+${.:/subprocess:args=./%(.:/dir) --help,cwd=%(.:/dir),font-size=0}"""
                              ) == f""".. raw:: latex
 
     \\begin{{tiny}}
@@ -211,7 +211,7 @@ ${.:/subprocess:args=./%(.:/dir) --help,cwd=%(.:/dir)}"""
     \\end{{tiny}}
 .. raw:: latex
 
-    \\begin{{tiny}}
+    \\begin{{normalsize}}
 
 .. code-block:: none
     :linenos:
@@ -222,4 +222,4 @@ ${.:/subprocess:args=./%(.:/dir) --help,cwd=%(.:/dir)}"""
 
 .. raw:: latex
 
-    \\end{{tiny}}"""
+    \\end{{normalsize}}"""

@@ -343,9 +343,10 @@ class SphinxContent(TextContent):
     def add_program_output(self,
                            output: list[str],
                            data_ranges: list[tuple[int, int]],
-                           output_label: str | None = None) -> None:
+                           output_label: str | None = None,
+                           font_size: str | int = "tiny") -> None:
         """ Add the program output. """
-        with self.latex_font_size():
+        with self.latex_font_size(font_size):
             end = len(output)
             data_ranges = data_ranges + [(end + 100, end + 100)]
             index = 0
