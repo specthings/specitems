@@ -54,7 +54,7 @@ class TextContent(Content):
         super().__init__(the_license)
         self._section_level = section_level
         self._label_stack = [""]
-        self._section_stack: list[str] = []
+        self._section_stack: list[tuple[str, int, int, str | None, bool]] = []
 
     def add_licence_and_copyrights(self) -> None:
         """
@@ -78,7 +78,7 @@ class TextContent(Content):
 
     def get_sections(self) -> list[str]:
         """ Get the list of sections of the current scope. """
-        return self._section_stack
+        return [section[0] for section in self._section_stack]
 
     @property
     def label(self) -> str:
@@ -174,6 +174,9 @@ class TextContent(Content):
                      label_tail: Optional[str] = None,
                      label: Optional[str] = None) -> str:
         """ Open the section. """
+        before_header = len(self._lines)
+        last_line = self._last_line
+        last_is_not_empty = self._last_is_not_empty
         if label is None:
             if label_tail is None:
                 label_tail = make_label(name)
@@ -181,13 +184,19 @@ class TextContent(Content):
         else:
             self.push_label(label)
         self.add_header(name, self.section_level, label)
-        self._section_stack.append(name)
+        self._section_stack.append((name, before_header, len(self._lines),
+                                    last_line, last_is_not_empty))
         return label
 
     def close_section(self) -> None:
         """ Close the section. """
         self.pop_label()
-        self._section_stack.pop()
+        (_, before_header, after_header, last_line,
+         last_is_not_empty) = self._section_stack.pop()
+        if len(self._lines) == after_header:
+            self._last_line = last_line
+            self._last_is_not_empty = last_is_not_empty
+            self._lines = self._lines[0:before_header]
 
     @contextlib.contextmanager
     def section(self,

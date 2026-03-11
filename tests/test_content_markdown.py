@@ -33,13 +33,13 @@ from specitems.items import ItemCache, SpecTypeProvider
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
 
-def test_mark_down_get_reference():
+def test_markdown_get_reference():
     content = MarkdownContent()
     assert content.get_reference("label") == "{ref}`label`"
     assert content.get_reference("label", "name") == "{ref}`name <label>`"
 
 
-def test_mark_down_special():
+def test_markdown_special():
     content = MarkdownContent()
     assert content.code("text") == "`text`"
     assert content.emphasize("text") == "_text_"
@@ -57,7 +57,7 @@ def test_mark_down_special():
                               "abcdefghijklmnopqrstuvwxyz{|}~")
 
 
-def test_mark_down_header():
+def test_markdown_header():
     content = MarkdownContent()
     content.add_header("header")
     content.add_header("header", level=6, label="label")
@@ -101,7 +101,72 @@ def test_mark_index_entries():
 """
 
 
-def test_mark_down_rubric():
+def test_markdown_section():
+    content = MarkdownContent()
+    assert content.get_sections() == []
+    with content.section("ab cd") as label:
+        assert content.get_sections() == ["ab cd"]
+        content.add(label)
+        with content.section("ef gh") as label2:
+            assert content.get_sections() == ["ab cd", "ef gh"]
+            content.add(label2)
+            with content.section("ij kl", "mn") as label2:
+                assert content.get_sections() == ["ab cd", "ef gh", "ij kl"]
+                content.add(label2)
+            assert content.get_sections() == ["ab cd", "ef gh"]
+        assert content.get_sections() == ["ab cd"]
+    assert content.get_sections() == []
+    assert str(content) == """(AbCd)=
+
+# ab cd
+
+AbCd
+
+(AbCdEfGh)=
+
+## ef gh
+
+AbCdEfGh
+
+(AbCdEfGhmn)=
+
+### ij kl
+
+AbCdEfGhmn
+"""
+
+
+def test_markdown_empty_sections():
+    content = MarkdownContent()
+    assert content.get_sections() == []
+    with content.section("x"):
+        with content.section("y"):
+            with content.section("z"):
+                with content.indent():
+                    pass
+    assert str(content) == ""
+    content.paste("a")
+    content.paste("b")
+    assert str(content) == "a b\n"
+    with content.section("x"):
+        with content.section("y"):
+            with content.section("z"):
+                with content.indent():
+                    pass
+    assert str(content) == "a b\n"
+    content.paste("c")
+    assert str(content) == "a b c\n"
+    with content.section("x"):
+        with content.section("y"):
+            with content.section("z"):
+                with content.indent():
+                    pass
+    assert str(content) == "a b c\n"
+    content.add("d")
+    assert str(content) == "a b c\n\nd\n"
+
+
+def test_markdown_rubric():
     content = MarkdownContent()
     content.add_rubric("name")
     assert str(content) == """```{eval-rst}
@@ -115,7 +180,7 @@ def test_mark_down_rubric():
 """
 
 
-def test_mark_down_directive():
+def test_markdown_directive():
     content = MarkdownContent()
     with content.directive("directive", options=["option"]):
         content.add("text")
@@ -141,7 +206,7 @@ line
 """
 
 
-def test_mark_down_definition_list():
+def test_markdown_definition_list():
     content = MarkdownContent()
     content.add_definition_item("item", [
         "def 0", "def 1",
@@ -161,7 +226,7 @@ def test_mark_down_definition_list():
 """
 
 
-def test_mark_down_glossary_term():
+def test_markdown_glossary_term():
     content = MarkdownContent()
     with content.directive("glossary"):
         content.add_glossary_term("term", "def 0\ndef 1")
@@ -179,7 +244,7 @@ term
 """
 
 
-def test_mark_down_beautify():
+def test_markdown_beautify():
     content = MarkdownContent()
     content.add("""* a
  * b

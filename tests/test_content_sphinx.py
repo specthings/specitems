@@ -72,11 +72,16 @@ def test_label_scope():
     with content.label_scope("x"):
         with content.section("y"):
             pass
+    assert str(content) == ""
+    with content.label_scope("x"):
+        with content.section("y"):
+            content.add("z")
     assert str(content) == """.. _xY:
 
 y
 #
 
+z
 """
 
 
@@ -84,14 +89,14 @@ def test_directive():
     content = SphinxContent()
     with content.directive("x"):
         content.add("y")
-        assert str(content) == """.. x::
+    assert str(content) == """.. x::
 
     y
 """
     content.gap = False
     with content.directive("z", "xy", [":a:", ":b:"]):
         content.add("c")
-        assert str(content) == """.. x::
+    assert str(content) == """.. x::
 
     y
 
@@ -173,6 +178,36 @@ ij kl
 
 AbCdEfGhmn
 """
+
+
+def test_empty_sections():
+    content = SphinxContent()
+    assert content.get_sections() == []
+    with content.section("x"):
+        with content.section("y"):
+            with content.section("z"):
+                with content.indent():
+                    pass
+    assert str(content) == ""
+    content.paste("a")
+    content.paste("b")
+    assert str(content) == "a b\n"
+    with content.section("x"):
+        with content.section("y"):
+            with content.section("z"):
+                with content.indent():
+                    pass
+    assert str(content) == "a b\n"
+    content.paste("c")
+    assert str(content) == "a b c\n"
+    with content.section("x"):
+        with content.section("y"):
+            with content.section("z"):
+                with content.indent():
+                    pass
+    assert str(content) == "a b c\n"
+    content.add("d")
+    assert str(content) == "a b c\n\nd\n"
 
 
 def test_wrap():
