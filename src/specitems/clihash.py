@@ -53,7 +53,7 @@ _FORMATTER = {"base64url": _identity, "hex": base64_to_hex}
 
 def clihash(argv: list[str] = sys.argv) -> None:
     """ Hash the list of files. """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=clihash.__doc__)
     parser.add_argument('--algorithm',
                         choices=["MD5", "SHA256", "SHA512"],
                         type=str.upper,

@@ -44,7 +44,7 @@ _DOC_FORMAT = {
 
 def clispecdoc(argv: list[str], type_provider: ItemTypeProvider) -> None:
     """ Document the specification item format using the type provider. """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=clispecdocitems.__doc__)
     parser.add_argument('--format',
                         choices=["markdown", "rest"],
                         type=str.lower,

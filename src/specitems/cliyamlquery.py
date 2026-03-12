@@ -35,7 +35,7 @@ from specitems import EmptyItemCache, Item, ItemMapper, load_data
 def cliyamlquery(argv: list[str] = sys.argv) -> None:
     """ Print the specified value of a YAML file. """
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=cliyamlquery.__doc__)
     parser.add_argument("path",
                         metavar="PATH",
                         nargs=1,

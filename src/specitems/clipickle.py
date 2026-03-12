@@ -46,7 +46,7 @@ def clipickle(argv: list[str] = sys.argv) -> None:
     data file.
     """
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=clipickle.__doc__)
     parser.add_argument("specdirs",
                         metavar="SPECIFICATION_DIRECTORIES",
                         nargs="+",
