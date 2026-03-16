@@ -268,23 +268,43 @@ class SphinxContent(TextContent):
     def add_glossary_term(self, term: str, definition: str) -> None:
         self.add_definition_item(term, definition)
 
+    def open_latex_environment(self, environment: str) -> None:
+        """ Open a LaTeX environment. """
+        with self.directive("raw", "latex"):
+            self.add(f"\\begin{{{environment}}}")
+
+    def close_latex_environment(self, environment: str) -> None:
+        """ Close a LaTeX environment. """
+        with self.directive("raw", "latex"):
+            self.add(f"\\end{{{environment}}}")
+
+    @contextmanager
+    def latex_environment(self,
+                          environment: str,
+                          use: bool = True) -> Iterator[None]:
+        """ Open a LaTeX environment context. """
+        if use:
+            self.open_latex_environment(environment)
+            yield
+            self.close_latex_environment(environment)
+        else:
+            yield
+
     def open_latex_font_size(self, size: str | int = "tiny") -> None:
         """ Open a LaTeX font size environment. """
-        with self.directive("raw", "latex"):
-            self.add(f"\\begin{{{_latex_font_size(size)}}}")
+        self.open_latex_environment(_latex_font_size(size))
 
     def close_latex_font_size(self, size: str | int = "tiny") -> None:
         """ Close a LaTeX font size environment. """
-        with self.directive("raw", "latex"):
-            self.add(f"\\end{{{_latex_font_size(size)}}}")
+        self.close_latex_environment(_latex_font_size(size))
 
     @contextmanager
-    def latex_font_size(self, size: str | int = "tiny") -> Iterator[None]:
+    def latex_font_size(self,
+                        size: str | int = "tiny",
+                        use: bool = True) -> Iterator[None]:
         """ Open a LaTeX font size environment context. """
-        size = _latex_font_size(size)
-        self.open_latex_font_size(size)
-        yield
-        self.close_latex_font_size(size)
+        with self.latex_environment(_latex_font_size(size), use):
+            yield
 
     def _add_table(self, lines: list[str], widths: Optional[list[int]],
                    font_size: Optional[str | int]) -> None:

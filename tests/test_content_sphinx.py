@@ -427,6 +427,27 @@ def test_add_image():
 """
 
 
+def test_latex_environment():
+    content = SphinxContent()
+    with content.latex_environment("env", use=False):
+        content.add("abc")
+    assert str(content) == "abc\n"
+    with content.latex_environment("env"):
+        content.add("def")
+    assert str(content) == """abc
+
+.. raw:: latex
+
+    \\begin{env}
+
+def
+
+.. raw:: latex
+
+    \\end{env}
+"""
+
+
 def test_latex_font_size():
     content = SphinxContent()
     with content.latex_font_size():
