@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """ Tests for the contentmarkdown module. """
 
-# Copyright (C) 2025 embedded brains GmbH & Co. KG
+# Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -325,3 +325,16 @@ def test_substitute(tmpdir):
     assert mapper.substitute("${z:/plural}") == "{term}`zs <z>`"
     mapper.add_get_value("other:/name", lambda ctx: ctx.value[ctx.key])
     assert mapper.substitute("${y:/name}") == "foobar"
+
+
+def test_add_code_block():
+    content = MarkdownContent()
+    content.add_code_block([])
+    assert str(content) == ""
+    content.add_code_block(["a"])
+    assert str(content) == """```{code} none
+:linenos:
+:lineno-start: 1
+a
+```
+"""

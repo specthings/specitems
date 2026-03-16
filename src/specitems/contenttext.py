@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """ Provides interfaces for text content generation. """
 
-# Copyright (C) 2025 embedded brains GmbH & Co. KG
+# Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -231,6 +231,12 @@ class TextContent(Content):
     @abc.abstractmethod
     def add_glossary_term(self, term: str, definition: str) -> None:
         """ Add the glossary term the content. """
+
+    def add_code_block(self,
+                       code: list[str],
+                       language: str = "none",
+                       font_size: str | int = "footnotesize") -> None:
+        """ Add the code block. """
 
 
 class TextMapper(ItemMapper):

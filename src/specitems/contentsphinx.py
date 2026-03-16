@@ -381,7 +381,6 @@ class SphinxContent(TextContent):
                        code: list[str],
                        language: str = "none",
                        font_size: str | int = "footnotesize") -> None:
-        """ Add the code block. """
         with self.latex_font_size(font_size):
             for index in range(0, len(code), 100):
                 options = [":linenos:", f":lineno-start: {index + 1}"]
