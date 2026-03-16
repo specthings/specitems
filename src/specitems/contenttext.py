@@ -235,7 +235,8 @@ class TextContent(Content):
     def add_code_block(self,
                        code: list[str],
                        language: str = "none",
-                       font_size: str | int = "footnotesize") -> None:
+                       font_size: str | int = "footnotesize",
+                       line_numbers: bool = True) -> None:
         """ Add the code block. """
 
 

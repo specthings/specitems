@@ -332,9 +332,17 @@ def test_add_code_block():
     content.add_code_block([])
     assert str(content) == ""
     content.add_code_block(["a"])
+    content.add_code_block(["b"],
+                           language="language",
+                           font_size=0,
+                           line_numbers=False)
     assert str(content) == """```{code} none
 :linenos:
 :lineno-start: 1
 a
+```
+
+```{code} language
+b
 ```
 """

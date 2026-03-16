@@ -133,9 +133,12 @@ class MarkdownContent(TextContent):
     def add_code_block(self,
                        code: list[str],
                        language: str = "none",
-                       font_size: str | int = "footnotesize") -> None:
+                       font_size: str | int = "footnotesize",
+                       line_numbers: bool = True) -> None:
         for index in range(0, len(code), 100):
-            options = [":linenos:", f":lineno-start: {index + 1}"]
+            options: list[str] = []
+            if line_numbers:
+                options.extend([":linenos:", f":lineno-start: {index + 1}"])
             with self.directive("code", value=language, options=options):
                 self.add(code[index:index + 100])
 
