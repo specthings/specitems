@@ -451,6 +451,8 @@ def
 def test_latex_font_size():
     content = SphinxContent()
     with content.latex_font_size():
+        pass
+    with content.latex_font_size():
         content.add("abc")
     assert str(content) == """.. raw:: latex
 
@@ -466,6 +468,8 @@ abc
 
 def test_latex_font_size_int():
     content = SphinxContent()
+    with content.latex_font_size(-1):
+        pass
     with content.latex_font_size(-1):
         content.add("abc")
     assert str(content) == """.. raw:: latex
@@ -689,14 +693,7 @@ def test_add_code_block():
 def test_add_program_output():
     content = SphinxContent()
     content.add_program_output([], [])
-    assert str(content) == """.. raw:: latex
-
-    \\begin{tiny}
-
-.. raw:: latex
-
-    \\end{tiny}
-"""
+    assert str(content) == ""
     content = SphinxContent()
     content.add_program_output(["€"], [], "label")
     assert str(content) == """.. raw:: latex

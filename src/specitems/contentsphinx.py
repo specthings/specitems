@@ -270,13 +270,17 @@ class SphinxContent(TextContent):
 
     def open_latex_environment(self, environment: str) -> None:
         """ Open a LaTeX environment. """
+        line_context = self.push_line_context()
         with self.directive("raw", "latex"):
             self.add(f"\\begin{{{environment}}}")
+        line_context.content_begin(self)
 
     def close_latex_environment(self, environment: str) -> None:
         """ Close a LaTeX environment. """
+        line_context = self.pop_line_context()
         with self.directive("raw", "latex"):
             self.add(f"\\end{{{environment}}}")
+        self.check_line_context(line_context)
 
     @contextmanager
     def latex_environment(self,

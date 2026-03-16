@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """ Provides interfaces for content generation. """
 
-# Copyright (C) 2019, 2025 embedded brains GmbH & Co. KG
+# Copyright (C) 2019, 2026 embedded brains GmbH & Co. KG
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -26,6 +26,7 @@
 
 import abc
 from contextlib import contextmanager
+import dataclasses
 import collections
 import itertools
 import os
@@ -188,6 +189,19 @@ _SPECIAL_BLOCK = re.compile(r"( *[-*] | *[0-9]+\. | +)")
 _DIRECTIVE_BEGIN = re.compile(r"(```+)(.*)")
 
 
+@dataclasses.dataclass
+class _LineContext:
+    begin_index: int
+    content_begin_index: int
+    content_end_index: int
+    last_line: str | None
+    last_is_not_empty: bool
+
+    def content_begin(self, content: "Content") -> None:
+        """ Set the content begin context. """
+        self.content_begin_index = len(content)
+
+
 class Content(abc.ABC):
     """
     Builds content.
@@ -225,12 +239,16 @@ class Content(abc.ABC):
         self._last_is_not_empty = False
         self._pop_indent_gap = False
         self._comment_prefix = "#"
+        self._line_contexts: list[_LineContext] = []
 
     def __iter__(self):
         yield from self._lines
 
     def __bool__(self):
         return bool(self._lines)
+
+    def __len__(self):
+        return len(self._lines)
 
     def __str__(self):
         return "\n".join(itertools.chain(self._lines, [""]))
@@ -474,6 +492,34 @@ class Content(abc.ABC):
         """ Indent all lines by the specified indentation level. """
         prefix = level * self._tab
         self._lines = [prefix + line if line else line for line in self._lines]
+
+    def push_line_context(self) -> _LineContext:
+        """
+        Initialize a line context, push it to the line context stack, and
+        return it.
+        """
+        line_context = _LineContext(len(self._lines), 0, -1, self._last_line,
+                                    self._last_is_not_empty)
+        self._line_contexts.append(line_context)
+        return line_context
+
+    def pop_line_context(self) -> _LineContext:
+        """
+        Pop the last element from the line context stack and set the content
+        end of the line context.
+        """
+        line_context = self._line_contexts.pop()
+        line_context.content_end_index = len(self._lines)
+        return line_context
+
+    def check_line_context(self, line_context: _LineContext) -> None:
+        """
+        Check the line context and restore the line state if necessary.
+        """
+        if line_context.content_begin_index == line_context.content_end_index:
+            self._last_line = line_context.last_line
+            self._last_is_not_empty = line_context.last_is_not_empty
+            self._lines = self._lines[0:line_context.begin_index]
 
     def add_blank_line(self):
         """ Add a blank line. """
