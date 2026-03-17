@@ -376,13 +376,15 @@ class SphinxContent(TextContent):
                        code: list[str],
                        language: str = "none",
                        font_size: str | int = "footnotesize",
-                       line_numbers: bool = True) -> None:
+                       line_number_start: int = 1) -> None:
         with self.latex_font_size(font_size):
             for index in range(0, len(code), 100):
                 options: list[str] = []
-                if line_numbers:
-                    options.extend(
-                        [":linenos:", f":lineno-start: {index + 1}"])
+                if line_number_start > 0:
+                    options.extend([
+                        ":linenos:",
+                        f":lineno-start: {index + line_number_start}"
+                    ])
                 with self.directive("code-block",
                                     value=language,
                                     options=options):

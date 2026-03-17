@@ -236,7 +236,7 @@ class TextContent(Content):
                        code: list[str],
                        language: str = "none",
                        font_size: str | int = "footnotesize",
-                       line_numbers: bool = True) -> None:
+                       line_number_start: int = 1) -> None:
         """ Add the code block. """
 
 

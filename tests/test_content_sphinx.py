@@ -684,11 +684,11 @@ def test_add_code_block():
     content.add_code_block([])
     assert str(content) == ""
     content.add_code_block([""])
-    content.add_code_block([" a"])
+    content.add_code_block([" a"], line_number_start=99)
     content.add_code_block(["c"],
                            language="language",
                            font_size=0,
-                           line_numbers=False)
+                           line_number_start=-1)
     assert str(content) == """.. raw:: latex
 
     \\begin{footnotesize}
@@ -709,7 +709,7 @@ def test_add_code_block():
 
 .. code-block:: none
     :linenos:
-    :lineno-start: 1
+    :lineno-start: 99
 
     ​ a
 
