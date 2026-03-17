@@ -8,7 +8,7 @@ links:
 - role: glossary-member
   uid: ../g
 text: |
-  Term text $$${/glossary/u:/term} ${/glossary/t:/term}
+  Term _text_ $$${/glossary/u:/term} ${/glossary/t:/term}
   ${/glossary/u:/glossary-type}.
 
   ${.:/foobar}

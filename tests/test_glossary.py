@@ -87,7 +87,7 @@ Project Glossary
         Term text X.
 
     T
-        Term text $:term:`U` :term:`T` term.
+        Term *text* $:term:`U` :term:`T` term.
 
         foobar
 
@@ -112,7 +112,7 @@ Glossary
 .. glossary::
 
     T
-        Term text $:term:`U` :term:`T` term.
+        Term *text* $:term:`U` :term:`T` term.
 
         foobar
 
@@ -137,7 +137,7 @@ Not so General - x
 
 T
 
-  Term text ${term}`U` {term}`T` term.
+  Term _text_ ${term}`U` {term}`T` term.
 
   foobar
 
@@ -164,7 +164,7 @@ V
 ```{glossary}
 T
 
-  Term text ${term}`U` {term}`T` term.
+  Term _text_ ${term}`U` {term}`T` term.
 
   foobar
 
