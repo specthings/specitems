@@ -140,7 +140,7 @@ class MarkdownContent(TextContent):
             if line_numbers:
                 options.extend([":linenos:", f":lineno-start: {index + 1}"])
             with self.directive("code", value=language, options=options):
-                self.add(code[index:index + 100])
+                self.append(code[index:index + 100])
 
 
 class MarkdownMapper(TextMapper):

@@ -104,11 +104,6 @@ def _grid_row(row: Iterable[str | int], maxi: Iterable[int]) -> str:
     return f"|{line[2:]} |"
 
 
-def _format_line(line: str) -> str:
-    line = line.rstrip("\r\n").replace("\t", "        ")
-    return f"\u200b{line}"
-
-
 _BINARY_DATA = re.compile(r"[^\x09\x20-\x7e]")
 
 
@@ -391,9 +386,16 @@ class SphinxContent(TextContent):
                 with self.directive("code-block",
                                     value=language,
                                     options=options):
-                    self.add([
-                        _format_line(line) for line in code[index:index + 100]
-                    ])
+                    line = code[index]
+                    try:
+                        first_char = line[0]
+                    except IndexError:
+                        line = "\u200b"
+                    else:
+                        if first_char.isspace():
+                            line = f"\u200b{line}"
+                    self.append(line)
+                    self.append(code[index + 1:index + 100])
 
     def add_program_output(self,
                            output: list[str],

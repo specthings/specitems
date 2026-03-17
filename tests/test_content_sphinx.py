@@ -683,8 +683,9 @@ def test_add_code_block():
     content = SphinxContent()
     content.add_code_block([])
     assert str(content) == ""
-    content.add_code_block(["a"])
-    content.add_code_block(["b"],
+    content.add_code_block([""])
+    content.add_code_block([" a"])
+    content.add_code_block(["c"],
                            language="language",
                            font_size=0,
                            line_numbers=False)
@@ -696,7 +697,21 @@ def test_add_code_block():
     :linenos:
     :lineno-start: 1
 
-    ​a
+    ​
+
+.. raw:: latex
+
+    \\end{footnotesize}
+
+.. raw:: latex
+
+    \\begin{footnotesize}
+
+.. code-block:: none
+    :linenos:
+    :lineno-start: 1
+
+    ​ a
 
 .. raw:: latex
 
@@ -708,7 +723,7 @@ def test_add_code_block():
 
 .. code-block:: language
 
-    ​b
+    c
 
 .. raw:: latex
 
