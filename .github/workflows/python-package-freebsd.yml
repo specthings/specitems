@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Make
       uses: vmactions/freebsd-vm@v1
       with:
