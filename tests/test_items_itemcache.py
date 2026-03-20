@@ -227,6 +227,40 @@ v: x""")
         item_cache_4["/d/c"]
 
 
+def test_item_type_provider():
+    item_cache = EmptyItemCache(SpecTypeProvider(get_other_type_data_by_uid()))
+    match = r"item /no-type has no type attribute 'type' for partial type ''"
+    with pytest.raises(ValueError, match=match):
+        item_cache.add_item("/no-type", {"enabled-by": True, "links": []})
+    match = r"item /invalid-type has invalid type refinement 'invalid' for partial type 'invalid'"
+    with pytest.raises(ValueError, match=match):
+        item_cache.add_item("/invalid-type", {
+            "enabled-by": True,
+            "links": [],
+            "type": "invalid"
+        })
+    no_type = item_cache.add_item("/no-type", {
+        "enabled-by": True,
+        "links": []
+    }, False, False)
+    assert no_type.type == ""
+
+    item_cache.type_provider.permissive_type_errors = True
+
+    no_type_2 = item_cache.add_item("/no-type-2", {
+        "enabled-by": True,
+        "links": []
+    })
+    assert no_type.type == ""
+
+    invalid_type = item_cache.add_item("/invalid-type", {
+        "enabled-by": True,
+        "links": [],
+        "type": "invalid"
+    })
+    assert invalid_type.type == "invalid"
+
+
 def _parents(item):
     return list((link.item.uid, link.role) for link in item.links_to_parents())
 

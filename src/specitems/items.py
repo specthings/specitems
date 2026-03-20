@@ -901,12 +901,15 @@ class ItemType:
 class ItemTypeProvider():
     """ Provides a type system for specification items. """
 
-    def __init__(self, data_by_uid: ItemDataByUID,
-                 spec_type_root_uid: Optional[str]) -> None:
+    def __init__(self,
+                 data_by_uid: ItemDataByUID,
+                 spec_type_root_uid: Optional[str],
+                 permissive_type_errors: bool = False) -> None:
         self.types: set[str] = set()
         self.items_by_type: dict[str, list[Item]] = {}
         self.root_type_uid = spec_type_root_uid
         self.data_by_uid: ItemDataByUID = {}
+        self.permissive_type_errors = permissive_type_errors
         self._type_refinements: dict[str, ItemType] = {}
         if spec_type_root_uid is None:
             self.root_type = ItemType(None, {})
@@ -925,6 +928,8 @@ class ItemTypeProvider():
             try:
                 type_name = value[spec_type.key]
             except KeyError as err:
+                if self.permissive_type_errors:
+                    break
                 raise ValueError(
                     f"item {item.uid} has no type attribute "
                     f"'{spec_type.key}' for partial type '{'/'.join(path)}'"
@@ -933,6 +938,8 @@ class ItemTypeProvider():
             try:
                 spec_type = spec_type.refinements[type_name]
             except KeyError as err:
+                if self.permissive_type_errors:
+                    break
                 raise ValueError(
                     f"item {item.uid} has invalid type refinement "
                     f"'{type_name}' for partial type '{'/'.join(path)}'"
@@ -985,6 +992,7 @@ class ItemCacheConfig:
     spec_type_root_uid: str | None = None
     initialize_links: bool = True
     resolve_proxies: bool = True
+    permissive_type_errors: bool = False
     cache_directory: str = "cache"
 
 

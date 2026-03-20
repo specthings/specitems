@@ -136,20 +136,6 @@ def test_item_mapper(tmpdir):
     match = r"cannot get value for 'blub/bam' of spec:/p specified by '.:bam'"
     with pytest.raises(ValueError, match=match):
         mapper.map(".:bam", item, "blub")
-    match = r"item /no-type has no type attribute 'type' for partial type ''"
-    with pytest.raises(ValueError, match=match):
-        item_cache.add_item("/no-type", {"enabled-by": True, "links": []})
-    match = r"item /invalid-type has invalid type refinement 'invalid' for partial type 'invalid'"
-    with pytest.raises(ValueError, match=match):
-        item_cache.add_item("/invalid-type", {
-            "enabled-by": True,
-            "links": [],
-            "type": "invalid"
-        })
-    item_cache.add_item("/no-type", {
-        "enabled-by": True,
-        "links": []
-    }, False, False)
 
     # Remove proxy member
     item_cache.remove_item("/s")
