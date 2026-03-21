@@ -54,6 +54,8 @@ def test_subprocessaction(tmpdir, monkeypatch):
 
     def _subprocess_run(cmd, env, check, cwd, stdout=None):
         commands.append(cmd[0])
+        if cmd[0] == "file-not-found":
+            raise FileNotFoundError("message")
         assert not check
         assert cmd[0] != "env" or env == {
             "FOO": "bar",
@@ -68,4 +70,4 @@ def test_subprocessaction(tmpdir, monkeypatch):
     uid = "/actions"
     for action in item_cache[uid]["actions"]:
         run_subprocess_action(uid, action)
-    assert commands == ["env", "stdout"]
+    assert commands == ["env", "stdout", "file-not-found", "file-not-found"]

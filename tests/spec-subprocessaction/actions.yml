@@ -35,6 +35,17 @@ actions:
   expected-return-code: 0
   stdout: stdout
   working-directory: w
+- command:
+  - file-not-found
+  env: []
+  expected-return-code: 1
+  working-directory: w
+- command:
+  - file-not-found
+  env: []
+  expected-return-code: null
+  stdout: stdout
+  working-directory: w
 copyrights:
 - Copyright (C) 2025 embedded brains GmbH & Co. KG
 enabled-by: true

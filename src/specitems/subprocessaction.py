@@ -28,6 +28,7 @@ import copy
 import logging
 import os
 import subprocess
+from typing import BinaryIO, Optional
 
 
 def _env_clear(uid: str, env: dict, _action: dict[str, str]) -> None:
@@ -88,6 +89,20 @@ def make_subprocess_environment(uid: str,
     return env
 
 
+def _subprocess_run(uid: str, cmd: list[str], env: Optional[dict], cwd: str,
+                    stdout: Optional[BinaryIO]) -> int:
+    try:
+        status = subprocess.run(cmd,
+                                env=env,
+                                cwd=cwd,
+                                stdout=stdout,
+                                check=False)
+    except FileNotFoundError as err:
+        logging.info("%s: subprocess run error: %s", uid, err)
+        return 1
+    return status.returncode
+
+
 def run_subprocess_action(uid: str, action: dict) -> None:
     """ Run the command specified by the action as a subprocess. """
     env = make_subprocess_environment(uid, action["env"])
@@ -97,14 +112,10 @@ def run_subprocess_action(uid: str, action: dict) -> None:
                  " ".join(f"'{i}'" for i in cmd))
     stdout = action.get("stdout", None)
     if stdout is None:
-        status = subprocess.run(cmd, env=env, check=False, cwd=cwd)
+        return_code = _subprocess_run(uid, cmd, env, cwd, None)
     else:
         with open(stdout, "wb") as stdout_file:
-            status = subprocess.run(cmd,
-                                    env=env,
-                                    check=False,
-                                    cwd=cwd,
-                                    stdout=stdout_file)
+            return_code = _subprocess_run(uid, cmd, env, cwd, stdout_file)
     expected_return_code = action["expected-return-code"]
     if expected_return_code is not None:
-        assert status.returncode == expected_return_code
+        assert return_code == expected_return_code
