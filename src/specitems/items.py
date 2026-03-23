@@ -1017,7 +1017,7 @@ class ItemCache(dict):
         if type_provider is None:
             data_by_uid: ItemDataByUID = {}
         else:
-            data_by_uid = type_provider.data_by_uid
+            data_by_uid = type_provider.data_by_uid.copy()
         paths = config.paths
         if isinstance(paths, list):
             for path in paths:
