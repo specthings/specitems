@@ -25,9 +25,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import argparse
+import itertools
 import logging
 import os
-from typing import Any, Type, TypeVar
+from typing import Any, Callable, Iterable, Optional, Type, TypeVar
 
 import yaml
 
@@ -46,10 +47,28 @@ def create_config(config: dict, constructor: Type[_Config]) -> _Config:
     return obj
 
 
-def create_argument_parser(
-        default_log_level: str = "INFO") -> argparse.ArgumentParser:
-    """ Create an argument parser with default logging options. """
-    parser = argparse.ArgumentParser()
+def _to_iterable(iterable: Optional[Iterable]) -> Iterable:
+    if iterable is None:
+        return tuple()
+    return iterable
+
+
+def get_arguments(
+    argv: list[str],
+    default_log_level: str = "INFO",
+    description: Optional[str] = None,
+    add_arguments: Optional[Iterable[Callable[[argparse.ArgumentParser],
+                                              None]]] = None,
+    post_process_arguments: Optional[Iterable[Callable[[argparse.Namespace],
+                                                       None]]] = None
+) -> argparse.Namespace:
+    """
+    Create an argument parser with default logging options, optionally add
+    arguments to the parser, parse the argument vector, initialize logging,
+    optionally post process the parsed arguments, and return the parsed
+    arguments.
+    """
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         '--log-level',
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
@@ -63,7 +82,55 @@ def create_argument_parser(
     parser.add_argument('--log-file-and-stderr',
                         action="store_true",
                         help="log to file and stderr")
-    return parser
+    for add in _to_iterable(add_arguments):
+        add(parser)
+    args = parser.parse_args(argv)
+    init_logging(args)
+    for post_process in _to_iterable(post_process_arguments):
+        post_process(args)
+    return args
+
+
+def _add_item_cache_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--spec-directories",
+                        metavar="SPEC_DIRECTORY",
+                        type=str,
+                        action="extend",
+                        default=None,
+                        nargs="+",
+                        help="a specification directory (default: spec)")
+    parser.add_argument(
+        "--cache-directory",
+        help="the specification cache directory (default: spec-cache)",
+        default="spec-cache")
+
+
+def _post_process_item_cache_arguments(args: argparse.Namespace) -> None:
+    if args.spec_directories is None:
+        args.spec_directories = ["spec"]
+
+
+def get_item_cache_arguments(
+    argv: list[str],
+    default_log_level: str = "INFO",
+    description: Optional[str] = None,
+    add_arguments: Optional[Iterable[Callable[[argparse.ArgumentParser],
+                                              None]]] = None,
+    post_process_arguments: Optional[Iterable[Callable[[argparse.Namespace],
+                                                       None]]] = None
+) -> argparse.Namespace:
+    """
+    Create an argument parser with default logging and item cache options,
+    optionally add arguments to the parser, parse the argument vector,
+    initialize logging, optionally post process the parsed arguments, and
+    return the parsed arguments.
+    """
+    return get_arguments(
+        argv, default_log_level, description,
+        itertools.chain((_add_item_cache_arguments, ),
+                        _to_iterable(add_arguments)),
+        itertools.chain((_post_process_item_cache_arguments, ),
+                        _to_iterable(post_process_arguments)))
 
 
 def init_logging(args: argparse.Namespace) -> None:

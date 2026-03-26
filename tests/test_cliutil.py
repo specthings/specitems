@@ -30,8 +30,9 @@ import logging
 
 import pytest
 
-from specitems.cliutil import (create_argument_parser, create_config,
-                               init_logging, load_config)
+from specitems.cliutil import (create_config, get_arguments,
+                               get_item_cache_arguments, init_logging,
+                               load_config)
 
 
 @dataclasses.dataclass
@@ -58,18 +59,8 @@ def test_load_config():
     assert config["c"] == "d"
 
 
-def test_create_argument_parser_default():
-    parser = create_argument_parser()
-    args = parser.parse_args([])
-    assert args.log_level == "INFO"
-    assert args.log_file is None
-    assert not args.log_file_and_stderr
-
-
 def test_init_logging_default(capfd):
-    parser = create_argument_parser()
-    args = parser.parse_args([])
-    init_logging(args)
+    args = get_arguments([])
     logging.debug("debug")
     logging.info("info")
     logging.shutdown()
@@ -80,11 +71,9 @@ def test_init_logging_default(capfd):
 
 
 def test_init_logging_file(tmpdir, capfd):
-    parser = create_argument_parser()
     log_file = os.path.join(tmpdir, "log.txt")
-    args = parser.parse_args([f"--log-file={log_file}"])
+    args = get_arguments([f"--log-file={log_file}"])
     assert args.log_file == log_file
-    init_logging(args)
     logging.debug("debug")
     logging.info("info")
     logging.shutdown()
@@ -98,12 +87,9 @@ def test_init_logging_file(tmpdir, capfd):
 
 
 def test_init_logging_file_and_stderr(tmpdir, capfd):
-    parser = create_argument_parser()
     log_file = os.path.join(tmpdir, "log.txt")
-    args = parser.parse_args(
-        [f"--log-file={log_file}", "--log-file-and-stderr"])
+    args = get_arguments([f"--log-file={log_file}", "--log-file-and-stderr"])
     assert args.log_file == log_file
-    init_logging(args)
     logging.debug("debug")
     logging.info("info")
     logging.shutdown()
@@ -115,3 +101,22 @@ def test_init_logging_file_and_stderr(tmpdir, capfd):
         data = src.read()
         assert b"debug" not in data
         assert b"info" in data
+
+
+def test_get_item_cache_arguments_default():
+    args = get_item_cache_arguments([])
+    assert args.spec_directories == ["spec"]
+    assert args.cache_directory == "spec-cache"
+
+
+def test_get_item_cache_arguments_explicit():
+
+    def _add(parser):
+        parser.add_argument("args", nargs="+")
+
+    args = get_item_cache_arguments(
+        ["--spec-directories", "a", "b", "--spec-directories", "c", "--", "d"],
+        add_arguments=(_add, ))
+    assert args.spec_directories == ["a", "b", "c"]
+    assert args.cache_directory == "spec-cache"
+    assert args.args == ["d"]

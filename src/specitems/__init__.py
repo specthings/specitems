@@ -26,8 +26,9 @@
 
 from .cite import BibTeXCitationProvider
 from .cliutil import (
-    create_argument_parser,
     create_config,
+    get_arguments,
+    get_item_cache_arguments,
     init_logging,
     load_config,
 )
@@ -182,13 +183,14 @@ __all__ = [
     "augment_glossary_terms",
     "base64_to_hex",
     "base64_to_hex_text",
-    "create_argument_parser",
     "create_config",
     "create_unique_link",
     "data_digest",
     "escape_code_line",
     "generate_glossary",
     "generate_specification_documentation",
+    "get_arguments",
+    "get_item_cache_arguments",
     "get_reference",
     "get_value_default",
     "get_value_plural",
