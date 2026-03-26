@@ -47,20 +47,14 @@ def create_config(config: dict, constructor: Type[_Config]) -> _Config:
     return obj
 
 
-def _to_iterable(iterable: Optional[Iterable]) -> Iterable:
-    if iterable is None:
-        return tuple()
-    return iterable
-
-
 def get_arguments(
     argv: list[str],
     default_log_level: str = "INFO",
     description: Optional[str] = None,
-    add_arguments: Optional[Iterable[Callable[[argparse.ArgumentParser],
-                                              None]]] = None,
-    post_process_arguments: Optional[Iterable[Callable[[argparse.Namespace],
-                                                       None]]] = None
+    add_arguments: Iterable[Callable[[argparse.ArgumentParser],
+                                     None]] = tuple(),
+    post_process_arguments: Iterable[Callable[[argparse.Namespace],
+                                              None]] = tuple()
 ) -> argparse.Namespace:
     """
     Create an argument parser with default logging options, optionally add
@@ -82,11 +76,11 @@ def get_arguments(
     parser.add_argument('--log-file-and-stderr',
                         action="store_true",
                         help="log to file and stderr")
-    for add in _to_iterable(add_arguments):
+    for add in add_arguments:
         add(parser)
     args = parser.parse_args(argv)
     init_logging(args)
-    for post_process in _to_iterable(post_process_arguments):
+    for post_process in post_process_arguments:
         post_process(args)
     return args
 
@@ -114,10 +108,10 @@ def get_item_cache_arguments(
     argv: list[str],
     default_log_level: str = "INFO",
     description: Optional[str] = None,
-    add_arguments: Optional[Iterable[Callable[[argparse.ArgumentParser],
-                                              None]]] = None,
-    post_process_arguments: Optional[Iterable[Callable[[argparse.Namespace],
-                                                       None]]] = None
+    add_arguments: Iterable[Callable[[argparse.ArgumentParser],
+                                     None]] = tuple(),
+    post_process_arguments: Iterable[Callable[[argparse.Namespace],
+                                              None]] = tuple()
 ) -> argparse.Namespace:
     """
     Create an argument parser with default logging and item cache options,
@@ -127,10 +121,9 @@ def get_item_cache_arguments(
     """
     return get_arguments(
         argv, default_log_level, description,
-        itertools.chain((_add_item_cache_arguments, ),
-                        _to_iterable(add_arguments)),
+        itertools.chain((_add_item_cache_arguments, ), add_arguments),
         itertools.chain((_post_process_item_cache_arguments, ),
-                        _to_iterable(post_process_arguments)))
+                        post_process_arguments))
 
 
 def init_logging(args: argparse.Namespace) -> None:
