@@ -400,7 +400,7 @@ class Item:
         uid = self.uid.replace("/", "/\u200b")
         return f"spec:{uid}"
 
-    def get(self, key: str, default: Any) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         """
         Get the attribute value if the attribute exists, otherwise the
         specified default value is returned.
