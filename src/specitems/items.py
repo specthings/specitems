@@ -929,7 +929,10 @@ class ItemTypeProvider():
                 type_name = value[spec_type.key]
             except KeyError as err:
                 if self.permissive_type_errors:
-                    break
+                    # Do not add invalid types to the item type associations
+                    # since they do not match with the type provider.
+                    item.type = "/".join(path)
+                    return
                 raise ValueError(
                     f"item {item.uid} has no type attribute "
                     f"'{spec_type.key}' for partial type '{'/'.join(path)}'"
@@ -939,7 +942,8 @@ class ItemTypeProvider():
                 spec_type = spec_type.refinements[type_name]
             except KeyError as err:
                 if self.permissive_type_errors:
-                    break
+                    item.type = "/".join(path)
+                    return
                 raise ValueError(
                     f"item {item.uid} has invalid type refinement "
                     f"'{type_name}' for partial type '{'/'.join(path)}'"
@@ -1198,7 +1202,10 @@ class ItemCache(dict):
         """
         item = self[uid]
         item.clear_links()
-        self.type_provider.items_by_type[item.type].remove(item)
+        try:
+            self.type_provider.items_by_type[item.type].remove(item)
+        except (KeyError, ValueError):
+            pass
         del self[uid]
 
     def initialize_links(self, uids: Iterable[str]) -> None:
