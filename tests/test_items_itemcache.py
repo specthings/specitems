@@ -251,7 +251,8 @@ def test_item_type_provider():
         "enabled-by": True,
         "links": []
     })
-    assert no_type.type == ""
+    assert no_type_2.type == ""
+    assert "" not in item_cache.items_by_type.keys()
 
     invalid_type = item_cache.add_item("/invalid-type", {
         "enabled-by": True,
@@ -259,6 +260,15 @@ def test_item_type_provider():
         "type": "invalid"
     })
     assert invalid_type.type == "invalid"
+    assert "invalid" not in item_cache.items_by_type.keys()
+
+    assert "/no-type-2" in item_cache
+    item_cache.remove_item("/no-type-2")
+    assert "/no-type-2" not in item_cache
+
+    assert "/invalid-type" in item_cache
+    item_cache.remove_item("/invalid-type")
+    assert "/invalid-type" not in item_cache
 
 
 def _parents(item):
