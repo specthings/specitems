@@ -124,7 +124,8 @@ from .itemmapper import (
     get_value_default,
     unpack_arg,
 )
-from .specdoc import SpecDocumentConfig, generate_specification_documentation
+from .specdoc import (SpecDocumentConfig, add_specification_documentation,
+                      generate_specification_documentation)
 from .specverify import (
     SpecVerifier,
     VerifyStatus,
@@ -180,6 +181,7 @@ __all__ = [
     "TextContent",
     "TextMapper",
     "VerifyStatus",
+    "add_specification_documentation",
     "augment_glossary_terms",
     "base64_to_hex",
     "base64_to_hex_text",
