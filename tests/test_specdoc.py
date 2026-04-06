@@ -221,6 +221,12 @@ The explicit attributes for this type are:
 a
     The attribute value shall be an :ref:`SpecTypeA`.
 
+c
+    The attribute value shall be a :ref:`SpecTypeC`.
+
+d
+    The attribute value shall be a :ref:`SpecTypeD`.
+
 This type is used by the following types:
 
 - :ref:`SpecTypeA`
@@ -297,6 +303,10 @@ are:
 c
     The attribute value shall be a floating-point number.
 
+This type is used by the following types:
+
+- :ref:`SpecTypeA`
+
 .. _SpecTypeD:
 
 D
@@ -320,6 +330,10 @@ This type is refined by the following types:
 
 - :ref:`SpecTypeB`
 
+This type is used by the following types:
+
+- :ref:`SpecTypeA`
+
 .. _SpecTypeName:
 
 Name
@@ -338,13 +352,6 @@ This type is used by the following types:
 - :ref:`SpecTypeGlossaryItemType`
 
 - :ref:`SpecTypeRoot`
-
-.. _SpecTypeUID:
-
-UID
-===
-
-The value shall be a string. It shall be a valid absolute or relative item UID.
 """
         assert content == src.read()
 
@@ -508,6 +515,12 @@ The explicit attributes for this type are:
 a
 : The attribute value shall be an {ref}`SpecTypeA`.
 
+c
+: The attribute value shall be a {ref}`SpecTypeC`.
+
+d
+: The attribute value shall be a {ref}`SpecTypeD`.
+
 This type is used by the following types:
 
 - {ref}`SpecTypeA`
@@ -578,6 +591,10 @@ Only the `c` attribute is mandatory. The explicit attributes for this type are:
 c
 : The attribute value shall be a floating-point number.
 
+This type is used by the following types:
+
+- {ref}`SpecTypeA`
+
 (SpecTypeD)=
 
 ### D
@@ -600,6 +617,10 @@ This type is refined by the following types:
 
 - {ref}`SpecTypeB`
 
+This type is used by the following types:
+
+- {ref}`SpecTypeA`
+
 (SpecTypeName)=
 
 ### Name
@@ -617,11 +638,5 @@ This type is used by the following types:
 - {ref}`SpecTypeGlossaryItemType`
 
 - {ref}`SpecTypeRoot`
-
-(SpecTypeUID)=
-
-### UID
-
-The value shall be a string. It shall be a valid absolute or relative item UID.
 """
         assert content == src.read()
