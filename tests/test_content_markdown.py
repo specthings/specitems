@@ -76,6 +76,25 @@ def test_markdown_header():
 """
 
 
+def test_markdown_add_image():
+    content = MarkdownContent()
+    content.add_image("abc")
+    assert str(content) == """```{image} abc
+:align: center
+```
+"""
+    content.add_image("def", "50%")
+    assert str(content) == """```{image} abc
+:align: center
+```
+
+```{image} def
+:align: center
+:width: 50%
+```
+"""
+
+
 def test_markdown_latex_environment():
     content = MarkdownContent()
     with content.latex_environment("env", use=False):
