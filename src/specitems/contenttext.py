@@ -26,11 +26,14 @@
 
 import abc
 import contextlib
-from typing import Iterator, Optional
+from typing import Iterable, Iterator, Optional, Sequence
 
 from .content import Content, GenericContent, get_value_plural, to_camel_case
 from .items import Item
 from .itemmapper import ItemGetValueContext, ItemMapper
+
+COL_SPAN = 1
+ROW_SPAN = 2
 
 _LATEX_SIZES = {
     -4: "tiny",
@@ -287,6 +290,27 @@ class TextContent(Content):
         """ Open a LaTeX font size environment context. """
         with self.latex_environment(_latex_font_size(size), use):
             yield
+
+    @abc.abstractmethod
+    def add_simple_table(self,
+                         rows: Sequence[Iterable[str]],
+                         widths: Optional[list[int]] = None,
+                         font_size: Optional[str | int] = None) -> None:
+        """
+        Add a simple table with the rows, optional widths, and optional font
+        size.
+        """
+
+    @abc.abstractmethod
+    def add_grid_table(self,
+                       rows: Sequence[Iterable[str | int]],
+                       widths: Optional[list[int]] = None,
+                       header_rows: int = 1,
+                       font_size: Optional[str | int] = None) -> None:
+        """
+        Add a grid table with the rows, optional widths, and optional font
+        size.
+        """
 
     @abc.abstractmethod
     def add_definition_item(self, name: GenericContent,

@@ -49,6 +49,8 @@ from .content import (
     to_camel_case,
 )
 from .contenttext import (
+    COL_SPAN,
+    ROW_SPAN,
     TextContent,
     TextMapper,
     latex_escape,
@@ -59,8 +61,6 @@ from .contentmarkdown import (
     MarkdownMapper,
 )
 from .contentsphinx import (
-    COL_SPAN,
-    ROW_SPAN,
     SphinxContent,
     SphinxMapper,
     escape_code_line,
