@@ -202,7 +202,6 @@ class SphinxContent(TextContent):
         return _REST_SPECIAL_CHAR.sub(_rest_escape, text)
 
     def add_label(self, label: str) -> None:
-        """ Adds the label. """
         self.add([".. _" + label.strip() + ":", ""])
 
     def add_header(self,

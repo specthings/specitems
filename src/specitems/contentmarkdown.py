@@ -83,9 +83,12 @@ class MarkdownContent(TextContent):
     def escape(self, text: str) -> str:
         return _MD_SPECIAL_CHAR.sub(_md_escape, text)
 
+    def add_label(self, label: str) -> None:
+        self.add(f"({label.strip()})=")
+
     def add_header(self, name, level=1, label=None) -> None:
         if label is not None:
-            self.add(f"({label.strip()})=")
+            self.add_label(label)
         self.add([f"{level * '#'} {name.strip()}", ""])
 
     def add_index_entries(self, entries: list[str]) -> None:
