@@ -32,6 +32,25 @@ from .content import Content, GenericContent, get_value_plural, to_camel_case
 from .items import Item
 from .itemmapper import ItemGetValueContext, ItemMapper
 
+_LATEX_SIZES = {
+    -4: "tiny",
+    -3: "scriptsize",
+    -2: "footnotesize",
+    -1: "small",
+    0: "normalsize",
+    1: "large",
+    2: "Large",
+    3: "LARGE",
+    4: "huge",
+    5: "Huge",
+}
+
+
+def _latex_font_size(size: str | int) -> str:
+    if isinstance(size, str):
+        return size
+    return _LATEX_SIZES[max(min(size, 5), -4)]
+
 
 def make_label(name: str) -> str:
     """ Return the label for the specified name. """
@@ -226,6 +245,48 @@ class TextContent(Content):
         self.open_directive(name, value, options)
         yield
         self.close_directive()
+
+    def open_latex_environment(self, environment: str) -> None:
+        """ Open a LaTeX environment. """
+        line_context = self.push_line_context()
+        with self.directive("raw", "latex"):
+            self.add(f"\\begin{{{environment}}}")
+        line_context.content_begin(self)
+
+    def close_latex_environment(self, environment: str) -> None:
+        """ Close a LaTeX environment. """
+        line_context = self.pop_line_context()
+        with self.directive("raw", "latex"):
+            self.add(f"\\end{{{environment}}}")
+        self.check_line_context(line_context)
+
+    @contextlib.contextmanager
+    def latex_environment(self,
+                          environment: str,
+                          use: bool = True) -> Iterator[None]:
+        """ Open a LaTeX environment context. """
+        if use:
+            self.open_latex_environment(environment)
+            yield
+            self.close_latex_environment(environment)
+        else:
+            yield
+
+    def open_latex_font_size(self, size: str | int = "tiny") -> None:
+        """ Open a LaTeX font size environment. """
+        self.open_latex_environment(_latex_font_size(size))
+
+    def close_latex_font_size(self, size: str | int = "tiny") -> None:
+        """ Close a LaTeX font size environment. """
+        self.close_latex_environment(_latex_font_size(size))
+
+    @contextlib.contextmanager
+    def latex_font_size(self,
+                        size: str | int = "tiny",
+                        use: bool = True) -> Iterator[None]:
+        """ Open a LaTeX font size environment context. """
+        with self.latex_environment(_latex_font_size(size), use):
+            yield
 
     @abc.abstractmethod
     def add_definition_item(self, name: GenericContent,

@@ -76,6 +76,63 @@ def test_markdown_header():
 """
 
 
+def test_markdown_latex_environment():
+    content = MarkdownContent()
+    with content.latex_environment("env", use=False):
+        content.add("abc")
+    assert str(content) == "abc\n"
+    with content.latex_environment("env"):
+        content.add("def")
+    assert str(content) == """abc
+
+```{raw} latex
+\\begin{env}
+```
+
+def
+
+```{raw} latex
+\\end{env}
+```
+"""
+
+
+def test_markdown_latex_font_size():
+    content = MarkdownContent()
+    with content.latex_font_size():
+        pass
+    with content.latex_font_size():
+        content.add("abc")
+    assert str(content) == """```{raw} latex
+\\begin{tiny}
+```
+
+abc
+
+```{raw} latex
+\\end{tiny}
+```
+"""
+
+
+def test_latex_font_size_int():
+    content = MarkdownContent()
+    with content.latex_font_size(-1):
+        pass
+    with content.latex_font_size(-1):
+        content.add("abc")
+    assert str(content) == """```{raw} latex
+\\begin{small}
+```
+
+abc
+
+```{raw} latex
+\\end{small}
+```
+"""
+
+
 def test_mark_index_entries():
     content = MarkdownContent()
     content.add_index_entries([])
