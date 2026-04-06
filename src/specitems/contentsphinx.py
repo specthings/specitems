@@ -40,27 +40,8 @@ _REST_SPECIAL_CHAR = re.compile(r"[\\*_`]")
 
 _HEADER_LEVELS = ["#", "*", "=", "-", "^", "\""]
 
-_LATEX_SIZES = {
-    -4: "tiny",
-    -3: "scriptsize",
-    -2: "footnotesize",
-    -1: "small",
-    0: "normalsize",
-    1: "large",
-    2: "Large",
-    3: "LARGE",
-    4: "huge",
-    5: "Huge",
-}
-
 COL_SPAN = 1
 ROW_SPAN = 2
-
-
-def _latex_font_size(size: str | int) -> str:
-    if isinstance(size, str):
-        return size
-    return _LATEX_SIZES[max(min(size, 5), -4)]
 
 
 def _rest_escape(match: Match) -> str:
@@ -261,48 +242,6 @@ class SphinxContent(TextContent):
 
     def add_glossary_term(self, term: str, definition: str) -> None:
         self.add_definition_item(term, definition)
-
-    def open_latex_environment(self, environment: str) -> None:
-        """ Open a LaTeX environment. """
-        line_context = self.push_line_context()
-        with self.directive("raw", "latex"):
-            self.add(f"\\begin{{{environment}}}")
-        line_context.content_begin(self)
-
-    def close_latex_environment(self, environment: str) -> None:
-        """ Close a LaTeX environment. """
-        line_context = self.pop_line_context()
-        with self.directive("raw", "latex"):
-            self.add(f"\\end{{{environment}}}")
-        self.check_line_context(line_context)
-
-    @contextmanager
-    def latex_environment(self,
-                          environment: str,
-                          use: bool = True) -> Iterator[None]:
-        """ Open a LaTeX environment context. """
-        if use:
-            self.open_latex_environment(environment)
-            yield
-            self.close_latex_environment(environment)
-        else:
-            yield
-
-    def open_latex_font_size(self, size: str | int = "tiny") -> None:
-        """ Open a LaTeX font size environment. """
-        self.open_latex_environment(_latex_font_size(size))
-
-    def close_latex_font_size(self, size: str | int = "tiny") -> None:
-        """ Close a LaTeX font size environment. """
-        self.close_latex_environment(_latex_font_size(size))
-
-    @contextmanager
-    def latex_font_size(self,
-                        size: str | int = "tiny",
-                        use: bool = True) -> Iterator[None]:
-        """ Open a LaTeX font size environment context. """
-        with self.latex_environment(_latex_font_size(size), use):
-            yield
 
     def _add_table(self, lines: list[str], widths: Optional[list[int]],
                    font_size: Optional[str | int]) -> None:
