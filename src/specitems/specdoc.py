@@ -524,19 +524,20 @@ _DOCUMENT = {
 }
 
 
-def generate_specification_documentation(
-        config: SpecDocumentConfig, item_cache: ItemCache, mapper: ItemMapper,
-        create_content: Callable[[], TextContent]) -> None:
+def add_specification_documentation(content: TextContent,
+                                    config: SpecDocumentConfig,
+                                    item_cache: ItemCache,
+                                    mapper: ItemMapper) -> None:
     """
-    Document the specification item types according to the configuration.
+    Add the specification item types documentation according to the
+    configuration to the content.
 
     Args:
+        content: The target content.
         config: The specification item type document configuration.
         item_cache: The item cache containing the specification types.
         mapper: The item mapper used for content substitutions.
-        create_content: The content builder constructor.
     """
-    content = create_content()
 
     def _get_ref_specification_type(ctx: ItemGetValueContext) -> str:
         return content.get_reference(config.label_prefix +
@@ -552,7 +553,6 @@ def generate_specification_documentation(
         if ignore.search(member["spec-type"]) is None:
             _Documenter(mapper, member, documenter_map, config.label_prefix,
                         content)
-    content.add_automatically_generated_warning()
     for documenter in documenter_map.values():
         documenter.resolve_used_by()
     documenter_names = set(documenter_map)
@@ -568,5 +568,22 @@ def generate_specification_documentation(
             documenters = [documenter_map[name] for name in documenter_names]
             for documenter in sorted(documenters, key=lambda x: x.section):
                 documenter.document(ignore)
+
+
+def generate_specification_documentation(
+        config: SpecDocumentConfig, item_cache: ItemCache, mapper: ItemMapper,
+        create_content: Callable[[], TextContent]) -> None:
+    """
+    Document the specification item types according to the configuration.
+
+    Args:
+        config: The specification item type document configuration.
+        item_cache: The item cache containing the specification types.
+        mapper: The item mapper used for content substitutions.
+        create_content: The content builder constructor.
+    """
+    content = create_content()
+    content.add_automatically_generated_warning()
+    add_specification_documentation(content, config, item_cache, mapper)
     content.add_licence_and_copyrights()
     content.write(config.target, beautify=True)
