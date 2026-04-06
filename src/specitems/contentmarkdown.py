@@ -25,12 +25,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import re
-from typing import Match, Optional
+from typing import Iterable, Match, Optional, Sequence
 
 import mdformat
 
 from .content import GenericContent, make_lines
 from .contenttext import TextContent, TextMapper
+from .contentsphinx import SphinxContent
 
 _MDFORMAT_EXTENSIONS = {"deflist", "footnote", "frontmatter", "myst", "tables"}
 
@@ -91,6 +92,9 @@ class MarkdownContent(TextContent):
             self.add_label(label)
         self.add([f"{level * '#'} {name.strip()}", ""])
 
+    def add_rubric(self, name: str) -> None:
+        self.add(["```{eval-rst}", f".. rubric:: {name}", "```", ""])
+
     def add_index_entries(self, entries: list[str]) -> None:
         for entry in entries:
             self.add([f"```{{index}} {entry}", "```"])
@@ -111,8 +115,28 @@ class MarkdownContent(TextContent):
     def close_directive(self) -> None:
         self.append("```")
 
-    def add_rubric(self, name: str) -> None:
-        self.add(["```{eval-rst}", f".. rubric:: {name}", "```", ""])
+    def add_simple_table(self,
+                         rows: Sequence[Iterable[str]],
+                         widths: Optional[list[int]] = None,
+                         font_size: Optional[str | int] = None) -> None:
+        if not rows:
+            return
+        with self.directive("eval-rst"):
+            table = SphinxContent()
+            table.add_simple_table(rows, widths, font_size)
+            self.add(table)
+
+    def add_grid_table(self,
+                       rows: Sequence[Iterable[str | int]],
+                       widths: Optional[list[int]] = None,
+                       header_rows: int = 1,
+                       font_size: Optional[str | int] = None) -> None:
+        if not rows:
+            return
+        with self.directive("eval-rst"):
+            table = SphinxContent()
+            table.add_grid_table(rows, widths, header_rows, font_size)
+            self.add(table)
 
     def add_definition_item(self, name: GenericContent,
                             definition: GenericContent) -> None:

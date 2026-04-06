@@ -366,6 +366,43 @@ s. ss. sss.
 """
 
 
+def test_markdown_simple_table():
+    content = MarkdownContent()
+    content.add_simple_table([])
+    assert str(content) == ""
+    content.add_simple_table([["a", "b"], ["cc", "ddd"]])
+    assert str(content) == """```{eval-rst}
+.. table::
+    :class: longtable
+
+    == ===
+    a  b
+    == ===
+    cc ddd
+    == ===
+```
+"""
+
+
+def test_markdown_grid_table():
+    content = MarkdownContent()
+    content.add_grid_table([], [])
+    assert str(content) == ""
+    content.add_grid_table([["a", "b"], ["cc", "ddd"]], widths=[50, 50])
+    assert str(content) == """```{eval-rst}
+.. table::
+    :class: longtable
+    :widths: 50,50
+
+    +----+-----+
+    | a  | b   |
+    +====+=====+
+    | cc | ddd |
+    +----+-----+
+```
+"""
+
+
 def test_substitute(tmpdir):
     config = create_item_cache_config(tmpdir, "spec-sphinx")
     item_cache = ItemCache(config,

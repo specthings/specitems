@@ -29,7 +29,7 @@ import re
 from typing import Iterable, Iterator, Match, Optional, Sequence
 
 from .content import Content, GenericContent, MARKDOWN_ROLES
-from .contenttext import TextContent, TextMapper
+from .contenttext import COL_SPAN, ROW_SPAN, TextContent, TextMapper
 
 _MD_CODE = re.compile(r"(^|\s)`([^`]+)`(\s|$)", flags=re.DOTALL)
 _MD_EMPHASIZE = re.compile(r"(^|\s)_([^_]+)_(\s|$)", flags=re.DOTALL)
@@ -39,9 +39,6 @@ _MD_REF = re.compile(r"\[([^\]]+)\]\(([^)]+)\)", flags=re.DOTALL)
 _REST_SPECIAL_CHAR = re.compile(r"[\\*_`]")
 
 _HEADER_LEVELS = ["#", "*", "=", "-", "^", "\""]
-
-COL_SPAN = 1
-ROW_SPAN = 2
 
 
 def _rest_escape(match: Match) -> str:
@@ -259,10 +256,6 @@ class SphinxContent(TextContent):
                          rows: Sequence[Iterable[str]],
                          widths: Optional[list[int]] = None,
                          font_size: Optional[str | int] = None) -> None:
-        """
-        Add a simple table with the rows, optional widths, and optional font
-        size.
-        """
         if not rows:
             return
         maxi = tuple(map(len, rows[0]))
@@ -280,10 +273,6 @@ class SphinxContent(TextContent):
                        widths: Optional[list[int]] = None,
                        header_rows: int = 1,
                        font_size: Optional[str | int] = None) -> None:
-        """
-        Add a grid table with the rows, optional widths, and optional font
-        size.
-        """
         if not rows:
             return
         maxi = tuple(map(_cell_len, rows[0]))
