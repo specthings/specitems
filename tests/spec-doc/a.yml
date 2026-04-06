@@ -18,6 +18,12 @@ spec-info:
       a:
         description: null
         spec-type: a
+      c:
+        description: null
+        spec-type: c
+      d:
+        description: null
+        spec-type: d
     description: null
     mandatory-attributes: []
 spec-name: A

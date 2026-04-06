@@ -287,6 +287,7 @@ class _Documenter:
                  content: TextContent):
         # pylint: disable=too-many-arguments
         # pylint: disable=too-many-positional-arguments
+        self._present = False
         self._mapper = mapper
         self._name = item["spec-type"]
         self.section = item["spec-name"]
@@ -459,6 +460,8 @@ class _Documenter:
         """ Document this type. """
         if self.get_list_element_type():
             return
+        if not self._present:
+            return
         self._content.register_license_and_copyrights_of_item(self._item)
         with self._content.section(
                 self.section,
@@ -491,26 +494,34 @@ class _Documenter:
             for refinement in self.refinements(ignore):
                 refinement.document(ignore, names)
 
-    def _add_used_by(self, type_name: str) -> None:
+    def _add_used_by(self, type_name: str, ignore: Pattern[Any]) -> None:
         if type_name not in _PRIMITIVE_TYPES:
             documenter = self._documenter_map[type_name]
             element_type_name = documenter.get_list_element_type()
             if element_type_name:
+                documenter.resolve_used_by(ignore)
                 type_name = element_type_name
         if type_name not in _PRIMITIVE_TYPES:
             documenter = self._documenter_map[type_name]
             documenter.used_by.add(self.get_section_reference())
+            documenter.resolve_used_by(ignore)
 
-    def resolve_used_by(self) -> None:
+    def resolve_used_by(self, ignore: Pattern[Any]) -> None:
         """ Resolve type uses in attribute sets. """
+        if self._present:
+            return
+        self._present = True
         info = self._info_map.get("dict", None)
         if info is not None:
             for attribute in info["attributes"].values():
-                self._add_used_by(attribute["spec-type"])
+                self._add_used_by(attribute["spec-type"], ignore)
             if "generic-attributes" in info:
-                self._add_used_by(info["generic-attributes"]["key-spec-type"])
+                self._add_used_by(info["generic-attributes"]["key-spec-type"],
+                                  ignore)
                 self._add_used_by(
-                    info["generic-attributes"]["value-spec-type"])
+                    info["generic-attributes"]["value-spec-type"], ignore)
+        for refinement in self.refinements(ignore):
+            refinement.resolve_used_by(ignore)
 
 
 _DOCUMENT = {
@@ -553,8 +564,7 @@ def add_specification_documentation(content: TextContent,
         if ignore.search(member["spec-type"]) is None:
             _Documenter(mapper, member, documenter_map, config.label_prefix,
                         content)
-    for documenter in documenter_map.values():
-        documenter.resolve_used_by()
+    root_documenter.resolve_used_by(ignore)
     documenter_names = set(documenter_map)
     content.push_label(config.section_label_prefix)
     with content.section(config.section_name):
