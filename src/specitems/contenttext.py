@@ -191,6 +191,18 @@ class TextContent(Content):
     def add_rubric(self, name: str) -> None:
         """ Add a rubric with the name. """
 
+    def add_image(self, base: str, width: Optional[str] = None) -> None:
+        """
+        Add the image associated with the base file name.
+
+        The image will have the optional width.
+        """
+        options = [":align: center"]
+        if width is not None:
+            options.append(f":width: {width}")
+        with self.directive("image", base, options):
+            pass
+
     @abc.abstractmethod
     def add_index_entries(self, entries: list[str]) -> None:
         """ Add the list of index entries. """
