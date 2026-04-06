@@ -123,6 +123,7 @@ from .itemmapper import (
     ItemValueProvider,
     get_value_default,
     unpack_arg,
+    unpack_args,
 )
 from .specdoc import (SpecDocumentConfig, add_specification_documentation,
                       generate_specification_documentation)
@@ -226,5 +227,6 @@ __all__ = [
     "to_collection",
     "to_iterable",
     "unpack_arg",
+    "unpack_args",
     "verify_specification_format",
 ]

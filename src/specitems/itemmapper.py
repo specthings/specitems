@@ -128,9 +128,15 @@ def unpack_arg(arg: str) -> str:
     return "".join(arg_2)
 
 
-def _unpack_args(
+def unpack_args(
         optional_args: Optional[str],
         substitute: Callable[[str], str]) -> tuple[list[str], dict[str, str]]:
+    """
+    Unpack the optional arguments to positional arguments and keyword
+    arguments.
+
+    Substitute the positional arguments and the keyword argument values.
+    """
     args: list[str] = []
     kwargs: dict[str, str] = {}
     if optional_args:
@@ -185,7 +191,7 @@ class ItemGetValueContext:
         Unpack the context arguments to positional arguments and keyword
         arguments.
         """
-        return _unpack_args(self.args, substitute)
+        return unpack_args(self.args, substitute)
 
     def substitute(self, value: Any) -> Any:
         """ Substitute the value using the mapper of the context. """
@@ -355,7 +361,7 @@ class ItemMapper(abc.ABC):
         character are unpacked and passed to the transformer.
         """
         name, _, args_string = name_and_args.partition(" ")
-        args, kwargs = _unpack_args(args_string, substitute)
+        args, kwargs = unpack_args(args_string, substitute)
         return self._transformers[name](value, *args, **kwargs)
 
     @contextlib.contextmanager
