@@ -28,7 +28,7 @@ import pytest
 
 from specitems import (EmptyItem, ItemCache, ItemGetValueContext, ItemMapper,
                        ItemValueProvider, SpecTypeProvider, get_value_default,
-                       unpack_arg)
+                       unpack_arg, unpack_args)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
@@ -249,3 +249,15 @@ def test_item_get_value_context():
 def test_unpack_arg():
     arg = unpack_arg("\\0\\a\\b\\c\\f\\n\\r\\s\\t\\v\\%\\(\\)\\\\\\?%()\\x")
     assert arg == "\0\a\b,\f\n\r \t\v%()\\?${}x"
+
+
+def test_unpack_args():
+
+    def _substitute(text):
+        return f"<{text}>"
+
+    args, kwargs = unpack_args("a,b=c,d", _substitute)
+    assert args == ["<a>", "<d>"]
+    assert kwargs == {"b": "<c>"}
+
+    assert unpack_args(None, _substitute) == ([], {})
