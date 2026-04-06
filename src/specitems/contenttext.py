@@ -153,6 +153,10 @@ class TextContent(Content):
         """ Return the text with escaped special characters. """
 
     @abc.abstractmethod
+    def add_label(self, label: str) -> None:
+        """ Add the label. """
+
+    @abc.abstractmethod
     def add_header(self,
                    name: str,
                    level: int = 0,
