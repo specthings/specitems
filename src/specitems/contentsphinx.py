@@ -149,7 +149,7 @@ class SphinxContent(TextContent):
     def add_directive_end(self, prefix: str) -> None:
         self.close_directive()
 
-    def get_reference(self, label: str, name: Optional[str] = None) -> str:
+    def reference(self, label: str, name: Optional[str] = None) -> str:
         if name:
             return f":ref:`{name} <{label}>`"
         return f":ref:`{label}`"

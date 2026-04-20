@@ -306,8 +306,8 @@ class _Documenter:
 
     def get_section_reference(self) -> str:
         """ Return the section reference. """
-        return self._content.get_reference(self._label_prefix +
-                                           make_label(self.section))
+        return self._content.reference(self._label_prefix +
+                                       make_label(self.section))
 
     def get_a_section_reference(self) -> str:
         """ Return a section reference. """
@@ -551,8 +551,8 @@ def add_specification_documentation(content: TextContent,
     """
 
     def _get_ref_specification_type(ctx: ItemGetValueContext) -> str:
-        return content.get_reference(config.label_prefix +
-                                     make_label(ctx.value[ctx.key]))
+        return content.reference(config.label_prefix +
+                                 make_label(ctx.value[ctx.key]))
 
     mapper.add_get_value("spec:/spec-name", _get_ref_specification_type)
     documenter_map: _DocumenterMap = {}

@@ -33,10 +33,10 @@ from specitems import (COL_SPAN, EmptyItem, Item, ItemCache, ItemMapper,
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
 
-def test_sphinx_get_reference():
+def test_sphinx_reference():
     content = SphinxContent()
-    assert content.get_reference("label") == ":ref:`label`"
-    assert content.get_reference("label", "name") == ":ref:`name <label>`"
+    assert content.reference("label") == ":ref:`label`"
+    assert content.reference("label", "name") == ":ref:`name <label>`"
 
 
 def test_special():

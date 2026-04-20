@@ -33,10 +33,9 @@ from specitems.items import ItemCache, SpecTypeProvider
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
 
-def test_markdown_get_reference():
     content = MarkdownContent()
-    assert content.get_reference("label") == "{ref}`label`"
-    assert content.get_reference("label", "name") == "{ref}`name <label>`"
+    assert content.reference("label") == "{ref}`label`"
+    assert content.reference("label", "name") == "{ref}`name <label>`"
 
 
 def test_markdown_special():
