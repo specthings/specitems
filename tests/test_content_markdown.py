@@ -33,6 +33,12 @@ from specitems.items import ItemCache, SpecTypeProvider
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
 
+def test_markdown_link():
+    content = MarkdownContent()
+    assert content.link("name", "target") == "[name](target)"
+
+
+def test_markdown_reference():
     content = MarkdownContent()
     assert content.reference("label") == "{ref}`label`"
     assert content.reference("label", "name") == "{ref}`name <label>`"

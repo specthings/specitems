@@ -49,12 +49,16 @@ def _md_escape(match: Match) -> str:
 class MarkdownContent(TextContent):
     """ This class builds MyST Markdown content. """
 
+    # pylint: disable=too-many-public-methods
     def __init__(self,
                  section_level: int = 1,
                  the_license: str | set[str] | None = None):
         super().__init__(section_level, the_license)
         self.set_pop_indent_gap(True)
         self.set_comment_prefix("%")
+
+    def link(self, name: str, target: str) -> str:
+        return f"[{name}]({target})"
 
     def reference(self, label: str, name: Optional[str] = None) -> str:
         if name:

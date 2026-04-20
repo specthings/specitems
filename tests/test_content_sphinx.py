@@ -33,6 +33,11 @@ from specitems import (COL_SPAN, EmptyItem, Item, ItemCache, ItemMapper,
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
 
+def test_sphinx_link():
+    content = SphinxContent()
+    assert content.link("name", "target") == "`name <target>`__"
+
+
 def test_sphinx_reference():
     content = SphinxContent()
     assert content.reference("label") == ":ref:`label`"
