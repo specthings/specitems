@@ -56,7 +56,7 @@ class MarkdownContent(TextContent):
         self.set_pop_indent_gap(True)
         self.set_comment_prefix("%")
 
-    def get_reference(self, label: str, name: Optional[str] = None) -> str:
+    def reference(self, label: str, name: Optional[str] = None) -> str:
         if name:
             return f"{{ref}}`{name} <{label}>`"
         return f"{{ref}}`{label}`"

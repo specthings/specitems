@@ -139,8 +139,8 @@ class TextContent(Content):
         self.pop_label()
 
     @abc.abstractmethod
-    def get_reference(self, label: str, name: Optional[str] = None) -> str:
-        """ Return the reference to the label with the optional name.  """
+    def reference(self, label: str, name: Optional[str] = None) -> str:
+        """ Return the reference to the label with the optional name. """
 
     @abc.abstractmethod
     def code(self, text: str) -> str:
