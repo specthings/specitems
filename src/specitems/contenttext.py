@@ -139,6 +139,10 @@ class TextContent(Content):
         self.pop_label()
 
     @abc.abstractmethod
+    def link(self, name: str, target: str) -> str:
+        """ Return the named link to the target. """
+
+    @abc.abstractmethod
     def reference(self, label: str, name: Optional[str] = None) -> str:
         """ Return the reference to the label with the optional name. """
 
