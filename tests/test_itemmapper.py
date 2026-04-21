@@ -59,18 +59,25 @@ def test_item_mapper(tmpdir):
     type_provider = SpecTypeProvider(get_other_type_data_by_uid())
     item_cache = ItemCache(config, type_provider=type_provider)
     assert "/spec/root" in item_cache
-    item = item_cache["/p"]
-    assert item.type == "other"
-    base_mapper = ItemMapper(item)
+    p = item_cache["/p"]
+    assert p.type == "other"
+    base_mapper = ItemMapper(p)
     assert base_mapper["d/c:v"] == "c"
-    mapper = ItemMapper(item)
+    mapper = ItemMapper(p)
     assert mapper.substitute(None) == ""
     assert mapper.substitute(None, prefix="v") == ""
     assert mapper.map(".:../x/y", prefix="v")[2] == "z"
     item_2, key_path_2, value_2 = mapper.map(".:.", prefix="v")
-    assert item_2 == item
+    assert item_2 == p
     assert key_path_2 == "/v"
     assert value_2 == "p"
+    c = item_cache["/c"]
+    assert mapper.substitute("${.:/v}", item=c) == "c"
+    assert mapper.substitute("${*:/v}", item=c) == "p"
+    assert mapper.substitute("${.:v}", item=c, prefix="/u") == "C"
+    assert mapper.substitute("${*:v}", item=c, prefix="/u") == "p"
+    assert mapper.substitute_data(["${.:/v}"], item=c) == ["c"]
+    assert mapper.substitute_data(["${*:/v}"], item=c) == ["p"]
     assert mapper.substitute("$$${.:.}", prefix="v") == "$p"
     assert mapper.substitute_data(None) == None
     assert mapper.substitute_data("x") == "x"
@@ -85,10 +92,10 @@ def test_item_mapper(tmpdir):
                                    2]) == ["1", "${/c:/r}", 2]
     assert mapper.substitute_data({"x": "y"}) == {"x": "y"}
     assert mapper.substitute_data({"${/c:/v}": "y"}) == {"c": "y"}
-    assert mapper.item == item
+    assert mapper.item == p
     with mapper.scope(item_cache["/c"]):
         assert mapper.item == item_cache["/c"]
-    assert mapper.item == item
+    assert mapper.item == p
     assert mapper.map(".:.", prefix="x/y")[2] == "z"
     match = r"cannot get value for '/v' of spec:/proxy specified by 'proxy:/v"
     with pytest.raises(ValueError, match=match):
@@ -115,7 +122,7 @@ def test_item_mapper(tmpdir):
     assert mapper["d/c:a/f[1]"] == 2
     assert mapper["d/c:a/../a/f[3]/g[0]"] == 4
     item_3, key_path_3, value_3 = mapper.map("/p:/v")
-    assert item_3 == item
+    assert item_3 == p
     assert key_path_3 == "/v"
     assert value_3 == "p"
     mapper.add_default_get_value("default", _get_value_default)
@@ -129,13 +136,13 @@ def test_item_mapper(tmpdir):
     assert mapper[".:/r1/r2/r3"] == "foobar"
     match = r"substitution for spec:/p using prefix 'blub' failed for text:\n    1: \${}"
     with pytest.raises(ValueError, match=match):
-        mapper.substitute("${}", item, "blub")
+        mapper.substitute("${}", p, "blub")
     match = r"item 'boom' relative to spec:/p specified by 'boom:bam' does not exist"
     with pytest.raises(ValueError, match=match):
-        mapper.map("boom:bam", item, "blub")
+        mapper.map("boom:bam", p, "blub")
     match = r"cannot get value for 'blub/bam' of spec:/p specified by '.:bam'"
     with pytest.raises(ValueError, match=match):
-        mapper.map(".:bam", item, "blub")
+        mapper.map(".:bam", p, "blub")
 
     # Remove proxy member
     item_cache.remove_item("/s")
@@ -239,7 +246,7 @@ def test_item_get_value_context():
     assert ctx_3.transform("w") == "w"
     assert get_value_default(ctx_3) == "v"
 
-    args_x = "x A,B%(.:/ik),c=C%(.:/ik)"
+    args_x = "x A,B%(.:/ik),c=C%(*:/ik)"
     ctx_4 = ItemGetValueContext(item, remaining_path, args_x, value, mapper,
                                 {})
     assert ctx_4.substitute_and_transform("${.:/ik}") == "iv/A/Biv/Civ"

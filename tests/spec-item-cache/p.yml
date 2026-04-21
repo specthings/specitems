@@ -7,6 +7,8 @@ links:
 - role: proxy-member
   uid: proxy
 type: other
+u:
+  v: P
 v: p
 x:
   y: z
