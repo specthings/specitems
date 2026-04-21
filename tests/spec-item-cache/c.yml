@@ -6,6 +6,8 @@ links:
 - role: oops
   uid: proxy2
 type: other
+u:
+  v: C
 v: c
 w:
 - u

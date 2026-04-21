@@ -41,7 +41,7 @@ ItemGetValueMap = dict[str, tuple[ItemGetValue, Any]]
 
 class _ItemTemplate(string.Template):
     """ String template for item mapper identifiers. """
-    idpattern = "[a-zA-Z0-9._/-]+:[\\[\\]a-zA-Z0-9._/-]+(:[^${}]*)?"
+    idpattern = "(?:[a-zA-Z0-9._/-]+|\\*):[\\[\\]a-zA-Z0-9._/-]+(?::[^${}]*)?"
 
 
 class _ItemMapperContext(dict):
@@ -60,8 +60,7 @@ class _ItemMapperContext(dict):
         return self._mapper.map(identifier, self._item, self._prefix)[2]
 
 
-_SINGLE_SUBSTITUTION = re.compile(
-    r"^\${[a-zA-Z0-9._/-]+(:[a-zA-Z0-9._/-]+)?(:[^${}]*)?}$")
+_SINGLE_SUBSTITUTION = re.compile(f"^\\${{{_ItemTemplate.idpattern}}}$")
 
 
 class _GetValueDictionary(dict):
@@ -425,16 +424,20 @@ class ItemMapper(abc.ABC):
         else:
             key_path = more[:colon]
             args = more[colon + 1:]
-        if item is None:
+        if uid == "*":
             item = self.item
-        if uid != ".":
             prefix = ""
-            try:
-                item = item.map(uid)
-            except KeyError as err:
-                msg = (f"item '{uid}' relative to {item.spec} "
-                       f"specified by '{identifier}' does not exist")
-                raise ValueError(msg) from err
+        else:
+            if item is None:
+                item = self.item
+            if uid != ".":
+                prefix = ""
+                try:
+                    item = item.map(uid)
+                except KeyError as err:
+                    msg = (f"item '{uid}' relative to {item.spec} "
+                           f"specified by '{identifier}' does not exist")
+                    raise ValueError(msg) from err
         key_path = _normalize_key_path(key_path, prefix)
         try:
             ctx = self._get_by_normalized_key_path(item, key_path, args)
