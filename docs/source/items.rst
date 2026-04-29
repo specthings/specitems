@@ -852,11 +852,29 @@ Citation Group Member Link Role
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``citation-group-member``. This set of attributes specifies a citation
 group membership role of links.  A group citation lists citations for all group
-members with the associated group key. All explicit attributes shall be
-specified. The explicit attributes for this type are:
+members with the associated group key.  Citation groups may reference a
+specific area of the target documents identified by the optional ``label`` and
+``path`` attributes.  The area may be named through the optional ``name``
+attribute. Only the ``citation-group-key`` attribute is mandatory. The explicit
+attributes for this type are:
 
 citation-group-key
     The attribute value shall be a string. It shall be the citation group key.
+
+label
+    The attribute value shall be a string. It shall be the label to the cited
+    area.  The label format is specific to the cited target.  An example is a
+    label to a document location.
+
+name
+    The attribute value shall be a string. It shall be the name of the cited
+    area.  The name format is specific to the cited target.  An example is the
+    name of a chapter or a section.
+
+path
+    The attribute value shall be a string. It shall be the path to the
+    component of the cited area.  The path format is specific to the cited
+    target.  An example is the path to a page or a part of resource locator.
 
 .. _SpecTypeCopyright:
 

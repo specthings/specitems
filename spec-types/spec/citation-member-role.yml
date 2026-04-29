@@ -1,6 +1,6 @@
 SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
 copyrights:
-- Copyright (C) 2025 embedded brains GmbH & Co. KG
+- Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
 enabled-by: true
 links:
 - role: spec-member
@@ -18,11 +18,32 @@ spec-info:
         description: |
           It shall be the citation group key.
         spec-type: str
+      label:
+        description: |
+          It shall be the label to the cited area.  The label format is
+          specific to the cited target.  An example is a label to a document
+          location.
+        spec-type: str
+      name:
+        description: |
+          It shall be the name of the cited area.  The name format is specific
+          to the cited target.  An example is the name of a chapter or a
+          section.
+        spec-type: str
+      path:
+        description: |
+          It shall be the path to the component of the cited area.  The path
+          format is specific to the cited target.  An example is the path to a
+          page or a part of resource locator.
+        spec-type: str
     description: |
       This set of attributes specifies a citation group membership role of
       links.  A group citation lists citations for all group members with the
-      associated group key.
-    mandatory-attributes: all
+      associated group key.  Citation groups may reference a specific area of
+      the target documents identified by the optional `label` and `path`
+      attributes.  The area may be named through the optional `name` attribute.
+    mandatory-attributes:
+    - citation-group-key
 spec-name: Citation Group Member Link Role
 spec-type: citation-group-member-role
 type: spec
