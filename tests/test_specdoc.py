@@ -41,20 +41,23 @@ def test_document(tmpdir):
     item_cache = ItemCache(item_cache_config)
     root_type = item_cache["/root"]
     assert root_type.type == "spec"
+    other = item_cache["/other"]
     config = SpecDocumentConfig(root_type_uid="/root",
                                 ignore="^f$",
                                 section_label_prefix="SL")
     doc_target = os.path.join(tmpdir, "items.rst")
+    content = SphinxContent()
+    mapper = SphinxMapper(other)
     config.target = doc_target
-    generate_specification_documentation(config, item_cache,
-                                         SphinxMapper(root_type),
-                                         SphinxContent)
+    config.add_get_spec_name(mapper, content)
+    generate_specification_documentation(content, config, mapper)
 
     md_doc_target = os.path.join(tmpdir, "items.md")
+    md_content = MarkdownContent()
+    md_mapper = MarkdownMapper(other)
     config.target = md_doc_target
-    generate_specification_documentation(config, item_cache,
-                                         MarkdownMapper(root_type),
-                                         MarkdownContent)
+    config.add_get_spec_name(md_mapper, md_content)
+    generate_specification_documentation(md_content, config, md_mapper)
 
     with open(doc_target, "r") as src:
         content = """.. SPDX-License-Identifier: CC-BY-SA-4.0

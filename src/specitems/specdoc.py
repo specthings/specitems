@@ -26,10 +26,10 @@
 
 import dataclasses
 import re
-from typing import Any, Callable, Iterator, Optional, Pattern
+from typing import Any, Iterator, Optional, Pattern
 
 from .contenttext import make_label, TextContent
-from .items import Item, ItemCache
+from .items import Item
 from .itemmapper import ItemGetValueContext, ItemMapper
 
 
@@ -49,6 +49,19 @@ class SpecDocumentConfig:
     item_types_subsection_name: str = "Specification item types"
     value_types_subsection_name: str = ("Specification attribute "
                                         "sets and value types")
+
+    def add_get_spec_name(self, mapper: ItemMapper,
+                          content: TextContent) -> None:
+        """
+        Add a get value method to the mapper to get references to specification
+        type names for the content.
+        """
+
+        def _get_ref_specification_type(ctx: ItemGetValueContext) -> str:
+            return content.reference(self.label_prefix +
+                                     make_label(ctx.value[ctx.key]))
+
+        mapper.add_get_value("spec:/spec-name", _get_ref_specification_type)
 
 
 _DocumenterMap = dict[str, "_Documenter"]
@@ -537,7 +550,6 @@ _DOCUMENT = {
 
 def add_specification_documentation(content: TextContent,
                                     config: SpecDocumentConfig,
-                                    item_cache: ItemCache,
                                     mapper: ItemMapper) -> None:
     """
     Add the specification item types documentation according to the
@@ -546,17 +558,13 @@ def add_specification_documentation(content: TextContent,
     Args:
         content: The target content.
         config: The specification item type document configuration.
-        item_cache: The item cache containing the specification types.
-        mapper: The item mapper used for content substitutions.
+        mapper: The item mapper used for content substitutions.  The mapper
+          shall provide a get value method for specification type names, see
+          :py:meth:`SpecDocumentConfig.add_get_spec_name`.
     """
 
-    def _get_ref_specification_type(ctx: ItemGetValueContext) -> str:
-        return content.reference(config.label_prefix +
-                                 make_label(ctx.value[ctx.key]))
-
-    mapper.add_get_value("spec:/spec-name", _get_ref_specification_type)
     documenter_map: _DocumenterMap = {}
-    root_item = item_cache[config.root_type_uid]
+    root_item = mapper.item.cache[config.root_type_uid]
     root_documenter = _Documenter(mapper, root_item, documenter_map,
                                   config.label_prefix, content)
     ignore = re.compile(config.ignore)
@@ -580,20 +588,19 @@ def add_specification_documentation(content: TextContent,
                 documenter.document(ignore)
 
 
-def generate_specification_documentation(
-        config: SpecDocumentConfig, item_cache: ItemCache, mapper: ItemMapper,
-        create_content: Callable[[], TextContent]) -> None:
+def generate_specification_documentation(content: TextContent,
+                                         config: SpecDocumentConfig,
+                                         mapper: ItemMapper) -> None:
     """
     Document the specification item types according to the configuration.
 
     Args:
+        content: The target content.  The final content is written to the
+                 target file.
         config: The specification item type document configuration.
-        item_cache: The item cache containing the specification types.
         mapper: The item mapper used for content substitutions.
-        create_content: The content builder constructor.
     """
-    content = create_content()
     content.add_automatically_generated_warning()
-    add_specification_documentation(content, config, item_cache, mapper)
+    add_specification_documentation(content, config, mapper)
     content.add_licence_and_copyrights()
     content.write(config.target, beautify=True)
