@@ -100,9 +100,10 @@ def clispecdoc(argv: list[str], type_provider: ItemTypeProvider) -> None:
         item_types_subsection_name=args.item_types_subsection_name,
         value_types_subsection_name=args.value_types_subsection_name)
     create_content, create_mapper = _DOC_FORMAT[args.format]
-    generate_specification_documentation(
-        spec_doc_config, item_cache,
-        create_mapper(next(iter(item_cache.values()))), create_content)
+    content = create_content()
+    mapper = create_mapper(next(iter(item_cache.values())))
+    spec_doc_config.add_get_spec_name(mapper, content)
+    generate_specification_documentation(content, spec_doc_config, mapper)
 
 
 def clispecdocitems(argv: list[str] = sys.argv) -> None:
