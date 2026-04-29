@@ -879,45 +879,6 @@ This type is used by the following types:
 
 - :ref:`SpecTypeRootItemType`
 
-.. _SpecTypeEnabledSetAction:
-
-Enabled Set Action
-==================
-
-This set of attributes specifies an action to alter the enabled set. All
-explicit attributes shall be specified. The explicit attributes for this type
-are:
-
-action
-    The attribute value shall be an :ref:`SpecTypeEnabledSetActions`. It shall
-    be the enabled set action.
-
-enabled-by
-    The attribute value shall be an :ref:`SpecTypeEnabledByExpression`. It
-    shall define the conditions under which the action is enabled.
-
-value
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If shall
-    be the action value.
-
-.. _SpecTypeEnabledSetActions:
-
-Enabled Set Actions
-===================
-
-The value shall be a string. It specifies the enabled set actions. The value
-shall be an element of
-
-- "``add``",
-
-- "``remove``", and
-
-- "``set``".
-
-This type is used by the following types:
-
-- :ref:`SpecTypeEnabledSetAction`
-
 .. _SpecTypeEnabledByExpression:
 
 Enabled-By Expression
@@ -968,8 +929,6 @@ This type is used by the following types:
 
 - :ref:`SpecTypeEnabledByExpression`
 
-- :ref:`SpecTypeEnabledSetAction`
-
 - :ref:`SpecTypeRootItemType`
 
 Please have a look at the following example:
@@ -1005,17 +964,6 @@ Glossary Refinement Link Role
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``glossary-refinement``. It defines the glossary refinement role of
 links.
-
-.. _SpecTypeIntegerOrString:
-
-Integer or String
-=================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be an integer number.
-
-- The value may be a string.
 
 .. _SpecTypeLink:
 
@@ -1054,23 +1002,6 @@ This type is refined by the following types:
 This type is used by the following types:
 
 - :ref:`SpecTypeRootItemType`
-
-.. _SpecTypeMD5Digest:
-
-MD5 Digest
-==========
-
-The value shall be a string. It shall be a MD5 digest encoded in base64url. The
-value shall match with the regular expression "``^[A-Za-z0-9+_=-]{24}$``".
-
-.. _SpecTypeMD5HexDigest:
-
-MD5 Hex Digest
-==============
-
-The value shall be a string. It shall be a MD5 digest encoded in hexadecimal
-digits. The value shall match with the regular expression
-"``^[A-Fa-f0-9]{32}$``".
 
 .. _SpecTypeMonth:
 
@@ -1157,94 +1088,6 @@ This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationRefinementLinkRole`
 
-.. _SpecTypeOptionalFloatingPointNumber:
-
-Optional Floating-Point Number
-==============================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a floating-point number.
-
-- There may be no value (null).
-
-.. _SpecTypeOptionalInteger:
-
-Optional Integer
-================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be an integer number.
-
-- There may be no value (null).
-
-This type is used by the following types:
-
-- :ref:`SpecTypeSubprocessAction`
-
-.. _SpecTypeOptionalIntegerOrString:
-
-Optional Integer or String
-==========================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be an integer number.
-
-- There may be no value (null).
-
-- The value may be a string.
-
-.. _SpecTypeOptionalIntegerOrStringList:
-
-Optional Integer or String List
-===============================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a list. Each list element shall be an
-  :ref:`SpecTypeIntegerOrString`.
-
-- There may be no value (null).
-
-.. _SpecTypeOptionalListOfStringLists:
-
-Optional List of String Lists
-=============================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a list. Each list element shall be a list of strings.
-
-- There may be no value (null).
-
-.. _SpecTypeOptionalMD5Digest:
-
-Optional MD5 Digest
-===================
-
-A value of this type shall be of one of the following variants:
-
-- There may be no value (null).
-
-- The value may be a string. If the value is present, then it shall be a MD5
-  digest encoded in base64url. The value shall match with the regular
-  expression "``^[A-Za-z0-9+_=-]{24}$``".
-
-.. _SpecTypeOptionalMD5HexDigest:
-
-Optional MD5 Hex Digest
-=======================
-
-A value of this type shall be of one of the following variants:
-
-- There may be no value (null).
-
-- The value may be a string. If the value is present, then it shall be a MD5
-  digest encoded in hexadecimal digits. The value shall match with the regular
-  expression "``^[A-Fa-f0-9]{32}$``".
-
 .. _SpecTypeOptionalSHA256Digest:
 
 Optional SHA256 Digest
@@ -1261,80 +1104,6 @@ This type is used by the following types:
 
 - :ref:`SpecTypeReference`
 
-.. _SpecTypeOptionalSHA256HexDigest:
-
-Optional SHA256 Hex Digest
-==========================
-
-A value of this type shall be of one of the following variants:
-
-- There may be no value (null).
-
-- The value may be a string. It shall be a SHA256 digest encoded in hexadecimal
-  digits. The value shall match with the regular expression
-  "``^[A-Fa-f0-9]{64}$``".
-
-.. _SpecTypeOptionalSHA512Digest:
-
-Optional SHA512 Digest
-======================
-
-A value of this type shall be of one of the following variants:
-
-- There may be no value (null).
-
-- The value may be a string. If the value is present, then it shall be a SHA512
-  digest encoded in base64url. The value shall match with the regular
-  expression "``^[A-Za-z0-9+_=-]{88}$``".
-
-.. _SpecTypeOptionalSHA512HexDigest:
-
-Optional SHA512 Hex Digest
-==========================
-
-A value of this type shall be of one of the following variants:
-
-- There may be no value (null).
-
-- The value may be a string. If the value is present, then it shall be a SHA512
-  digest encoded in hexadecimal digits. The value shall match with the regular
-  expression "``^[A-Fa-f0-9]{128}$``".
-
-.. _SpecTypeOptionalString:
-
-Optional String
-===============
-
-A value of this type shall be of one of the following variants:
-
-- There may be no value (null).
-
-- The value may be a string.
-
-.. _SpecTypeOptionalStringList:
-
-Optional String List
-====================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a list. Each list element shall be a string.
-
-- There may be no value (null).
-
-.. _SpecTypeOptionalStringOrStringList:
-
-Optional String or String List
-==============================
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a list. Each list element shall be a string.
-
-- There may be no value (null).
-
-- The value may be a string.
-
 .. _SpecTypeProxyMemberLinkRole:
 
 Proxy Member Link Role
@@ -1350,40 +1119,6 @@ This type refines the following types:
 
 It defines the proxy member role of links.  Items may use this role to link to
 :ref:`SpecTypeProxyItemType` items.
-
-.. _SpecTypeSHA256Digest:
-
-SHA256 Digest
-=============
-
-The value shall be a string. It shall be a SHA256 digest encoded in base64url.
-The value shall match with the regular expression "``^[A-Za-z0-9+_=-]{44}$``".
-
-.. _SpecTypeSHA256HexDigest:
-
-SHA256 Hex Digest
-=================
-
-The value shall be a string. It shall be a SHA256 digest encoded in hexadecimal
-digits. The value shall match with the regular expression
-"``^[A-Fa-f0-9]{64}$``".
-
-.. _SpecTypeSHA512Digest:
-
-SHA512 Digest
-=============
-
-The value shall be a string. It shall be a SHA512 digest encoded in base64url.
-The value shall match with the regular expression "``^[A-Za-z0-9+_=-]{88}$``".
-
-.. _SpecTypeSHA512HexDigest:
-
-SHA512 Hex Digest
-=================
-
-The value shall be a string. It shall be a SHA512 digest encoded in hexadecimal
-digits. The value shall match with the regular expression
-"``^[A-Fa-f0-9]{128}$``".
 
 .. _SpecTypeSPDXLicenseIdentifier:
 
@@ -1987,8 +1722,6 @@ This type is used by the following types:
 
 - :ref:`SpecTypeConferenceProceedingsReference`
 
-- :ref:`SpecTypeEnabledSetAction`
-
 - :ref:`SpecTypeInBookReference`
 
 - :ref:`SpecTypeInCollectionReference`
@@ -2001,94 +1734,7 @@ This type is used by the following types:
 
 - :ref:`SpecTypeMiscellaneousReference`
 
-- :ref:`SpecTypeStringToStringOrListOfStringsMapping`
-
 - :ref:`SpecTypeTechnicalReportReference`
-
-.. _SpecTypeStringToStringMapping:
-
-String to String Mapping
-========================
-
-This set of attributes specifies a mapping from one string to another string.
-Generic attributes may be specified. Each generic attribute key shall be a
-string. Each generic attribute value shall be a string.
-
-.. _SpecTypeStringToStringOrListOfStringsMapping:
-
-String to String or List of Strings Mapping
-===========================================
-
-This set of attributes specifies a mapping from one string to another string or
-a list of strings. Generic attributes may be specified. Each generic attribute
-key shall be a string. Each generic attribute value shall be a
-:ref:`SpecTypeStringOrStringList`.
-
-.. _SpecTypeSubprocessAction:
-
-Subprocess Action
-=================
-
-This set of attributes specifies a subprocess to run. The following explicit
-attributes are mandatory:
-
-- ``command``
-
-- ``env``
-
-- ``expected-return-code``
-
-- ``working-directory``
-
-The explicit attributes for this type are:
-
-command
-    The attribute value shall be a list of strings. It shall be the command and
-    argument list to run as a subprocess.  A variable substitution is performed
-    on the list elements.  For example, you can use ``${.:/input-file}.bin`` or
-    `${.:/output-file}`.
-
-env
-    The attribute value shall be a list. Each list element shall be a
-    :ref:`SpecTypeSubprocessEnvironmentAction`.
-
-expected-return-code
-    The attribute value shall be an :ref:`SpecTypeOptionalInteger`. If the
-    value is present, then it shall be the expected return code of the
-    subprocess.
-
-stdout
-    The attribute value shall be an optional string. It the value is present,
-    then it shall be the target file of the standard output stream.
-
-working-directory
-    The attribute value shall be a string. It shall be the working directory of
-    the subprocess.
-
-.. _SpecTypeSubprocessEnvironmentAction:
-
-Subprocess Environment Action
-=============================
-
-This set of attributes specifies an action to alter the subprocess execution
-environment. All explicit attributes shall be specified. The explicit
-attributes for this type are:
-
-action
-    The attribute value shall be a string. It shall be the subprocess execution
-    environment modification action.
-
-name
-    The attribute value shall be an optional string. If the value is present,
-    then it shall be the environment variable name.
-
-value
-    The attribute value shall be an optional string. If the value is present,
-    then it shall be the environment variable value.
-
-This type is used by the following types:
-
-- :ref:`SpecTypeSubprocessAction`
 
 .. _SpecTypeUID:
 
