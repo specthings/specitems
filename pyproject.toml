@@ -4,7 +4,7 @@
 
 [project]
 name = "specitems"
-version = "1.2.2"
+version = "1.2.3.dev1"
 description = "Provides interfaces to work with specification items."
 authors = [
     {name = "The specitems Authors", email = "specthings@embedded-brains.de"}
