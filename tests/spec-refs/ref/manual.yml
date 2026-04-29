@@ -6,6 +6,9 @@ edition: '1'
 enabled-by: true
 links:
 - citation-group-key: the-citation-group-key
+  label: Label
+  name: Name
+  path: Path
   role: citation-group-member
   uid: other
 month: January
