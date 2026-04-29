@@ -103,6 +103,10 @@ class BibTeXCitationProvider(ItemValueProvider):
         else:
             self._get_fields[type_path] = get_fields
 
+    def get_fields(self, item: Item) -> tuple[str, _Fields]:
+        """ Get the BibTeX type and fields of the item. """
+        return self._get_fields.get(item.type, _get_fields)(item)
+
     def add_get_fields(self, item_type: str, get_fields: _GetFields) -> None:
         """ Add the get fields method for the item type. """
         self.mapper.add_get_value(f"{item_type}:/cite", self._get_cite)
@@ -116,8 +120,7 @@ class BibTeXCitationProvider(ItemValueProvider):
     def add_bibtex_entries(self, content: TextContent) -> None:
         """ Add BibTeX entries for the collected citations to the content. """
         for item in sorted(self._citations):
-            publication_type, fields = self._get_fields.get(
-                item.type, _get_fields)(item)
+            publication_type, fields = self.get_fields(item)
             for key in _PERSONS.intersection(fields.keys()):
                 if isinstance(fields[key], list):
                     fields[key] = " and ".join(fields[key])
@@ -140,7 +143,7 @@ class BibTeXCitationProvider(ItemValueProvider):
 
     def _get_cite_long(self, ctx: ItemGetValueContext) -> str:
         self._citations.add(ctx.item)
-        _, fields = self._get_fields.get(ctx.item.type, _get_fields)(ctx.item)
+        _, fields = self.get_fields(ctx.item)
         assert isinstance(self.mapper, TextMapper)
         content = self.mapper.create_content()
         title = fields["title"]
