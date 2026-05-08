@@ -510,6 +510,43 @@ class ItemMapper(abc.ABC):
             return new_dict
         return data
 
+    def substitute_flexible_list(self,
+                                 flexible_list: list,
+                                 is_enabled_method: Callable[[Any], bool],
+                                 item: Optional[Item] = None,
+                                 prefix: str = "") -> list[str]:
+        """
+        Create a new list containing the substituted elements of the flexible
+        list.
+
+        Where an element is a dictionary, when its enabled-by expression
+        evaluates to true, the data substitution of the element value is added
+        to the new list.
+        """
+        new_list: list[str] = []
+        for index, element in enumerate(flexible_list):
+            prefix_2 = f"{prefix}[{index}]"
+            if isinstance(element, dict):
+                if not is_enabled_method(
+                        self.substitute_data(element["enabled-by"], item,
+                                             prefix_2)):
+                    continue
+                element = self.substitute_data(element["value"], item,
+                                               prefix_2)
+            elif isinstance(element, str):
+                if _SINGLE_SUBSTITUTION.search(element):
+                    element = self.map(element[2:-1], item, prefix_2)[2]
+                else:
+                    element = self.substitute(element, item, prefix_2)
+            else:
+                element = self.substitute_data(element, item, prefix_2)
+            if isinstance(element, list):
+                new_list.extend(element)
+            else:
+                assert isinstance(element, str)
+                new_list.append(element)
+        return new_list
+
     def add_value_provider(self, provider: "ItemValueProvider") -> None:
         """ Add the value provider to the mapper. """
         self._value_providers.append(provider)
