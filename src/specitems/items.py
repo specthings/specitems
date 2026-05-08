@@ -157,23 +157,23 @@ def is_enabled(enabled_set: EnabledSet, enabled_by: Any) -> bool:
     return enabled_by in enabled_set
 
 
-def _ops_is_enabled_op_and(enabled_set: EnabledSet, enabled_by: Any,
-                           ops: dict) -> bool:
+def _ops_is_enabled_op_and(ops: dict, enabled_set: EnabledSet,
+                           enabled_by: Any) -> bool:
     for next_enabled_by in enabled_by:
-        if not is_enabled_with_ops(enabled_set, next_enabled_by, ops):
+        if not is_enabled_with_ops(ops, enabled_set, next_enabled_by):
             return False
     return True
 
 
-def _ops_is_enabled_op_not(enabled_set: EnabledSet, enabled_by: Any,
-                           ops: dict) -> bool:
-    return not is_enabled_with_ops(enabled_set, enabled_by, ops)
+def _ops_is_enabled_op_not(ops: dict, enabled_set: EnabledSet,
+                           enabled_by: Any) -> bool:
+    return not is_enabled_with_ops(ops, enabled_set, enabled_by)
 
 
-def _ops_is_enabled_op_or(enabled_set: EnabledSet, enabled_by: Any,
-                          ops: dict) -> bool:
+def _ops_is_enabled_op_or(ops: dict, enabled_set: EnabledSet,
+                          enabled_by: Any) -> bool:
     for next_enabled_by in enabled_by:
-        if is_enabled_with_ops(enabled_set, next_enabled_by, ops):
+        if is_enabled_with_ops(ops, enabled_set, next_enabled_by):
             return True
     return False
 
@@ -185,8 +185,8 @@ IS_ENABLED_OPS = {
 }
 
 
-def is_enabled_with_ops(enabled_set: EnabledSet, enabled_by: Any,
-                        ops: dict) -> bool:
+def is_enabled_with_ops(ops: dict, enabled_set: EnabledSet,
+                        enabled_by: Any) -> bool:
     """
     Evaluate the enabled-by expression using the enabled set with custom
     operations.
@@ -194,10 +194,10 @@ def is_enabled_with_ops(enabled_set: EnabledSet, enabled_by: Any,
     if isinstance(enabled_by, bool):
         return enabled_by
     if isinstance(enabled_by, list):
-        return _ops_is_enabled_op_or(enabled_set, enabled_by, ops)
+        return _ops_is_enabled_op_or(ops, enabled_set, enabled_by)
     if isinstance(enabled_by, dict):
         key, value = next(iter(enabled_by.items()))
-        return ops[key](enabled_set, value, ops)
+        return ops[key](ops, enabled_set, value)
     return enabled_by in enabled_set
 
 
