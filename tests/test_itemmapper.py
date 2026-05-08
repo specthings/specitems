@@ -24,11 +24,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import functools
 import pytest
 
 from specitems import (EmptyItem, ItemCache, ItemGetValueContext, ItemMapper,
-                       ItemValueProvider, SpecTypeProvider, get_value_default,
-                       unpack_arg, unpack_args)
+                       ItemValueProvider, SpecTypeProvider, is_enabled,
+                       get_value_default, unpack_arg, unpack_args)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
@@ -92,6 +93,28 @@ def test_item_mapper(tmpdir):
                                    2]) == ["1", "${/c:/r}", 2]
     assert mapper.substitute_data({"x": "y"}) == {"x": "y"}
     assert mapper.substitute_data({"${/c:/v}": "y"}) == {"c": "y"}
+
+    is_enabled_method = functools.partial(is_enabled, ["A"])
+    assert mapper.substitute_flexible_list([], is_enabled_method) == []
+    assert mapper.substitute_flexible_list([[]], is_enabled_method) == []
+    assert mapper.substitute_flexible_list(["${.:/v}", "${.:/w}", "w"],
+                                           is_enabled_method,
+                                           c) == ["c", "u", "v", "w"]
+    assert mapper.substitute_flexible_list([{
+        "enabled-by": "A",
+        "value": ["a", "b"]
+    }], is_enabled_method) == ["a", "b"]
+    assert mapper.substitute_flexible_list([{
+        "enabled-by": True,
+        "value": "c"
+    }], is_enabled_method) == ["c"]
+    assert mapper.substitute_flexible_list([{
+        "enabled-by": {
+            "not": "A"
+        },
+        "value": "d"
+    }], is_enabled_method) == []
+
     assert mapper.item == p
     with mapper.scope(item_cache["/c"]):
         assert mapper.item == item_cache["/c"]
