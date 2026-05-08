@@ -265,7 +265,7 @@ def test_is_enabled():
 
 
 def _is_enabled_with_ops(enabled_set, enabled_by):
-    return is_enabled_with_ops(enabled_set, enabled_by, IS_ENABLED_OPS)
+    return is_enabled_with_ops(IS_ENABLED_OPS, enabled_set, enabled_by)
 
 
 def test_is_enabled_with_ops():
