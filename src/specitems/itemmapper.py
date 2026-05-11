@@ -203,13 +203,7 @@ class ItemGetValueContext:
 
         If the context arguments are not present, then return the value.
         """
-        if self.args is None:
-            return value
-
-        def _substitute(text: str) -> str:
-            return self.mapper.substitute(text, self.item, self.path)
-
-        return self.mapper.transform(value, self.args, _substitute)
+        return self.mapper.transform(self, value)
 
     def substitute_and_transform(self, value: Any) -> Any:
         """
@@ -269,15 +263,10 @@ class ItemMapper(abc.ABC):
         value = ctx.value[ctx.key]
         if ctx.index >= 0:
             value = value[ctx.index]
-        if not ctx.remaining_path:
-            value = self.substitute_data(value, ctx.item, ctx.path)
-            if ctx.args is not None:
-
-                def _substitute(text: str) -> str:
-                    return self.substitute(text, ctx.item, ctx.path)
-
-                value = self.transform(value, ctx.args, _substitute)
-        return value
+        if ctx.remaining_path:
+            return value
+        return self.transform(ctx,
+                              self.substitute_data(value, ctx.item, ctx.path))
 
     def _add_get_value_map_for_subtypes(
             self, spec_type: ItemType, type_path: str, path_key: str,
@@ -340,28 +329,42 @@ class ItemMapper(abc.ABC):
         """
         Associate the name with the value transformer.
 
+        The get value context is passed as the first argument to the
+        transformer.
+
         The transformer is used to transform a mapped value.  The mapped value
-        is passed as the first argument to the transformer.
+        is passed as the second argument to the transformer.
         """
         self._transformers[name] = transformer
 
-    def transform(self, value: Any, name_and_args: str,
-                  substitute: Callable[[str], str]) -> Any:
+    def transform(self, ctx: ItemGetValueContext, value: Any) -> Any:
         """
-        Transform the value using the transformer specified by the name and
-        optional arguments.
+        Transform the value using the transformer specified by the get value
+        context arguments.
 
-        The value is passed as the first argument to the transformer.
+        The get value context is passed as the first argument to the
+        transformer.
 
-        The name and arguments string parameter specifies the name of the
-        transformer and optional additional positional and keyword arguments.
-        The transformer name is the start of the string up to the first space
-        character or the end of the string.  Arguments following the space
-        character are unpacked and passed to the transformer.
+        The value is passed as the second argument to the transformer.
+
+        If the get value context arguments are not present, then return the
+        value.
+
+        The get value context arguments specify the name of the transformer and
+        optional additional positional and keyword arguments.  The transformer
+        name is the start of the string up to the first space character or the
+        end of the string.  Arguments following the space character are
+        unpacked and passed to the transformer.
         """
-        name, _, args_string = name_and_args.partition(" ")
-        args, kwargs = unpack_args(args_string, substitute)
-        return self._transformers[name](value, *args, **kwargs)
+        if ctx.args is None:
+            return value
+
+        def _substitute(value_2: str) -> str:
+            return self.substitute(value_2, ctx.item, ctx.path)
+
+        name, _, args_string = ctx.args.partition(" ")
+        args, kwargs = unpack_args(args_string, _substitute)
+        return self._transformers[name](ctx, value, *args, **kwargs)
 
     @contextlib.contextmanager
     def scope(self, item: Item) -> Iterator[None]:

@@ -180,11 +180,11 @@ def test_empty_item_mapper():
     assert mapper.item == item_2
 
 
-def _transformer_x(value, a, b, c="c"):
+def _transformer_x(_ctx, value, a, b, c="c"):
     return f"{value}/{a}/{b}/{c}"
 
 
-def _transformer_y(value):
+def _transformer_y(_ctx, value):
     return f"<{value}>"
 
 
