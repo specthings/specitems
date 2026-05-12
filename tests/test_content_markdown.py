@@ -394,8 +394,21 @@ def test_markdown_simple_table():
     content = MarkdownContent()
     content.add_simple_table([])
     assert str(content) == ""
-    content.add_simple_table([["a", "b"], ["cc", "ddd"]])
-    assert str(content) == """```{eval-rst}
+    content.add_simple_table([["a", "b"], ["cc", "d|dd"]])
+    assert str(content) == """ | a   | b     |
+ | --- | ----- |
+ | cc  | d\\|dd |
+"""
+    content.add_simple_table([["a", "b"], ["cc", "ddd"]], font_size=0)
+    assert str(content) == """ | a   | b     |
+ | --- | ----- |
+ | cc  | d\\|dd |
+
+```{eval-rst}
+.. raw:: latex
+
+    \\begin{normalsize}
+
 .. table::
     :class: longtable
 
@@ -404,6 +417,10 @@ def test_markdown_simple_table():
     == ===
     cc ddd
     == ===
+
+.. raw:: latex
+
+    \\end{normalsize}
 ```
 """
 
