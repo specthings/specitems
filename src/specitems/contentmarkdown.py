@@ -46,6 +46,11 @@ def _md_escape(match: Match) -> str:
     return f"\\{match.group(0)}"
 
 
+def _simple_row(row: Iterable[str], maxi: Iterable[int]) -> str:
+    line = " | ".join(f"{cell:{width}}" for cell, width in zip(row, maxi))
+    return f" | {line} |"
+
+
 class MarkdownContent(TextContent):
     """ This class builds MyST Markdown content. """
 
@@ -125,10 +130,28 @@ class MarkdownContent(TextContent):
                          font_size: Optional[str | int] = None) -> None:
         if not rows:
             return
-        with self.directive("eval-rst"):
-            table = SphinxContent()
-            table.add_simple_table(rows, widths, font_size)
-            self.add(table)
+        if not widths and font_size is None:
+            escaped_rows: list[tuple[str, ...]] = []
+            maxi = tuple(map(len, rows[0]))
+            for row in rows:
+                escaped_row = tuple(cell.replace("|", "\\|") for cell in row)
+                escaped_rows.append(escaped_row)
+                row_lengths = tuple(map(len, escaped_row))
+                maxi = tuple(map(max, zip(maxi, row_lengths)))
+
+            # At least three dashes are required for a table
+            maxi = tuple(max(width, 3) for width in maxi)
+
+            sep = " | ".join(f"{'-' * width}" for width in maxi)
+            sep = f" | {sep} |"
+            lines = [_simple_row(escaped_rows[0], maxi), sep]
+            lines.extend(_simple_row(row, maxi) for row in escaped_rows[1:])
+            self.add(lines)
+        else:
+            with self.directive("eval-rst"):
+                table = SphinxContent()
+                table.add_simple_table(rows, widths, font_size)
+                self.add(table)
 
     def add_grid_table(self,
                        rows: Sequence[Iterable[str | int]],
