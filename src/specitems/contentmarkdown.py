@@ -56,7 +56,7 @@ class MarkdownContent(TextContent):
 
     # pylint: disable=too-many-public-methods
     def __init__(self,
-                 section_level: int = 1,
+                 section_level: int = 0,
                  the_license: str | set[str] | None = None):
         super().__init__(section_level, the_license)
         self.set_pop_indent_gap(True)
@@ -96,10 +96,13 @@ class MarkdownContent(TextContent):
     def add_label(self, label: str) -> None:
         self.add(f"({label.strip()})=")
 
-    def add_header(self, name, level=1, label=None) -> None:
+    def add_header(self,
+                   name: str,
+                   level: int = 0,
+                   label: Optional[str] = None) -> None:
         if label is not None:
             self.add_label(label)
-        self.add([f"{level * '#'} {name.strip()}", ""])
+        self.add([f"#{level * '#'} {name.strip()}", ""])
 
     def add_rubric(self, name: str) -> None:
         self.add(["```{eval-rst}", f".. rubric:: {name}", "```", ""])

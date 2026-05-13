@@ -65,7 +65,7 @@ def test_markdown_special():
 def test_markdown_header():
     content = MarkdownContent()
     content.add_header("header")
-    content.add_header("header", level=6, label="label")
+    content.add_header("header", level=5, label="label")
     assert str(content) == """# header
 
 (label)=
