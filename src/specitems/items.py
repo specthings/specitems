@@ -37,8 +37,7 @@ import os
 import pickle
 import re
 import stat
-from typing import (Any, Callable, Collection, Iterable, Iterator, Match,
-                    Optional, Union)
+from typing import (Any, Callable, Collection, Iterable, Iterator, Match, Optional, Union)
 import json
 import yaml
 
