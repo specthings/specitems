@@ -10,9 +10,6 @@ on:
   pull_request:
     branches:
     - main
-permissions:
-  issues: write
-  pull-requests: write
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -37,6 +34,7 @@ jobs:
       id: make
       run: |
         make
+        echo "${{ github.event.pull_request.number }}" >.github/status/pr.txt
         git add -N .
         {
            echo "After formatting, the following changes were pending:"
@@ -47,8 +45,11 @@ jobs:
         status=$(test -z "$(git status --short)"; echo $?)
         echo "status=$status" >>$GITHUB_OUTPUT
         exit "$status"
-    - name: Notify about changes
-      uses: marocchino/sticky-pull-request-comment@v3
-      if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14' && steps.make.outputs.status == '1'
+    - name: Upload comment artifact
+      if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14' && steps.make.outputs.status == '1' && github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v4
       with:
-        path: .github/status/comment.md
+        name: comment-md
+        path: |
+         .github/status/comment.md
+         .github/status/pr.txt
