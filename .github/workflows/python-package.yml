@@ -5,9 +5,13 @@
 name: Python package
 on:
   push:
-    branches: [ "main" ]
+    branches:
+    - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+    - main
+permissions:
+  pull-requests: write
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -29,4 +33,21 @@ jobs:
         python-version: ${{ matrix.python-version }}
         version: 0.10.12
     - name: Make
-      run: make
+      id: make
+      run: |
+        make
+        git add -N .
+        {
+           echo "After formatting, the following changes were pending:"
+           echo '```diff'
+           git diff
+           echo '```'
+        } >.github/status/comment.md
+        status=$(test -z "$(git status --short)"; echo $?)
+        echo "status=$status" >>$GITHUB_OUTPUT
+        exit "$status"
+    - name: Notify about changes
+      uses: marocchino/sticky-pull-request-comment@v3
+      if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14' && steps.make.outputs.status == '1'
+      with:
+        path: .github/status/comment.md
