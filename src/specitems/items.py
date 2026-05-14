@@ -54,13 +54,11 @@ ItemViewGetMissing = Callable[["Item"], Any]
 
 
 class _DirectView(dict):
-
     def __init__(self, item: "Item",
                  get_missing_map: dict[str, ItemViewGetMissing]) -> None:
         super().__init__()
         self._item = item
         self._get_missing_map = get_missing_map
-
     def __missing__(self, key):
         return self._get_missing_map[key](self._item)
 
