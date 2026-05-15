@@ -16,8 +16,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-        os: [macos-latest, ubuntu-latest]
+        python-version:
+        - '3.11'
+        - '3.12'
+        - '3.13'
+        - '3.14'
+        os:
+        - macos-latest
+        - ubuntu-latest
+        include:
+        - python-version: '3.14'
+          os: ubuntu-latest
+          upload-comment: true
     steps:
     - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
@@ -45,7 +55,7 @@ jobs:
         echo "status=$status" >>$GITHUB_OUTPUT
         exit "$status"
     - name: Upload comment artifact
-      if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14' && steps.make.outputs.status == '1' && github.event_name == 'pull_request'
+      if: ${{ always() && matrix.upload-comment && steps.make.outputs.status == '1' && github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4
       with:
         name: comment-md
