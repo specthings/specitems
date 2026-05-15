@@ -34,7 +34,6 @@ jobs:
       id: make
       run: |
         make
-        echo "${{ github.event.pull_request.number }}" >.github/status/pr.txt
         git add -N .
         {
            echo "After formatting, the following changes were pending:"
@@ -50,6 +49,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: comment-md
-        path: |
-         .github/status/comment.md
-         .github/status/pr.txt
+        path: .github/status/comment.md
