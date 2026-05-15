@@ -2,7 +2,7 @@
 
 # Copyright (C) 2026 embedded brains GmbH & Co. KG
 
-name: Post PR comment
+name: Manage PR comment
 on:
   workflow_run:
     workflows:
@@ -11,12 +11,20 @@ on:
     - completed
 jobs:
   comment:
-    if: ${{ github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event == 'pull_request' }}
+    if: ${{ github.event.workflow_run.event == 'pull_request' && (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure') }}
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       pull-requests: write
     steps:
+    - name: Delete comment
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      uses: marocchino/sticky-pull-request-comment@v3
+      with:
+        number: ${{ github.event.workflow_run.pull_requests[0].number }}
+        delete: true
     - name: Download artifacts
+      if: ${{ github.event.workflow_run.conclusion == 'failure' }}
       uses: actions/download-artifact@v4
       with:
         name: comment-md
@@ -24,6 +32,7 @@ jobs:
         github-token: ${{ github.token }}
         path: .
     - name: Post comment
+      if: ${{ github.event.workflow_run.conclusion == 'failure' }}
       uses: marocchino/sticky-pull-request-comment@v3
       with:
         number: ${{ github.event.workflow_run.pull_requests[0].number }}
