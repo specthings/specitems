@@ -23,12 +23,8 @@ jobs:
         run-id: ${{ github.event.workflow_run.id }}
         github-token: ${{ github.token }}
         path: .
-    - name: Get PR number
-      id: pr
-      run: |
-        echo "pr=$(head -1 pr.txt)" >>$GITHUB_OUTPUT
     - name: Post comment
       uses: marocchino/sticky-pull-request-comment@v3
       with:
-        number: ${{ steps.pr.outputs.pr }}
+        number: ${{ github.event.workflow_run.pull_requests[0].number }}
         path: comment.md
