@@ -56,6 +56,10 @@ from .contenttext import (
     latex_escape,
     make_label,
 )
+from .contentcommonmark import (
+    CommonMarkContent,
+    CommonMarkMapper,
+)
 from .contentmarkdown import (
     MarkdownContent,
     MarkdownMapper,
@@ -140,6 +144,8 @@ from .subprocessaction import (
 __all__ = [
     "BibTeXCitationProvider",
     "COL_SPAN",
+    "CommonMarkContent",
+    "CommonMarkMapper",
     "Content",
     "ContentAddContext",
     "Copyright",
