@@ -25,10 +25,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import argparse
+import contextlib
 import itertools
 import logging
 import os
-from typing import Any, Callable, Iterable, Optional, Type, TypeVar
+from typing import (Any, Callable, Iterable, Iterator, NamedTuple, Optional,
+                    Type, TypeVar)
 
 import yaml
 
@@ -140,6 +142,70 @@ def init_logging(args: argparse.Namespace) -> None:
                         force=True,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         handlers=handlers)
+
+
+class LoggingStatus(NamedTuple):
+    """Counts of log messages grouped by severity.
+
+    Attributes:
+        critical: Number of CRITICAL messages.
+        error: Number of ERROR messages.
+        warning: Number of WARNING messages.
+        info: Number of INFO messages.
+        debug: Number of DEBUG messages.
+    """
+    critical: int
+    error: int
+    warning: int
+    info: int
+    debug: int
+
+
+class LogMonitor(logging.Filter):
+    """ Monitors log messages grouped by severity. """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._counts: dict[int, int] = {}
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Count the given logging record and allow propagation.
+
+        Args:
+            record: The logging record to count.
+
+        Returns:
+            True so the log record is processed by the logging system.
+        """
+        count = self._counts.get(record.levelno, 0)
+        self._counts[record.levelno] = count + 1
+        return True
+
+    def get_status(self) -> LoggingStatus:
+        """Return a LoggingStatus summarizing collected log counts.
+
+        Returns:
+            Aggregated counts for each standard logging level.
+        """
+        return LoggingStatus(self._counts.get(logging.CRITICAL, 0),
+                             self._counts.get(logging.ERROR, 0),
+                             self._counts.get(logging.WARNING, 0),
+                             self._counts.get(logging.INFO, 0),
+                             self._counts.get(logging.DEBUG, 0))
+
+
+@contextlib.contextmanager
+def monitor_logging() -> Iterator[LogMonitor]:
+    """
+    Monitors the logging and counts the log records grouped by severity.
+    """
+    logger = logging.getLogger()
+    monitor = LogMonitor()
+    logger.addFilter(monitor)
+    try:
+        yield monitor
+    finally:
+        logger.removeFilter(monitor)
 
 
 def load_config(config_filename: str) -> Any:

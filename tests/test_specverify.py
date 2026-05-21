@@ -27,7 +27,7 @@
 import logging
 
 from specitems import (EmptyItemCache, ItemCache, ItemTypeProvider,
-                       SpecTypeProvider, SpecVerifier,
+                       SpecTypeProvider, SpecVerifier, monitor_logging,
                        verify_specification_format)
 
 from .util import (create_item_cache_config, get_and_clear_log,
@@ -142,7 +142,9 @@ INFO type: str
 INFO type: str-contains
 INFO type: uid
 INFO type: x"""
-    info = verifier.verify_all(item_cache)
+    with monitor_logging() as monitor:
+        verifier.verify_all(item_cache)
+        info = monitor.get_status()
     assert get_and_clear_log(
         caplog) == """INFO start specification item verification
 INFO /c1: verify using type 'root'
