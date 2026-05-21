@@ -160,6 +160,12 @@ class LoggingStatus(NamedTuple):
     info: int
     debug: int
 
+    def exit_code(self) -> int:
+        """ Return the exit code associated with the status. """
+        if self.critical or self.error:
+            return 1
+        return 0
+
 
 class LogMonitor(logging.Filter):
     """ Monitors log messages grouped by severity. """
