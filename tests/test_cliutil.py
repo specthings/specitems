@@ -30,9 +30,18 @@ import logging
 
 import pytest
 
-from specitems.cliutil import (create_config, get_arguments,
+from specitems.cliutil import (LoggingStatus, create_config, get_arguments,
                                get_item_cache_arguments, init_logging,
                                load_config)
+
+
+def test_logging_status():
+    good = LoggingStatus(0, 0, 0, 0, 0)
+    assert good.exit_code() == 0
+    critical = LoggingStatus(1, 0, 0, 0, 0)
+    assert critical.exit_code() == 1
+    error = LoggingStatus(0, 1, 0, 0, 0)
+    assert error.exit_code() == 1
 
 
 @dataclasses.dataclass
