@@ -6,7 +6,7 @@ verify that a set of specification items is in line with a specification item
 format specification.  The format specification is defined by specification
 items.  Logging is used for informational messages and for reporting errors
 found during verification.  The result of the format verification is
-represented by a :py:class:`VerifyStatus` object.
+represented by a :py:class:`LoggingStatus` object.
 """
 
 # Copyright (C) 2020, 2026 embedded brains GmbH & Co. KG
@@ -32,63 +32,14 @@ represented by a :py:class:`VerifyStatus` object.
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from contextlib import contextmanager
 import logging
 import re
-from typing import Any, Iterator, NamedTuple
+from typing import Any, NamedTuple
 
+from .cliutil import LoggingStatus, monitor_logging
 from .items import Item, ItemCache
 
 _VerifierMap = dict[str, "_Verifier"]
-
-
-class VerifyStatus(NamedTuple):
-    """Counts of log messages produced by a verification run.
-
-    Attributes:
-        critical: Number of CRITICAL messages.
-        error: Number of ERROR messages.
-        warning: Number of WARNING messages.
-        info: Number of INFO messages.
-        debug: Number of DEBUG messages.
-    """
-    critical: int
-    error: int
-    warning: int
-    info: int
-    debug: int
-
-
-class _Filter(logging.Filter):
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._counts: dict[int, int] = {}
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        """Count the given logging record and allow propagation.
-
-        Args:
-            record: The logging record to count.
-
-        Returns:
-            True so the log record is processed by the logging system.
-        """
-        count = self._counts.get(record.levelno, 0)
-        self._counts[record.levelno] = count + 1
-        return True
-
-    def get_verify_info(self) -> VerifyStatus:
-        """Return a VerifyStatus summarizing collected log counts.
-
-        Returns:
-            Aggregated counts for each standard logging level.
-        """
-        return VerifyStatus(self._counts.get(logging.CRITICAL, 0),
-                            self._counts.get(logging.ERROR, 0),
-                            self._counts.get(logging.WARNING, 0),
-                            self._counts.get(logging.INFO, 0),
-                            self._counts.get(logging.DEBUG, 0))
 
 
 def _type_name(value: Any):
@@ -680,15 +631,6 @@ def _gather_item_verifiers(item: Item, verifier_map: _VerifierMap) -> None:
             _create_verifier(link.item, verifier_map)
 
 
-@contextmanager
-def _add_filter() -> Iterator[_Filter]:
-    logger = logging.getLogger()
-    log_filter = _Filter()
-    logger.addFilter(log_filter)
-    yield log_filter
-    logger.removeFilter(log_filter)
-
-
 class SpecVerifier:
     """Orchestrates construction of verifiers from spec items and running
     verification.
@@ -732,31 +674,23 @@ class SpecVerifier:
                 logging.info("type: %s", name)
                 verifier_map[name].resolve_type_refinements()
 
-    def verify_all(self, item_cache: ItemCache) -> VerifyStatus:
+    def verify_all(self, item_cache: ItemCache) -> None:
         """Verify all items in the provided item cache.
-
-        The method installs a logging filter to collect counts, iterates all
-        items in the cache and invokes the root verifier on each item's data.
 
         Args:
             item_cache: The cache containing items to verify.
-
-        Returns:
-            Status with counts of messages emitted during verification.
         """
-        with _add_filter() as log_filter:
-            if self._root_verifier is None:
-                logging.error("root type item does not exist in item cache")
-            else:
-                logging.info("start specification item verification")
-                for key in sorted(item_cache):
-                    item = item_cache[key]
-                    self._root_verifier.verify(_Path(item, f"{item.uid}:"),
-                                               item.data)
-                logging.info("finished specification item verification")
-        return log_filter.get_verify_info()
+        if self._root_verifier is None:
+            logging.error("root type item does not exist in item cache")
+        else:
+            logging.info("start specification item verification")
+            for key in sorted(item_cache):
+                item = item_cache[key]
+                self._root_verifier.verify(_Path(item, f"{item.uid}:"),
+                                           item.data)
+            logging.info("finished specification item verification")
 
-    def verify(self, item: Item) -> VerifyStatus:
+    def verify(self, item: Item) -> LoggingStatus:
         """Verify the item format.
 
         Args:
@@ -765,16 +699,16 @@ class SpecVerifier:
         Returns:
             Status with counts of messages emitted during verification.
         """
-        with _add_filter() as log_filter:
+        with monitor_logging() as monitor:
             if self._root_verifier is None:
                 logging.error("root type item does not exist in item cache")
             else:
                 self._root_verifier.verify(_Path(item, f"{item.uid}:"),
                                            item.data)
-        return log_filter.get_verify_info()
+            return monitor.get_status()
 
 
-def verify_specification_format(item_cache: ItemCache) -> VerifyStatus:
+def verify_specification_format(item_cache: ItemCache) -> LoggingStatus:
     """Verify all items using the specification root type from the item cache.
 
     Emits an error if the item cache has no specification root type.
@@ -785,9 +719,11 @@ def verify_specification_format(item_cache: ItemCache) -> VerifyStatus:
     Returns:
         The status summarizing the verification run.
     """
-    root_type_uid = item_cache.type_provider.root_type_uid
-    if root_type_uid is None:
-        logging.error("item cache has no root type")
-        return VerifyStatus(0, 1, 0, 0, 0)
-    verifier = SpecVerifier(item_cache, root_type_uid)
-    return verifier.verify_all(item_cache)
+    with monitor_logging() as monitor:
+        root_type_uid = item_cache.type_provider.root_type_uid
+        if root_type_uid is None:
+            logging.error("item cache has no root type")
+        else:
+            verifier = SpecVerifier(item_cache, root_type_uid)
+            verifier.verify_all(item_cache)
+        return monitor.get_status()

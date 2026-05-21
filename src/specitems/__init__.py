@@ -26,11 +26,13 @@
 
 from .cite import BibTeXCitationProvider
 from .cliutil import (
+    LoggingStatus,
     create_config,
     get_arguments,
     get_item_cache_arguments,
     init_logging,
     load_config,
+    monitor_logging,
 )
 from .content import (
     Content,
@@ -133,7 +135,6 @@ from .specdoc import (SpecDocumentConfig, add_specification_documentation,
                       generate_specification_documentation)
 from .specverify import (
     SpecVerifier,
-    VerifyStatus,
     verify_specification_format,
 )
 from .subprocessaction import (
@@ -176,6 +177,7 @@ __all__ = [
     "ItemViewGetMissing",
     "JSONItemCache",
     "Link",
+    "LoggingStatus",
     "MARKDOWN_ROLES",
     "MarkdownContent",
     "MarkdownMapper",
@@ -187,7 +189,6 @@ __all__ = [
     "SphinxMapper",
     "TextContent",
     "TextMapper",
-    "VerifyStatus",
     "add_specification_documentation",
     "augment_glossary_terms",
     "base64_to_hex",
@@ -225,6 +226,7 @@ __all__ = [
     "make_lines",
     "make_subprocess_environment",
     "make_text",
+    "monitor_logging",
     "pickle_load_data_by_uid",
     "run_subprocess_action",
     "save_data",
