@@ -202,7 +202,7 @@ def _prefix(prefix: _Path) -> str:
 
 class _Verifier:
 
-    def __init__(self, name: str, verifier_map: _VerifierMap):
+    def __init__(self, name: str, verifier_map: _VerifierMap) -> None:
         self._name = name
         self._verifier_map = verifier_map
         self.is_subtype = False
@@ -277,6 +277,11 @@ class _NameVerifier(_Verifier):
 
 class _UIDVerifier(_Verifier):
 
+    def __init__(self, name: str, verifier_map: _VerifierMap,
+                 log_level: int) -> None:
+        super().__init__(name, verifier_map)
+        self.log_level = log_level
+
     def verify(self, path: _Path, value: Any) -> set[str]:
         """Verify that the UID string can be resolved in the item's mapping
            context.
@@ -293,8 +298,8 @@ class _UIDVerifier(_Verifier):
             try:
                 path.item.map(value)
             except KeyError:
-                logging.error("%s cannot resolve UID: %s", _prefix(path),
-                              value)
+                logging.log(self.log_level, "%s cannot resolve UID: %s",
+                            _prefix(path), value)
         return set()
 
 
@@ -307,7 +312,7 @@ class _ItemVerifier(_Verifier):
     """
 
     def __init__(self, name: str, verifier_map: _VerifierMap,
-                 info_map: dict[str, Any], item: Item):
+                 info_map: dict[str, Any], item: Item) -> None:
         super().__init__(name, verifier_map)
         self._info_map = info_map
         self._item = item
@@ -643,7 +648,10 @@ class SpecVerifier:
     """
 
     # pylint: disable=too-few-public-methods
-    def __init__(self, item_cache: ItemCache, root_uid: str):
+    def __init__(self,
+                 item_cache: ItemCache,
+                 root_uid: str,
+                 uid_log_level: int = logging.ERROR) -> None:
         """Initialize and build verifier map.
 
         Args:
@@ -653,11 +661,13 @@ class SpecVerifier:
                 the specification type tree). If the root UID is missing the
                 verifier will be left uninitialized and verification methods
                 will report an error.
+            uid_log_level: The log level to indicate that an UID cannot be
+                resolved.
         """
         verifier_map: _VerifierMap = {}
         _AnyVerifier("any", verifier_map)
         _NameVerifier("name", verifier_map)
-        _UIDVerifier("uid", verifier_map)
+        _UIDVerifier("uid", verifier_map, uid_log_level)
         _Verifier("bool", verifier_map)
         _Verifier("float", verifier_map)
         _Verifier("int", verifier_map)
@@ -708,13 +718,17 @@ class SpecVerifier:
             return monitor.get_status()
 
 
-def verify_specification_format(item_cache: ItemCache) -> LoggingStatus:
+def verify_specification_format(
+        item_cache: ItemCache,
+        uid_log_level: int = logging.ERROR) -> LoggingStatus:
     """Verify all items using the specification root type from the item cache.
 
     Emits an error if the item cache has no specification root type.
 
     Args:
         item_cache: The item cache containing the items to verify.
+        uid_log_level: The log level to indicate that an UID cannot be
+            resolved.
 
     Returns:
         The status summarizing the verification run.
@@ -724,6 +738,6 @@ def verify_specification_format(item_cache: ItemCache) -> LoggingStatus:
         if root_type_uid is None:
             logging.error("item cache has no root type")
         else:
-            verifier = SpecVerifier(item_cache, root_type_uid)
+            verifier = SpecVerifier(item_cache, root_type_uid, uid_log_level)
             verifier.verify_all(item_cache)
         return monitor.get_status()
