@@ -523,14 +523,20 @@ class Item:
             parent._links_to_children.append(Link(self, data))
             if data["role"].startswith("proxy-member"):
                 for data_2 in parent.data["links"]:
-                    try:
-                        parent_2 = item_cache[parent.to_abs_uid(data_2["uid"])]
-                    except KeyError as err:
-                        msg = (f"item {self._uid} links "
-                               f"to non-existing item '{data_2['uid']}' "
-                               f"through proxy {parent._uid}")
-                        raise KeyError(msg) from err
-                    self._links_to_parents.append(Link(parent_2, data_2))
+                    uid_2 = parent.to_abs_uid(data_2["uid"])
+                    parent_2 = proxies.get(uid_2)
+                    if parent_2 is None:
+                        try:
+                            parent_2 = item_cache[uid_2]
+                        except KeyError as err:
+                            msg = (f"item {self._uid} links "
+                                   f"to non-existing item '{data_2['uid']}' "
+                                   f"through proxy {parent._uid}")
+                            raise KeyError(msg) from err
+                        self._links_to_parents.append(Link(parent_2, data_2))
+                    else:
+                        self._links_to_parents.append(
+                            _ProxyLink(parent_2, data_2))
                     parent_2._links_to_children.append(Link(self, data_2))
 
     def init_children(self) -> None:

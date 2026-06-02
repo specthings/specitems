@@ -4,6 +4,6 @@ copyrights:
 enabled-by: blub
 links:
 - role: proxy-member
-  uid: proxy
+  uid: proxy3
 type: other
 v: q
