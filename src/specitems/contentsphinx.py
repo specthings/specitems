@@ -75,7 +75,7 @@ def _grid_row(row: Iterable[str | int], maxi: Iterable[int]) -> str:
     for cell, width in zip(row, maxi):
         if isinstance(cell, str):
             line = f"{line} | {cell:{width}}"
-        elif (cell & ROW_SPAN) == 0:
+        elif (cell & COL_SPAN) == 0:
             line = f"{line} | {' ' * width}"
         else:
             line = f"{line}   {' ' * width}"
@@ -276,12 +276,12 @@ class SphinxContent(TextContent):
             if index > 0:
                 sep = ""
                 for cell, width in zip(row, maxi):
-                    if isinstance(cell, str) or (cell & COL_SPAN) == 0:
+                    if isinstance(cell, str) or (cell & ROW_SPAN) == 0:
                         if index == header_rows:
                             sep = f"{sep}+{'=' * (width + 2)}"
                         else:
                             sep = f"{sep}+{'-' * (width + 2)}"
-                    elif (cell & ROW_SPAN) == 0:
+                    elif (cell & COL_SPAN) == 0:
                         sep = f"{sep}+{' ' * (width + 2)}"
                     else:
                         sep = f"{sep} {' ' * (width + 2)}"

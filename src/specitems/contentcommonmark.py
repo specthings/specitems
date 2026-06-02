@@ -34,9 +34,9 @@ from .contenttext import COL_SPAN, ROW_SPAN, TextContent, TextMapper
 def _make_simple(cell: str | int) -> str:
     if isinstance(cell, str):
         return cell
-    if cell == COL_SPAN | ROW_SPAN:
+    if cell == ROW_SPAN | COL_SPAN:
         return "↖"
-    if cell == ROW_SPAN:
+    if cell == COL_SPAN:
         return "←"
     return "↑"
 
