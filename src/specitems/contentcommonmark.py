@@ -24,21 +24,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import collections
 from typing import Iterable, Optional, Sequence
 
 from .content import GenericContent, make_lines
 from .contentmarkdown import MarkdownContent
 from .contenttext import COL_SPAN, ROW_SPAN, TextContent, TextMapper
-
-
-def _make_simple(cell: str | int) -> str:
-    if isinstance(cell, str):
-        return cell
-    if cell == ROW_SPAN | COL_SPAN:
-        return "↖"
-    if cell == COL_SPAN:
-        return "←"
-    return "↑"
 
 
 class CommonMarkContent(MarkdownContent):
@@ -85,12 +76,42 @@ class CommonMarkContent(MarkdownContent):
                        widths: Optional[list[int]] = None,
                        header_rows: int = 1,
                        font_size: Optional[str | int] = None) -> None:
+        # pylint: disable=too-many-locals
         if not rows:
             return
-        simple_rows = [
-            tuple(_make_simple(cell) for cell in row) for row in rows
-        ]
-        self.add_simple_table(simple_rows)
+        lines: collections.deque[str] = collections.deque()
+        lines.appendleft("</table>")
+        row_span: list[int] = [1] * len(list(rows[0]))
+        header_index = len(rows) - header_rows
+        for row_index, row in enumerate(reversed(rows)):
+            if row_index < header_index:
+                cell_type = "td"
+            else:
+                cell_type = "th"
+            col_span = 1
+            line = "</tr>"
+            for col_index, cell in enumerate(reversed(tuple(row))):
+                if isinstance(cell, str):
+                    cell_start = f"<{cell_type}"
+                    if row_span[col_index] > 1:
+                        cell_start = (f"{cell_start} "
+                                      f"rowspan=\"{row_span[col_index]}\"")
+                        row_span[col_index + 1 - col_span:col_index +
+                                 1] = [1] * col_span
+                    if col_span > 1:
+                        cell_start = f"{cell_start} colspan=\"{col_span}\""
+                        col_span = 1
+                    line = f"{cell_start}>{cell}</{cell_type}>{line}"
+                elif cell == COL_SPAN | ROW_SPAN:
+                    col_span += 1
+                    row_span[col_index] += 1
+                elif cell == COL_SPAN:
+                    col_span += 1
+                else:
+                    row_span[col_index] += 1
+            lines.appendleft(f"  <tr>{line}")
+        lines.appendleft("<table>")
+        self.append(list(lines))
 
     def add_definition_item(self, name: GenericContent,
                             definition: GenericContent) -> None:

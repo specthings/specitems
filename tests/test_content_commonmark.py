@@ -294,17 +294,18 @@ def test_commonmark_grid_table():
          ["ff", "g", "h"], [ROW_SPAN, "i", COL_SPAN],
          [ROW_SPAN, ROW_SPAN, ROW_SPAN | COL_SPAN]],
         widths=[30, 30, 40])
-    assert str(content) == """ | a   | b   |
- | --- | --- |
- | cc  | ddd |
-
- | 1   | 2   | 3    |
- | --- | --- | ---- |
- | aa  | bbb | cccc |
- | ddd | ↑   | e    |
- | ff  | g   | h    |
- | ↑   | i   | ←    |
- | ↑   | ↑   | ↖    |
+    assert str(content) == """<table>
+  <tr><th>a</th><th>b</th></tr>
+  <tr><td>cc</td><td>ddd</td></tr>
+</table>
+<table>
+  <tr><th>1</th><th>2</th><th>3</th></tr>
+  <tr><td>aa</td><td rowspan="2">bbb</td><td>cccc</td></tr>
+  <tr><td>ddd</td><td>e</td></tr>
+  <tr><td rowspan="3">ff</td><td>g</td><td>h</td></tr>
+  <tr><td rowspan="2" colspan="2">i</td></tr>
+  <tr></tr>
+</table>
 """
 
 
