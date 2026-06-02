@@ -630,9 +630,9 @@ def test_grid_table():
     assert str(content) == ""
     content.add_grid_table([["a", "b"], ["cc", "ddd"]], widths=[50, 50])
     content.add_grid_table(
-        [["1", "2", "3"], ["aa", "bbb", "cccc"], ["ddd", COL_SPAN, "e"],
-         ["ff", "g", "h"], [COL_SPAN, "i", ROW_SPAN],
-         [COL_SPAN, COL_SPAN, COL_SPAN | ROW_SPAN]],
+        [["1", "2", "3"], ["aa", "bbb", "cccc"], ["ddd", ROW_SPAN, "e"],
+         ["ff", "g", "h"], [ROW_SPAN, "i", COL_SPAN],
+         [ROW_SPAN, ROW_SPAN, ROW_SPAN | COL_SPAN]],
         widths=[30, 30, 40])
     assert str(content) == """.. table::
     :class: longtable
