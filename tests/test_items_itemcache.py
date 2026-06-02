@@ -388,6 +388,25 @@ def test_proxy_reinitialize_links(tmpdir):
     assert _children(proxy2) == [("/c", "oops")]
 
 
+def test_proxy_link_to_proxy(tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-item-cache")
+    config.enabled_set = ["blub"]
+    item_cache = ItemCache(config)
+    q = item_cache["/q"]
+    proxy3 = item_cache["/proxy3"]
+    assert proxy3 is q
+    assert _parents(q) == [
+        (
+            "/q",
+            "proxy-member",
+        ),
+        (
+            "/p",
+            "oops",
+        ),
+    ]
+
+
 def test_load_yaml_abs(tmpdir):
     config = ItemCacheConfig()
     spec_dir = os.path.join(os.path.dirname(__file__), "spec-item-cache")
