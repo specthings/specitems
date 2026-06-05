@@ -33,7 +33,9 @@ from .content import GenericContent, make_lines
 from .contenttext import TextContent, TextMapper
 from .contentsphinx import SphinxContent
 
-_MDFORMAT_EXTENSIONS = {"deflist", "footnote", "frontmatter", "myst", "tables"}
+_MDFORMAT_EXTENSIONS = {
+    "deflist", "footnote", "front_matters", "myst", "tables"
+}
 
 _MDFORMAT_OPTIONS = {"end_of_line": "lf", "number": True, "wrap": 79}
 
