@@ -315,7 +315,7 @@ def test_substitute(tmpdir):
                            type_provider=SpecTypeProvider(
                                get_other_type_data_by_uid()))
     mapper = CommonMarkMapper(item_cache["/x"])
-    match = r"substitution for spec:/x using prefix '' failed for text:\n    1: \${x:/y}"
+    match = r"substitution for spec:/x using prefix '' failed for text:\n1: \${x:/y}"
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${x:/y}")
     assert mapper.substitute("${x:/term}") == "y"
