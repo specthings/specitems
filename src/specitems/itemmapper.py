@@ -30,7 +30,6 @@ import copy
 import dataclasses
 import os
 import re
-import string
 from typing import Any, Callable, Iterator, Optional
 
 from .items import Item, ItemType
@@ -38,29 +37,44 @@ from .items import Item, ItemType
 ItemGetValue = Callable[["ItemGetValueContext"], Any]
 ItemGetValueMap = dict[str, tuple[ItemGetValue, Any]]
 
+_VAR_NAME = "(?:[a-zA-Z0-9._/-]+|\\*):[\\[\\]a-zA-Z0-9._/-]+(?::[^${}]*)?"
+_VAR_SINGLE = re.compile(f"^[$@]\\{{{_VAR_NAME}\\}}$")
+_VAR_TOKENS = re.compile(r"(?:\$\$(?=\{|\$\{))|(?:@@(?=\{|@\{))|"
+                         f"[$@]\\{{{_VAR_NAME}\\}}|(?:[$@]\\{{)")
 
-class _ItemTemplate(string.Template):
-    """ String template for item mapper identifiers. """
-    idpattern = "(?:[a-zA-Z0-9._/-]+|\\*):[\\[\\]a-zA-Z0-9._/-]+(?::[^${}]*)?"
+
+class _ItemMapperError(Exception):
+
+    def __init__(self, start: int, end: int) -> None:
+        super().__init__()
+        self.start = start
+        self.end = end
 
 
-class _ItemMapperContext(dict):
+class _ItemMapperContext:
     """
     Provides a context to map identifiers to items and attribute values.
     """
 
+    # pylint: disable=too-few-public-methods
     def __init__(self, mapper: "ItemMapper", item: Optional[Item],
                  prefix: str) -> None:
-        super().__init__()
         self._mapper = mapper
         self._item = item
         self._prefix = prefix
 
-    def __getitem__(self, identifier: str) -> Any:
-        return self._mapper.map(identifier, self._item, self._prefix)[2]
-
-
-_SINGLE_SUBSTITUTION = re.compile(f"^\\${{{_ItemTemplate.idpattern}}}$")
+    def replace(self, mobj: re.Match) -> str:
+        """ Replace the match. """
+        token = mobj.group(0)
+        if len(token) > 2:
+            try:
+                return str(
+                    self._mapper.map(token[2:-1], self._item, self._prefix)[2])
+            except Exception as err:
+                raise _ItemMapperError(mobj.start(), mobj.end()) from err
+        if token[1] == "{":
+            raise _ItemMapperError(mobj.start(), mobj.end())
+        return token[0]
 
 
 class _GetValueDictionary(dict):
@@ -464,13 +478,16 @@ class ItemMapper(abc.ABC):
         """
         if not text:
             return ""
+        context = _ItemMapperContext(self, item, prefix)
         try:
-            context = _ItemMapperContext(self, item, prefix)
-            return _ItemTemplate(text).substitute(context)
-        except Exception as err:
+            return _VAR_TOKENS.sub(context.replace, text)
+        except _ItemMapperError as err:
+            start = max(text.count("\n", 0, err.start) - 3, 0)
+            end = text.count("\n", 0, err.end) + 4
             spec = self.item.spec if item is None else item.spec
-            enumerated = "\n".join(f"{i + 1:>5}: {line}"
-                                   for i, line in enumerate(text.splitlines()))
+            enumerated = "\n".join(
+                f"{i + start + 1}: {line}"
+                for i, line in enumerate(text.splitlines()[start:end]))
             msg = (f"substitution for {spec} using prefix '{prefix}' "
                    f"failed for text:\n{enumerated}")
             raise ValueError(msg) from err
@@ -490,7 +507,7 @@ class ItemMapper(abc.ABC):
             for index, element in enumerate(data):
                 prefix_2 = f"{prefix}[{index}]"
                 if isinstance(element, str):
-                    match = _SINGLE_SUBSTITUTION.search(element)
+                    match = _VAR_SINGLE.search(element)
                     if match:
                         new_element = self.map(element[2:-1], item,
                                                prefix_2)[2]
@@ -537,7 +554,7 @@ class ItemMapper(abc.ABC):
                 element = self.substitute_data(element["value"], item,
                                                prefix_2)
             elif isinstance(element, str):
-                if _SINGLE_SUBSTITUTION.search(element):
+                if _VAR_SINGLE.search(element):
                     element = self.map(element[2:-1], item, prefix_2)[2]
                 else:
                     element = self.substitute(element, item, prefix_2)

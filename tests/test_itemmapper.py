@@ -73,13 +73,40 @@ def test_item_mapper(tmpdir):
     assert key_path_2 == "/v"
     assert value_2 == "p"
     c = item_cache["/c"]
+    with pytest.raises(ValueError):
+        mapper.substitute("${")
+    with pytest.raises(ValueError):
+        mapper.substitute("@{")
+    assert mapper.substitute("$") == "$"
+    assert mapper.substitute("@") == "@"
+    assert mapper.substitute("$x") == "$x"
+    assert mapper.substitute("@x") == "@x"
+    assert mapper.substitute("x$") == "x$"
+    assert mapper.substitute("x@") == "x@"
+    assert mapper.substitute("x$y") == "x$y"
+    assert mapper.substitute("x@y") == "x@y"
+    assert mapper.substitute("$${") == "${"
+    assert mapper.substitute("@@{") == "@{"
+    assert mapper.substitute("$${$") == "${$"
+    assert mapper.substitute("@@{@") == "@{@"
+    assert mapper.substitute("@{.:/v}", item=c) == "c"
+    assert mapper.substitute("@ @@ @@@ @{.:/v}@", item=c) == "@ @@ @@@ c@"
+    assert mapper.substitute("@@@{.:/v}", item=c) == "@c"
+    assert mapper.substitute("@@@@{.:/v}", item=c) == "@@c"
+    assert mapper.substitute("@{*:/v}", item=c) == "p"
     assert mapper.substitute("${.:/v}", item=c) == "c"
+    assert mapper.substitute("$ $$ $$$ ${.:/v}$", item=c) == "$ $$ $$$ c$"
+    assert mapper.substitute("$$${.:/v}", item=c) == "$c"
+    assert mapper.substitute("$$$${.:/v}", item=c) == "$$c"
     assert mapper.substitute("${*:/v}", item=c) == "p"
     assert mapper.substitute("${.:v}", item=c, prefix="/u") == "C"
     assert mapper.substitute("${*:v}", item=c, prefix="/u") == "p"
     assert mapper.substitute_data(["${.:/v}"], item=c) == ["c"]
+    assert mapper.substitute_data(["@{.:/v}"], item=c) == ["c"]
     assert mapper.substitute_data(["${*:/v}"], item=c) == ["p"]
+    assert mapper.substitute_data(["@{*:/v}"], item=c) == ["p"]
     assert mapper.substitute("$$${.:.}", prefix="v") == "$p"
+    assert mapper.substitute("@@@{.:.}", prefix="v") == "@p"
     assert mapper.substitute_data(None) == None
     assert mapper.substitute_data("x") == "x"
     assert mapper.substitute_data(["x"]) == ["x"]
@@ -97,7 +124,7 @@ def test_item_mapper(tmpdir):
     is_enabled_method = functools.partial(is_enabled, ["A"])
     assert mapper.substitute_flexible_list([], is_enabled_method) == []
     assert mapper.substitute_flexible_list([[]], is_enabled_method) == []
-    assert mapper.substitute_flexible_list(["${.:/v}", "${.:/w}", "w"],
+    assert mapper.substitute_flexible_list(["${.:/v}", "@{.:/w}", "w"],
                                            is_enabled_method,
                                            c) == ["c", "u", "v", "w"]
     assert mapper.substitute_flexible_list([{
@@ -157,7 +184,7 @@ def test_item_mapper(tmpdir):
     assert mapper["d/c:/other/s/v"] == "s"
     assert mapper.substitute("${.:/r1/r2/r3}") == "foobar"
     assert mapper[".:/r1/r2/r3"] == "foobar"
-    match = r"substitution for spec:/p using prefix 'blub' failed for text:\n    1: \${}"
+    match = r"substitution for spec:/p using prefix 'blub' failed for text:\n1: \${}"
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${}", p, "blub")
     match = r"item 'boom' relative to spec:/p specified by 'boom:bam' does not exist"
