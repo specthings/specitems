@@ -1206,13 +1206,17 @@ class ItemCache(dict):
 
         The item is not removed from the persistent cache storage.
         """
-        item = self[uid]
+        item = self.pop(uid)
+        for selection in self._selection_stack:
+            selection.pop(uid, None)
+        for view in self._view_stack:
+            view.pop(item, None)
         item.clear_links()
         try:
             self.type_provider.items_by_type[item.type].remove(item)
         except (KeyError, ValueError):
             pass
-        del self[uid]
+        del item
 
     def initialize_links(self, uids: Iterable[str]) -> None:
         """ Initialize the links to parents and children. """
