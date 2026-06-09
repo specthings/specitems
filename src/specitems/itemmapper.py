@@ -39,8 +39,8 @@ ItemGetValueMap = dict[str, tuple[ItemGetValue, Any]]
 
 _VAR_NAME = "(?:[a-zA-Z0-9._/-]+|\\*):[\\[\\]a-zA-Z0-9._/-]+(?::[^${}]*)?"
 _VAR_SINGLE = re.compile(f"^[$@]\\{{{_VAR_NAME}\\}}$")
-_VAR_TOKENS = re.compile(r"(?:\$\$(?=\{|\$\{))|(?:@@(?=\{|@\{))|"
-                         f"[$@]\\{{{_VAR_NAME}\\}}|(?:[$@]\\{{)")
+_VAR_TOKENS = re.compile(f"(?:(\\$+|@+)\\{{{_VAR_NAME}\\}})|"
+                         r"(?:(\$+|@+)\{)")
 
 
 class _ItemMapperError(Exception):
@@ -65,16 +65,21 @@ class _ItemMapperContext:
 
     def replace(self, mobj: re.Match) -> str:
         """ Replace the match. """
+        designator = mobj.group(1)
         token = mobj.group(0)
-        if len(token) > 2:
+        if designator:
+            brace = len(designator)
+            if brace & 1 == 0:
+                return token[brace // 2:]
             try:
-                return str(
-                    self._mapper.map(token[2:-1], self._item, self._prefix)[2])
+                value = self._mapper.map(token[brace + 1:-1], self._item,
+                                         self._prefix)[2]
             except Exception as err:
                 raise _ItemMapperError(mobj.start(), mobj.end()) from err
-        if token[1] == "{":
+            return f"{token[:brace // 2]}{value}"
+        if len(token) & 1 == 0:
             raise _ItemMapperError(mobj.start(), mobj.end())
-        return token[0]
+        return token[len(token) // 2:]
 
 
 class _GetValueDictionary(dict):
