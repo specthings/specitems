@@ -33,6 +33,7 @@ import base64
 import dataclasses
 import hashlib
 import itertools
+import logging
 import os
 import pickle
 import re
@@ -1054,6 +1055,21 @@ class ItemCache(dict):
                 return item
             for item in proxy.children("proxy-member-default"):
                 return item
+            logging.warning("%s: cannot resolve proxy for enabled set %s", uid,
+                            sorted(self.enabled_set))
+            for item in proxy.children("proxy-member",
+                                       is_link_enabled=link_is_enabled):
+                logging.warning(
+                    "%s: has disabled proxy member %s enabled by %s", uid,
+                    item.uid, item["enabled-by"])
+            for item in proxy.children("proxy-member-default",
+                                       is_link_enabled=link_is_enabled):
+                logging.warning(
+                    "%s: has disabled default proxy member %s enabled by %s",
+                    uid, item.uid, item["enabled-by"])
+            logging.info(
+                "%s: note that items may get enabled recursively; "
+                "maybe a parent is disabled", uid)
         return proxy
 
     @property
