@@ -53,6 +53,13 @@ def _simple_row(row: Iterable[str], maxi: Iterable[int]) -> str:
     return f" | {line} |"
 
 
+def format_markdown_text(text: str) -> str:
+    """ Format the Markdown text. """
+    return mdformat.text(text,
+                         options=_MDFORMAT_OPTIONS,
+                         extensions=_MDFORMAT_EXTENSIONS)
+
+
 class MarkdownContent(TextContent):
     """ This class builds MyST Markdown content. """
 
