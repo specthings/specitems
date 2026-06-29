@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """ Tests for the specverify module. """
 
-# Copyright (C) 2020, 2025 embedded brains GmbH & Co. KG
+# Copyright (C) 2020, 2026 embedded brains GmbH & Co. KG
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,8 +27,8 @@
 import logging
 
 from specitems import (EmptyItemCache, ItemCache, ItemTypeProvider,
-                       SpecTypeProvider, SpecVerifier, monitor_logging,
-                       verify_specification_format)
+                       SpecTypeProvider, SpecVerifier, SpecYAMLFormatter,
+                       monitor_logging, verify_specification_format)
 
 from .util import (create_item_cache_config, get_and_clear_log,
                    get_other_type_data_by_uid)
@@ -75,7 +75,11 @@ def test_verify(caplog, tmpdir):
     config = create_item_cache_config(tmpdir, "spec-verify")
     item_cache = ItemCache(config)
     caplog.set_level(logging.INFO)
-    verifier = SpecVerifier(item_cache, "/spec/root")
+    verifier = SpecVerifier(item_cache,
+                            "/spec/root",
+                            formatter=SpecYAMLFormatter(
+                                clang_format_path="clang-format",
+                                clang_format_style={}))
     assert get_and_clear_log(caplog) == """INFO type: any
 INFO type: any-dict
 INFO type: bool
@@ -129,6 +133,11 @@ INFO type: spec-attributes
 INFO type: spec-bool
 INFO type: spec-dict
 INFO type: spec-float
+INFO type: spec-format
+INFO add subtype 'spec-format-int-string' to 'spec-format'
+INFO add subtype 'spec-format-myst' to 'spec-format'
+INFO type: spec-format-int-string
+INFO type: spec-format-myst
 INFO type: spec-generic-attributes
 INFO type: spec-info
 INFO type: spec-int
@@ -195,6 +204,7 @@ ERROR /c3:/list: expected value of types ['list'] for type 'some-list', actual t
 INFO /c3:/must-be-true: verify using type 'must-be-true'
 ERROR /c3:/must-be-true: expected True, actual False
 INFO /c3:/str: verify using type 'some-str'
+INFO /c3:/str: format using type 'myst'
 INFO /c3:/str-contains: verify using type 'str-contains'
 ERROR /c3:/str-contains: invalid value: abc ghi
 INFO /c3:/uid: verify using type 'uid'
@@ -215,11 +225,13 @@ INFO /c4:/dict: verify using type 'some-dict'
 INFO /c4:/float: verify using type 'some-float'
 ERROR /c4:/float: invalid value: 123.567
 INFO /c4:/int: verify using type 'some-int'
+INFO /c4:/int: format using type 'int-format-string'
 INFO /c4:/list: verify using type 'some-list'
 INFO /c4:/must-be-true: verify using type 'must-be-true'
 INFO /c4:/other-int: verify using type 'other-int'
 INFO /c4:/str: verify using type 'some-str'
 WARNING /c4:/str: cannot resolve UID: abc
+INFO /c4:/str: format using type 'myst'
 INFO /c4:/str-contains: verify using type 'str-contains'
 INFO /c4:/uid: verify using type 'uid'
 INFO /d: verify using type 'root'
@@ -1080,6 +1092,89 @@ INFO /spec/spec-float:/spec-info/dict/mandatory-attributes: verify using type 's
 INFO /spec/spec-float:/spec-info/dict/mandatory-attributes[0]: verify using type 'name'
 INFO /spec/spec-float:/spec-name: verify using type 'optional-str'
 INFO /spec/spec-float:/spec-type: verify using type 'name'
+INFO /spec/spec-format: verify using type 'root'
+INFO /spec/spec-format:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
+INFO /spec/spec-format:/copyrights: verify using type 'copyrights'
+INFO /spec/spec-format:/copyrights[0]: verify using type 'copyright'
+INFO /spec/spec-format:/enabled-by: verify using type 'enabled-by'
+INFO /spec/spec-format:/links: verify using type 'links'
+INFO /spec/spec-format:/links[0]: verify using type 'link'
+INFO /spec/spec-format:/links[0]/role: verify using type 'name'
+INFO /spec/spec-format:/links[0]/uid: verify using type 'uid'
+INFO /spec/spec-format:/links[0]: verify using type 'spec-member'
+INFO /spec/spec-format:/type: verify using type 'name'
+INFO /spec/spec-format: verify using type 'spec'
+INFO /spec/spec-format:/spec-description: verify using type 'optional-str'
+INFO /spec/spec-format:/spec-example: verify using type 'optional-str'
+INFO /spec/spec-format:/spec-info: verify using type 'spec-info'
+INFO /spec/spec-format:/spec-info/dict: verify using type 'spec-dict'
+INFO /spec/spec-format:/spec-info/dict/attributes: verify using type 'spec-attributes'
+INFO /spec/spec-format:/spec-info/dict/attributes/type: verify using type 'name'
+INFO /spec/spec-format:/spec-info/dict/attributes/type: verify using type 'spec-attribute-value'
+INFO /spec/spec-format:/spec-info/dict/attributes/type/description: verify using type 'optional-str'
+INFO /spec/spec-format:/spec-info/dict/attributes/type/spec-type: verify using type 'name'
+INFO /spec/spec-format:/spec-info/dict/description: verify using type 'optional-str'
+INFO /spec/spec-format:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
+INFO /spec/spec-format:/spec-name: verify using type 'optional-str'
+INFO /spec/spec-format:/spec-type: verify using type 'name'
+INFO /spec/spec-format-int-string: verify using type 'root'
+INFO /spec/spec-format-int-string:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
+INFO /spec/spec-format-int-string:/copyrights: verify using type 'copyrights'
+INFO /spec/spec-format-int-string:/copyrights[0]: verify using type 'copyright'
+INFO /spec/spec-format-int-string:/enabled-by: verify using type 'enabled-by'
+INFO /spec/spec-format-int-string:/links: verify using type 'links'
+INFO /spec/spec-format-int-string:/links[0]: verify using type 'link'
+INFO /spec/spec-format-int-string:/links[0]/role: verify using type 'name'
+INFO /spec/spec-format-int-string:/links[0]/uid: verify using type 'uid'
+INFO /spec/spec-format-int-string:/links[0]: verify using type 'spec-member'
+INFO /spec/spec-format-int-string:/links[1]: verify using type 'link'
+INFO /spec/spec-format-int-string:/links[1]/role: verify using type 'name'
+INFO /spec/spec-format-int-string:/links[1]/uid: verify using type 'uid'
+INFO /spec/spec-format-int-string:/links[1]: verify using type 'spec-refinement'
+INFO /spec/spec-format-int-string:/links[1]/spec-key: verify using type 'name'
+INFO /spec/spec-format-int-string:/links[1]/spec-value: verify using type 'name'
+INFO /spec/spec-format-int-string:/type: verify using type 'name'
+INFO /spec/spec-format-int-string: verify using type 'spec'
+INFO /spec/spec-format-int-string:/spec-description: verify using type 'optional-str'
+INFO /spec/spec-format-int-string:/spec-example: verify using type 'optional-str'
+INFO /spec/spec-format-int-string:/spec-info: verify using type 'spec-info'
+INFO /spec/spec-format-int-string:/spec-info/dict: verify using type 'spec-dict'
+INFO /spec/spec-format-int-string:/spec-info/dict/attributes: verify using type 'spec-attributes'
+INFO /spec/spec-format-int-string:/spec-info/dict/attributes/format: verify using type 'name'
+INFO /spec/spec-format-int-string:/spec-info/dict/attributes/format: verify using type 'spec-attribute-value'
+INFO /spec/spec-format-int-string:/spec-info/dict/attributes/format/description: verify using type 'optional-str'
+INFO /spec/spec-format-int-string:/spec-info/dict/attributes/format/spec-type: verify using type 'name'
+INFO /spec/spec-format-int-string:/spec-info/dict/description: verify using type 'optional-str'
+INFO /spec/spec-format-int-string:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
+INFO /spec/spec-format-int-string:/spec-name: verify using type 'optional-str'
+INFO /spec/spec-format-int-string:/spec-type: verify using type 'name'
+INFO /spec/spec-format-myst: verify using type 'root'
+INFO /spec/spec-format-myst:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
+INFO /spec/spec-format-myst:/copyrights: verify using type 'copyrights'
+INFO /spec/spec-format-myst:/copyrights[0]: verify using type 'copyright'
+INFO /spec/spec-format-myst:/enabled-by: verify using type 'enabled-by'
+INFO /spec/spec-format-myst:/links: verify using type 'links'
+INFO /spec/spec-format-myst:/links[0]: verify using type 'link'
+INFO /spec/spec-format-myst:/links[0]/role: verify using type 'name'
+INFO /spec/spec-format-myst:/links[0]/uid: verify using type 'uid'
+INFO /spec/spec-format-myst:/links[0]: verify using type 'spec-member'
+INFO /spec/spec-format-myst:/links[1]: verify using type 'link'
+INFO /spec/spec-format-myst:/links[1]/role: verify using type 'name'
+INFO /spec/spec-format-myst:/links[1]/uid: verify using type 'uid'
+INFO /spec/spec-format-myst:/links[1]: verify using type 'spec-refinement'
+INFO /spec/spec-format-myst:/links[1]/spec-key: verify using type 'name'
+INFO /spec/spec-format-myst:/links[1]/spec-value: verify using type 'name'
+INFO /spec/spec-format-myst:/type: verify using type 'name'
+INFO /spec/spec-format-myst: verify using type 'spec'
+INFO /spec/spec-format-myst:/spec-description: verify using type 'optional-str'
+INFO /spec/spec-format-myst:/spec-example: verify using type 'optional-str'
+INFO /spec/spec-format-myst:/spec-info: verify using type 'spec-info'
+INFO /spec/spec-format-myst:/spec-info/dict: verify using type 'spec-dict'
+INFO /spec/spec-format-myst:/spec-info/dict/attributes: verify using type 'spec-attributes'
+INFO /spec/spec-format-myst:/spec-info/dict/description: verify using type 'optional-str'
+INFO /spec/spec-format-myst:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
+INFO /spec/spec-format-myst:/spec-name: verify using type 'optional-str'
+INFO /spec/spec-format-myst:/spec-type: verify using type 'name'
 INFO /spec/spec-generic-attributes: verify using type 'root'
 INFO /spec/spec-generic-attributes:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
 INFO /spec/spec-generic-attributes:/copyrights: verify using type 'copyrights'
@@ -1187,6 +1282,10 @@ INFO /spec/spec-int:/spec-info/dict/attributes/description: verify using type 'n
 INFO /spec/spec-int:/spec-info/dict/attributes/description: verify using type 'spec-attribute-value'
 INFO /spec/spec-int:/spec-info/dict/attributes/description/description: verify using type 'optional-str'
 INFO /spec/spec-int:/spec-info/dict/attributes/description/spec-type: verify using type 'name'
+INFO /spec/spec-int:/spec-info/dict/attributes/format: verify using type 'name'
+INFO /spec/spec-int:/spec-info/dict/attributes/format: verify using type 'spec-attribute-value'
+INFO /spec/spec-int:/spec-info/dict/attributes/format/description: verify using type 'optional-str'
+INFO /spec/spec-int:/spec-info/dict/attributes/format/spec-type: verify using type 'name'
 INFO /spec/spec-int:/spec-info/dict/description: verify using type 'optional-str'
 INFO /spec/spec-int:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
 INFO /spec/spec-int:/spec-info/dict/mandatory-attributes[0]: verify using type 'name'
@@ -1337,6 +1436,10 @@ INFO /spec/spec-str:/spec-info/dict/attributes/description: verify using type 'n
 INFO /spec/spec-str:/spec-info/dict/attributes/description: verify using type 'spec-attribute-value'
 INFO /spec/spec-str:/spec-info/dict/attributes/description/description: verify using type 'optional-str'
 INFO /spec/spec-str:/spec-info/dict/attributes/description/spec-type: verify using type 'name'
+INFO /spec/spec-str:/spec-info/dict/attributes/format: verify using type 'name'
+INFO /spec/spec-str:/spec-info/dict/attributes/format: verify using type 'spec-attribute-value'
+INFO /spec/spec-str:/spec-info/dict/attributes/format/description: verify using type 'optional-str'
+INFO /spec/spec-str:/spec-info/dict/attributes/format/spec-type: verify using type 'name'
 INFO /spec/spec-str:/spec-info/dict/description: verify using type 'optional-str'
 INFO /spec/spec-str:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
 INFO /spec/spec-str:/spec-info/dict/mandatory-attributes[0]: verify using type 'name'
@@ -1820,6 +1923,10 @@ INFO /spec2/some-int:/spec-info/int/assert[11]: verify using type 'spec-assert-i
 INFO /spec2/some-int:/spec-info/int/assert[11]/ge: verify using type 'int'
 INFO /spec2/some-int:/spec-info/int/assert[12]: verify using type 'spec-assert-int'
 INFO /spec2/some-int:/spec-info/int/assert[12]/gt: verify using type 'int'
+INFO /spec2/some-int:/spec-info/int/format: verify using type 'spec-format'
+INFO /spec2/some-int:/spec-info/int/format/type: verify using type 'str'
+INFO /spec2/some-int:/spec-info/int/format: verify using type 'spec-format-int-string'
+INFO /spec2/some-int:/spec-info/int/format/format: verify using type 'str'
 INFO /spec2/some-int:/spec-type: verify using type 'name'
 INFO /spec2/some-list: verify using type 'root'
 INFO /spec2/some-list:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
@@ -1866,6 +1973,9 @@ INFO /spec2/some-str:/spec-info/str/assert[2]: verify using type 'spec-assert-st
 INFO /spec2/some-str:/spec-info/str/assert[2]/ne: verify using type 'str'
 INFO /spec2/some-str:/spec-info/str/assert[3]: verify using type 'spec-assert-str'
 INFO /spec2/some-str:/spec-info/str/assert[3]/re: verify using type 'str'
+INFO /spec2/some-str:/spec-info/str/format: verify using type 'spec-format'
+INFO /spec2/some-str:/spec-info/str/format/type: verify using type 'str'
+INFO /spec2/some-str:/spec-info/str/format: verify using type 'spec-format-myst'
 INFO /spec2/some-str:/spec-type: verify using type 'name'
 INFO /spec2/sta: verify using type 'root'
 INFO /spec2/sta:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
@@ -1932,7 +2042,7 @@ INFO finished specification item verification"""
     assert info.critical == 0
     assert info.error == 91
     assert info.warning == 1
-    assert info.info == 1691
+    assert info.info == 1792
     assert info.debug == 0
     info = verifier.verify(item_cache["/spec2/x"])
     assert get_and_clear_log(

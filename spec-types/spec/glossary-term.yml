@@ -21,7 +21,7 @@ spec-info:
       text:
         description: |
           It shall be the definition of the glossary term.
-        spec-type: str
+        spec-type: myst
     description: |
       This set of attributes specifies a glossary term.
     mandatory-attributes: all

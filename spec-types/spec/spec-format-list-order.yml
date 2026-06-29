@@ -1,0 +1,32 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: list-order
+  uid: spec-format
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      key:
+        description: |
+          It shall be the key to the value of a list element which matches with a dictionary key.
+        spec-type: str
+      path:
+        description: |
+          It shall be the path to the list defining the dictionary key order.
+        spec-type: str
+    description: |
+      This set of attributes specifies an ordering of dictionary keys according
+      to a list with one attribute having values matching with the dictionary
+      keys.
+    mandatory-attributes: all
+spec-name: Specification List Order Format
+spec-type: spec-format-list-order
+type: spec
