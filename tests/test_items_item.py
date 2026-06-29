@@ -139,6 +139,43 @@ def test_get():
     assert item.get("z", "a") == "a"
 
 
+def test_get_set_value():
+    data = {
+        "a": "b",
+        "c": ["d", "e", {
+            "f": {
+                "g": "h"
+            }
+        }],
+    }
+    item = Item(EmptyItemCache(), "x", data)
+    with pytest.raises(KeyError):
+        item.get_value("/nix")
+    with pytest.raises(IndexError):
+        item.get_value("/c[99]")
+    assert item.get_value("/a") == "b"
+    assert item.get_value("/c[0]") == "d"
+    assert item.get_value("/c[2]/f/g") == "h"
+    item.set_value("/a", "A")
+    item.set_value("/c[0]", "B")
+    item.set_value("/c[2]/f/g", "C")
+    assert item.get_value("/a") == "A"
+    assert item.get_value("/c[0]") == "B"
+    assert item.get_value("/c[2]/f/g") == "C"
+    assert item.data == {
+        "a": "A",
+        "c": [
+            "B",
+            "e",
+            {
+                "f": {
+                    "g": "C",
+                },
+            },
+        ],
+    }
+
+
 def test_children():
     item_cache = EmptyItemCache()
     child = item_cache.add_item("c", {"enabled-by": True, "links": []})
