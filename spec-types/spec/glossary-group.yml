@@ -21,7 +21,7 @@ spec-info:
       text:
         description: |
           It shall state the requirement for the glossary group.
-        spec-type: str
+        spec-type: myst
     description: |
       This set of attributes specifies a glossary group.
     mandatory-attributes: all

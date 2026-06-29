@@ -1,6 +1,6 @@
 SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
 copyrights:
-- Copyright (C) 2020 embedded brains GmbH & Co. KG
+- Copyright (C) 2020, 2026 embedded brains GmbH & Co. KG
 enabled-by: true
 links:
 - role: spec-member
@@ -16,6 +16,10 @@ spec-info:
           string.  In case the assert attribute is not present, then the
           specified string may be every valid string.
         spec-type: spec-assert-str
+      format:
+        description: |
+          This optional attribute defines the format of the string.
+        spec-type: spec-format
       description:
         description: |
           It shall be the description of the specified string attribute.

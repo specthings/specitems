@@ -34,10 +34,11 @@ represented by a :py:class:`LoggingStatus` object.
 
 import logging
 import re
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Optional
 
 from .cliutil import LoggingStatus, monitor_logging
 from .items import Item, ItemCache
+from .specformatter import SpecFormatter
 
 _VerifierMap = dict[str, "_Verifier"]
 
@@ -202,10 +203,14 @@ def _prefix(prefix: _Path) -> str:
 
 class _Verifier:
 
-    def __init__(self, name: str, verifier_map: _VerifierMap) -> None:
+    def __init__(self,
+                 name: str,
+                 verifier_map: _VerifierMap,
+                 formatter: Optional[SpecFormatter] = None) -> None:
         self._name = name
         self._verifier_map = verifier_map
         self.is_subtype = False
+        self.formatter = formatter
         verifier_map[name] = self
 
     def verify_info(self, path: _Path) -> None:
@@ -312,12 +317,22 @@ class _ItemVerifier(_Verifier):
     """
 
     def __init__(self, name: str, verifier_map: _VerifierMap,
-                 info_map: dict[str, Any], item: Item) -> None:
-        super().__init__(name, verifier_map)
+                 formatter: Optional[SpecFormatter], info_map: dict[str, Any],
+                 item: Item) -> None:
+        super().__init__(name, verifier_map, formatter)
         self._info_map = info_map
         self._item = item
         self._subtype_key = ""
         self._subtype_verifiers: _VerifierMap = {}
+
+    def _format(self, formatter: SpecFormatter, path: _Path, value: Any,
+                type_info: Any) -> None:
+        fmt = type_info.get("format")
+        if fmt is not None:
+            logging.info("%s format using type '%s'", _prefix(path),
+                         fmt["type"])
+            _, _, attribute_path = path.path.partition(":")
+            formatter.format_value(path.item, attribute_path, value, fmt)
 
     def verify_bool(self, path: _Path, value: Any, type_info: Any) -> set[str]:
         """Verify a boolean value according to an optional assertion.
@@ -495,6 +510,9 @@ class _ItemVerifier(_Verifier):
                 logging.error(
                     "%s has unverfied keys for type '%s' and its subtypes: %s",
                     _prefix(path), self._name, sorted(unverified_keys))
+        formatter = self.formatter
+        if formatter is not None:
+            self._format(formatter, path, value, type_info)
         return verified_keys
 
     def verify_int_or_float(self, path: _Path, value: Any,
@@ -510,8 +528,12 @@ class _ItemVerifier(_Verifier):
         Returns:
             Empty set. Logs an error if assertions fail.
         """
-        if not _assert_int_or_float(path, value, type_info):
+        ok = _assert_int_or_float(path, value, type_info)
+        if not ok:
             logging.error("%s invalid value: %s", _prefix(path), value)
+        formatter = self.formatter
+        if ok and formatter is not None:
+            self._format(formatter, path, value, type_info)
         return set()
 
     def verify_list(self, path: _Path, value: Any, type_info: Any) -> set[str]:
@@ -557,8 +579,12 @@ class _ItemVerifier(_Verifier):
         Returns:
             Empty set. Logs an error if assertions fail.
         """
-        if not _assert_str(path, value, type_info):
+        ok = _assert_str(path, value, type_info)
+        if not ok:
             logging.error("%s invalid value: %s", _prefix(path), value)
+        formatter = self.formatter
+        if ok and formatter is not None:
+            self._format(formatter, path, value, type_info)
         return set()
 
     def verify(self, path: _Path, value: Any) -> set[str]:
@@ -619,7 +645,8 @@ _ASSERT_KEYS = {
 }
 
 
-def _create_verifier(item: Item, verifier_map: _VerifierMap) -> _Verifier:
+def _create_verifier(item: Item, verifier_map: _VerifierMap,
+                     formatter: Optional[SpecFormatter]) -> _Verifier:
     spec_type = item["spec-type"]
     if spec_type in verifier_map:
         verifier = verifier_map[spec_type]
@@ -627,13 +654,14 @@ def _create_verifier(item: Item, verifier_map: _VerifierMap) -> _Verifier:
         return verifier
     spec_info = item["spec-info"]
     assert isinstance(spec_info, dict)
-    return _ItemVerifier(spec_type, verifier_map, spec_info, item)
+    return _ItemVerifier(spec_type, verifier_map, formatter, spec_info, item)
 
 
-def _gather_item_verifiers(item: Item, verifier_map: _VerifierMap) -> None:
+def _gather_item_verifiers(item: Item, verifier_map: _VerifierMap,
+                           formatter: Optional[SpecFormatter]) -> None:
     for link in item.links_to_children():
         if link.role == "spec-member":
-            _create_verifier(link.item, verifier_map)
+            _create_verifier(link.item, verifier_map, formatter)
 
 
 class SpecVerifier:
@@ -647,11 +675,11 @@ class SpecVerifier:
     creation, it resolves subtype refinements and is ready to verify items.
     """
 
-    # pylint: disable=too-few-public-methods
     def __init__(self,
                  item_cache: ItemCache,
                  root_uid: str,
-                 uid_log_level: int = logging.ERROR) -> None:
+                 uid_log_level: int = logging.ERROR,
+                 formatter: Optional[SpecFormatter] = None) -> None:
         """Initialize and build verifier map.
 
         Args:
@@ -664,6 +692,7 @@ class SpecVerifier:
             uid_log_level: The log level to indicate that an UID cannot be
                 resolved.
         """
+        self._formatter = formatter
         verifier_map: _VerifierMap = {}
         _AnyVerifier("any", verifier_map)
         _NameVerifier("name", verifier_map)
@@ -678,8 +707,9 @@ class SpecVerifier:
         except KeyError:
             self._root_verifier = None
         else:
-            self._root_verifier = _create_verifier(root_item, verifier_map)
-            _gather_item_verifiers(root_item, verifier_map)
+            self._root_verifier = _create_verifier(root_item, verifier_map,
+                                                   formatter)
+            _gather_item_verifiers(root_item, verifier_map, formatter)
             for name in sorted(verifier_map):
                 logging.info("type: %s", name)
                 verifier_map[name].resolve_type_refinements()
@@ -694,10 +724,13 @@ class SpecVerifier:
             logging.error("root type item does not exist in item cache")
         else:
             logging.info("start specification item verification")
+            formatter = self._formatter
             for key in sorted(item_cache):
                 item = item_cache[key]
                 self._root_verifier.verify(_Path(item, f"{item.uid}:"),
                                            item.data)
+                if formatter is not None:
+                    formatter.save(item)
             logging.info("finished specification item verification")
 
     def verify(self, item: Item) -> LoggingStatus:
@@ -720,7 +753,8 @@ class SpecVerifier:
 
 def verify_specification_format(
         item_cache: ItemCache,
-        uid_log_level: int = logging.ERROR) -> LoggingStatus:
+        uid_log_level: int = logging.ERROR,
+        formatter: Optional[SpecFormatter] = None) -> LoggingStatus:
     """Verify all items using the specification root type from the item cache.
 
     Emits an error if the item cache has no specification root type.
@@ -729,6 +763,7 @@ def verify_specification_format(
         item_cache: The item cache containing the items to verify.
         uid_log_level: The log level to indicate that an UID cannot be
             resolved.
+        formatter: The optional specification item value formatter.
 
     Returns:
         The status summarizing the verification run.
@@ -738,6 +773,7 @@ def verify_specification_format(
         if root_type_uid is None:
             logging.error("item cache has no root type")
         else:
-            verifier = SpecVerifier(item_cache, root_type_uid, uid_log_level)
+            verifier = SpecVerifier(item_cache, root_type_uid, uid_log_level,
+                                    formatter)
             verifier.verify_all(item_cache)
         return monitor.get_status()

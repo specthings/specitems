@@ -149,8 +149,8 @@ name
     of the glossary group.
 
 text
-    The attribute value shall be a string. It shall state the requirement for
-    the glossary group.
+    The attribute value shall be a :ref:`SpecTypeTextInMySTFormat`. It shall
+    state the requirement for the glossary group.
 
 .. _SpecTypeGlossaryTermItemType:
 
@@ -166,8 +166,8 @@ term
     The attribute value shall be a string. It shall be the glossary term.
 
 text
-    The attribute value shall be a string. It shall be the definition of the
-    glossary term.
+    The attribute value shall be a :ref:`SpecTypeTextInMySTFormat`. It shall be
+    the definition of the glossary term.
 
 .. _SpecTypeProxyItemType:
 
@@ -1196,6 +1196,10 @@ description
     The attribute value shall be an optional string. It shall be the
     description of the attribute set.
 
+format
+    The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
+    This optional attribute defines the format of the attribute set.
+
 generic-attributes
     The attribute value shall be a
     :ref:`SpecTypeSpecificationGenericAttributes`. It shall specify the generic
@@ -1254,6 +1258,19 @@ description
 This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationInformation`
+
+.. _SpecTypeSpecificationCLanguageFormat:
+
+Specification C Language Format
+===============================
+
+This type refines the :ref:`SpecTypeSpecificationValueFormat` through the
+``type`` attribute if the value is ``clang``. This set of attributes specifies
+a C language source code formatting. All explicit attributes shall be
+specified. The explicit attributes for this type are:
+
+style
+    The attribute value shall be a string. It shall be the formatting style.
 
 .. _SpecTypeSpecificationExplicitAttributes:
 
@@ -1507,6 +1524,40 @@ This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationIntegerValue`
 
+.. _SpecTypeSpecificationIntegerFormatAttribute:
+
+Specification Integer Format Attribute
+======================================
+
+This type refines the :ref:`SpecTypeSpecificationValueFormat` through the
+``type`` attribute if the value is ``int-format-attribute``. This set of
+attributes specifies a Python format string for integer values through an
+attribute path and an optional default Python format string. Only the ``path``
+attribute is mandatory. The explicit attributes for this type are:
+
+default
+    The attribute value shall be a string. It shall be the optional default
+    Python format string used to format an integer value.
+
+path
+    The attribute value shall be a string. It shall be the path to the item
+    attribute providing the Python format string used to format an integer
+    value.
+
+.. _SpecTypeSpecificationIntegerFormatString:
+
+Specification Integer Format String
+===================================
+
+This type refines the :ref:`SpecTypeSpecificationValueFormat` through the
+``type`` attribute if the value is ``int-format-string``. This set of
+attributes specifies a format string for integer values. All explicit
+attributes shall be specified. The explicit attributes for this type are:
+
+format
+    The attribute value shall be a string. It shall be the Python format string
+    used to format the integer value.
+
 .. _SpecTypeSpecificationIntegerValue:
 
 Specification Integer Value
@@ -1524,6 +1575,10 @@ assert
 description
     The attribute value shall be an optional string. It shall be the
     description of the specified integer value.
+
+format
+    The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
+    This optional attribute defines the format of the integer.
 
 This type is used by the following types:
 
@@ -1548,6 +1603,25 @@ spec-type
 This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationInformation`
+
+.. _SpecTypeSpecificationListOrderFormat:
+
+Specification List Order Format
+===============================
+
+This type refines the :ref:`SpecTypeSpecificationValueFormat` through the
+``type`` attribute if the value is ``list-order``. This set of attributes
+specifies an ordering of dictionary keys according to a list with one attribute
+having values matching with the dictionary keys. All explicit attributes shall
+be specified. The explicit attributes for this type are:
+
+key
+    The attribute value shall be a string. It shall be the key to the value of
+    a list element which matches with a dictionary key.
+
+path
+    The attribute value shall be a string. It shall be the path to the list
+    defining the dictionary key order.
 
 .. _SpecTypeSpecificationMandatoryAttributes:
 
@@ -1587,6 +1661,15 @@ Specification Member Link Role
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``spec-member``. It defines the specification membership role of
 links.
+
+.. _SpecTypeSpecificationMySTFormat:
+
+Specification MyST Format
+=========================
+
+This type refines the :ref:`SpecTypeSpecificationValueFormat` through the
+``type`` attribute if the value is ``myst``. This set of attributes specifies a
+MyST formatting.
 
 .. _SpecTypeSpecificationRefinementLinkRole:
 
@@ -1718,9 +1801,45 @@ description
     The attribute value shall be an optional string. It shall be the
     description of the specified string attribute.
 
+format
+    The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
+    This optional attribute defines the format of the string.
+
 This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationInformation`
+
+.. _SpecTypeSpecificationValueFormat:
+
+Specification Value Format
+==========================
+
+This set of attributes specifies a specification item value format. All
+explicit attributes shall be specified. The explicit attributes for this type
+are:
+
+type
+    The attribute value shall be a string. It shall be the format type.
+
+This type is refined by the following types:
+
+- :ref:`SpecTypeSpecificationCLanguageFormat`
+
+- :ref:`SpecTypeSpecificationIntegerFormatAttribute`
+
+- :ref:`SpecTypeSpecificationIntegerFormatString`
+
+- :ref:`SpecTypeSpecificationListOrderFormat`
+
+- :ref:`SpecTypeSpecificationMySTFormat`
+
+This type is used by the following types:
+
+- :ref:`SpecTypeSpecificationAttributeSet`
+
+- :ref:`SpecTypeSpecificationIntegerValue`
+
+- :ref:`SpecTypeSpecificationStringValue`
 
 .. _SpecTypeStringOrStringList:
 
@@ -1756,6 +1875,19 @@ This type is used by the following types:
 - :ref:`SpecTypeMiscellaneousReference`
 
 - :ref:`SpecTypeTechnicalReportReference`
+
+.. _SpecTypeTextInMySTFormat:
+
+Text in MyST Format
+===================
+
+The value shall be a string. It shall be a text in MyST format.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeGlossaryGroupItemType`
+
+- :ref:`SpecTypeGlossaryTermItemType`
 
 .. _SpecTypeUID:
 

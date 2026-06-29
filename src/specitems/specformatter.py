@@ -101,6 +101,10 @@ def _format_list_order_representer(
     order: dict[str, int] = {}
     for index, element in enumerate(data.the_list):
         order[element[data.key]] = index
+    if data.keys() != order.keys():
+        raise ValueError(
+            "the dictionary and order list key sets are not equal: "
+            f"{sorted(set(data.keys()).symmetric_difference(order.keys()))}")
     return representer.represent_dict(
         sorted(data.items(), key=lambda x: order[x[0]]))
 

@@ -87,7 +87,7 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
     formatter.format_value(item, "/i", "clang format input", fmt_clang_format)
 
     fmt_list_order = {"type": "list-order", "path": "/j", "key": "k"}
-    item["j"] = [{"k": "b"}, {"k": "a"}]
+    item["j"] = [{"k": "b"}]
     formatter.format_value(item, "/k", {"a": 1, "b": 2}, fmt_list_order)
 
     assert item.data == {
@@ -102,8 +102,6 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
         "i": "clang format output",
         "j": [{
             "k": "b"
-        }, {
-            "k": "a"
         }],
         "k": {
             "a": 1,
@@ -116,6 +114,11 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
 
     file_path = tmp_path / "item.yml"
     item.file = str(file_path)
+
+    with pytest.raises(ValueError):
+        formatter.save(item)
+    item["j"].append({"k": "a"})
+
     formatter.save(item)
     assert file_path.read_text(encoding="utf-8") == """a: |
   x ${abc:def} y
