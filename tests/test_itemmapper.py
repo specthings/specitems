@@ -308,8 +308,8 @@ def test_item_get_value_context():
 
 
 def test_unpack_arg():
-    arg = unpack_arg("\\0\\a\\b\\c\\f\\n\\r\\s\\t\\v\\%\\(\\)\\\\\\?%()\\x")
-    assert arg == "\0\a\b,\f\n\r \t\v%()\\?${}x"
+    arg = unpack_arg("\\0\\a\\b\\c\\f\\g\\n\\r\\s\\t\\v\\%\\(\\)\\\\\\?%()\\x")
+    assert arg == "\0\a\b,\f`\n\r \t\v%()\\?${}x"
 
 
 def test_unpack_args():
