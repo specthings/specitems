@@ -62,10 +62,8 @@ from .contentcommonmark import (
     CommonMarkContent,
     CommonMarkMapper,
 )
-from .contentmarkdown import (
-    MarkdownContent,
-    MarkdownMapper,
-)
+from .contentmarkdown import (MarkdownContent, MarkdownMapper,
+                              format_markdown_text)
 from .contentsphinx import (
     SphinxContent,
     SphinxMapper,
@@ -135,6 +133,7 @@ from .itemmapper import (
 )
 from .specdoc import (SpecDocumentConfig, add_specification_documentation,
                       generate_specification_documentation)
+from .specformatter import SpecYAMLFormatter
 from .specverify import (
     SpecVerifier,
     verify_specification_format,
@@ -187,6 +186,7 @@ __all__ = [
     "SpecDocumentConfig",
     "SpecTypeProvider",
     "SpecVerifier",
+    "SpecYAMLFormatter",
     "SphinxContent",
     "SphinxMapper",
     "TextContent",
@@ -199,6 +199,7 @@ __all__ = [
     "create_unique_link",
     "data_digest",
     "escape_code_line",
+    "format_markdown_text",
     "generate_glossary",
     "generate_specification_documentation",
     "get_arguments",
