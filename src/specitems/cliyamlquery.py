@@ -3,7 +3,7 @@
 Provides a command line interface to Print the specified value of a YAML file.
 """
 
-# Copyright (C) 2024 embedded brains GmbH & Co. KG
+# Copyright (C) 2024, 2026 embedded brains GmbH & Co. KG
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -29,7 +29,7 @@ Provides a command line interface to Print the specified value of a YAML file.
 import argparse
 import sys
 
-from specitems import EmptyItemCache, Item, ItemMapper, load_data
+from specitems import EmptyItemCache, Item, load_data
 
 
 def cliyamlquery(argv: list[str] = sys.argv) -> None:
@@ -43,4 +43,4 @@ def cliyamlquery(argv: list[str] = sys.argv) -> None:
     parser.add_argument("file", metavar="FILE", nargs=1, help="the YAML file")
     args = parser.parse_args(argv[1:])
     item = Item(EmptyItemCache(), "/x", load_data(args.file[0]))
-    print(ItemMapper(item).substitute(f"${{.:{args.path[0]}}}"))
+    print(item.get_value(args.path[0]))
