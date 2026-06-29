@@ -43,6 +43,35 @@ _VAR_TOKENS = re.compile(f"(?:(\\$+|@+)[{{`]{_VAR_NAME}[}}`])|"
                          r"(?:(\$+|@+)[{{`])")
 
 
+def _to_something(mobj: re.Match, prefix: str, postfix: str) -> str:
+    designator = mobj.group(1)
+    token = mobj.group(0)
+    if designator:
+        brace = len(designator)
+        if brace & 1 == 0:
+            return token
+        return f"{token[:brace - 1]}{prefix}{token[brace + 1:-1]}{postfix}"
+    return token
+
+
+def _to_at(mobj: re.Match) -> str:
+    return _to_something(mobj, "@`", "`")
+
+
+def to_at_variables(text: str) -> str:
+    """ Convert the text to use ``@`...``` for all substitution variables.  """
+    return _VAR_TOKENS.sub(_to_at, text)
+
+
+def _to_dollar(mobj: re.Match) -> str:
+    return _to_something(mobj, "${", "}")
+
+
+def to_dollar_variables(text: str) -> str:
+    """ Convert the text to use ``${...}`` for all substitution variables.  """
+    return _VAR_TOKENS.sub(_to_dollar, text)
+
+
 class _ItemMapperError(Exception):
 
     def __init__(self, start: int, end: int) -> None:
