@@ -29,9 +29,58 @@ import pytest
 
 from specitems import (EmptyItem, ItemCache, ItemGetValueContext, ItemMapper,
                        ItemValueProvider, SpecTypeProvider, is_enabled,
-                       get_value_default, unpack_arg, unpack_args)
+                       get_value_default, to_at_variables, to_dollar_variables,
+                       unpack_arg, unpack_args)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
+
+
+def test_to_at_variables():
+    assert to_at_variables("") == ""
+    assert to_at_variables("$") == "$"
+    assert to_at_variables("$${") == "$${"
+    assert to_at_variables("@@{@") == "@@{@"
+    assert to_at_variables("$${$") == "$${$"
+    assert to_at_variables("${.:/v}") == "@`.:/v`"
+    assert to_at_variables("$ $$ $$$ ${.:/v}$") == "$ $$ $$$ @`.:/v`$"
+    assert to_at_variables("$$${.:/v}") == "$$@`.:/v`"
+    assert to_at_variables("$$$${.:/v}") == "$$$${.:/v}"
+    assert to_at_variables("$$$$$$$${.:/v}") == "$$$$$$$${.:/v}"
+    assert to_at_variables("$$$$$$$$${.:/v}") == "$$$$$$$$@`.:/v`"
+    assert to_at_variables("@") == "@"
+    assert to_at_variables("@@{") == "@@{"
+    assert to_at_variables("$${$") == "$${$"
+    assert to_at_variables("@@{@") == "@@{@"
+    assert to_at_variables("@{.:/v}") == "@`.:/v`"
+    assert to_at_variables("@ @@ @@@ @{.:/v}@") == "@ @@ @@@ @`.:/v`@"
+    assert to_at_variables("@@@{.:/v}") == "@@@`.:/v`"
+    assert to_at_variables("@@@@{.:/v}") == "@@@@{.:/v}"
+    assert to_at_variables("@@@@@@@@{.:/v}") == "@@@@@@@@{.:/v}"
+    assert to_at_variables("@@@@@@@@@{.:/v}") == "@@@@@@@@@`.:/v`"
+
+
+def test_to_dollar_variables():
+    assert to_dollar_variables("") == ""
+    assert to_dollar_variables("@") == "@"
+    assert to_dollar_variables("@@{") == "@@{"
+    assert to_dollar_variables("$${$") == "$${$"
+    assert to_dollar_variables("@@{@") == "@@{@"
+    assert to_dollar_variables("@{.:/v}") == "${.:/v}"
+    assert to_dollar_variables("@ @@ @@@ @{.:/v}@") == "@ @@ @@@ ${.:/v}@"
+    assert to_dollar_variables("@@@{.:/v}") == "@@${.:/v}"
+    assert to_dollar_variables("@@@@{.:/v}") == "@@@@{.:/v}"
+    assert to_dollar_variables("@@@@@@@@{.:/v}") == "@@@@@@@@{.:/v}"
+    assert to_dollar_variables("@@@@@@@@@{.:/v}") == "@@@@@@@@${.:/v}"
+    assert to_dollar_variables("$") == "$"
+    assert to_dollar_variables("$${") == "$${"
+    assert to_dollar_variables("@@{@") == "@@{@"
+    assert to_dollar_variables("$${$") == "$${$"
+    assert to_dollar_variables("${.:/v}") == "${.:/v}"
+    assert to_dollar_variables("$ $$ $$$ ${.:/v}$") == "$ $$ $$$ ${.:/v}$"
+    assert to_dollar_variables("$$${.:/v}") == "$$${.:/v}"
+    assert to_dollar_variables("$$$${.:/v}") == "$$$${.:/v}"
+    assert to_dollar_variables("$$$$$$$${.:/v}") == "$$$$$$$${.:/v}"
+    assert to_dollar_variables("$$$$$$$$${.:/v}") == "$$$$$$$$${.:/v}"
 
 
 def _get_x_to_b_value(ctx):
