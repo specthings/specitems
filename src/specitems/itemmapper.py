@@ -37,10 +37,10 @@ from .items import Item, ItemType
 ItemGetValue = Callable[["ItemGetValueContext"], Any]
 ItemGetValueMap = dict[str, tuple[ItemGetValue, Any]]
 
-_VAR_NAME = "(?:[a-zA-Z0-9._/-]+|\\*):[\\[\\]a-zA-Z0-9._/-]+(?::[^${}]*)?"
-_VAR_SINGLE = re.compile(f"^[$@]\\{{{_VAR_NAME}\\}}$")
-_VAR_TOKENS = re.compile(f"(?:(\\$+|@+)\\{{{_VAR_NAME}\\}})|"
-                         r"(?:(\$+|@+)\{)")
+_VAR_NAME = "(?:[a-zA-Z0-9._/-]+|\\*):[\\[\\]a-zA-Z0-9._/-]+(?::[^$`{}]*)?"
+_VAR_SINGLE = re.compile(f"^[$@][{{`]{_VAR_NAME}[}}`]$")
+_VAR_TOKENS = re.compile(f"(?:(\\$+|@+)[{{`]{_VAR_NAME}[}}`])|"
+                         r"(?:(\$+|@+)[{{`])")
 
 
 class _ItemMapperError(Exception):

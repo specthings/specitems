@@ -77,24 +77,60 @@ def test_item_mapper(tmpdir):
         mapper.substitute("${")
     with pytest.raises(ValueError):
         mapper.substitute("@{")
-    assert mapper.substitute("$") == "$"
+    with pytest.raises(ValueError):
+        mapper.substitute("$`")
+    with pytest.raises(ValueError):
+        mapper.substitute("@`")
+
     assert mapper.substitute("@") == "@"
+    assert mapper.substitute("$") == "$"
+    assert mapper.substitute("`") == "`"
     assert mapper.substitute("$x") == "$x"
     assert mapper.substitute("@x") == "@x"
+    assert mapper.substitute("`x") == "`x"
     assert mapper.substitute("x$") == "x$"
     assert mapper.substitute("x@") == "x@"
+    assert mapper.substitute("x`") == "x`"
     assert mapper.substitute("x$y") == "x$y"
     assert mapper.substitute("x@y") == "x@y"
+    assert mapper.substitute("x`y") == "x`y"
     assert mapper.substitute("$${") == "${"
+    assert mapper.substitute("$$`") == "$`"
     assert mapper.substitute("@@{") == "@{"
+    assert mapper.substitute("@@`") == "@`"
     assert mapper.substitute("$${$") == "${$"
+    assert mapper.substitute("$$`$") == "$`$"
     assert mapper.substitute("@@{@") == "@{@"
+    assert mapper.substitute("@@`@") == "@`@"
+
     assert mapper.substitute("@{.:/v}", item=c) == "c"
     assert mapper.substitute("@ @@ @@@ @{.:/v}@", item=c) == "@ @@ @@@ c@"
     assert mapper.substitute("@@@{.:/v}", item=c) == "@c"
     assert mapper.substitute("@@@@{.:/v}", item=c) == "@@{.:/v}"
     assert mapper.substitute("@@@@@@@@{.:/v}", item=c) == "@@@@{.:/v}"
     assert mapper.substitute("@@@@@@@@@{.:/v}", item=c) == "@@@@c"
+
+    assert mapper.substitute("@`.:/v}", item=c) == "c"
+    assert mapper.substitute("@ @@ @@@ @`.:/v}@", item=c) == "@ @@ @@@ c@"
+    assert mapper.substitute("@@@`.:/v}", item=c) == "@c"
+    assert mapper.substitute("@@@@`.:/v}", item=c) == "@@`.:/v}"
+    assert mapper.substitute("@@@@@@@@`.:/v}", item=c) == "@@@@`.:/v}"
+    assert mapper.substitute("@@@@@@@@@`.:/v}", item=c) == "@@@@c"
+
+    assert mapper.substitute("@{.:/v`", item=c) == "c"
+    assert mapper.substitute("@ @@ @@@ @{.:/v`@", item=c) == "@ @@ @@@ c@"
+    assert mapper.substitute("@@@{.:/v`", item=c) == "@c"
+    assert mapper.substitute("@@@@{.:/v`", item=c) == "@@{.:/v`"
+    assert mapper.substitute("@@@@@@@@{.:/v`", item=c) == "@@@@{.:/v`"
+    assert mapper.substitute("@@@@@@@@@{.:/v`", item=c) == "@@@@c"
+
+    assert mapper.substitute("@`.:/v`", item=c) == "c"
+    assert mapper.substitute("@ @@ @@@ @`.:/v`@", item=c) == "@ @@ @@@ c@"
+    assert mapper.substitute("@@@`.:/v`", item=c) == "@c"
+    assert mapper.substitute("@@@@`.:/v`", item=c) == "@@`.:/v`"
+    assert mapper.substitute("@@@@@@@@`.:/v`", item=c) == "@@@@`.:/v`"
+    assert mapper.substitute("@@@@@@@@@`.:/v`", item=c) == "@@@@c"
+
     assert mapper.substitute("@{*:/v}", item=c) == "p"
     assert mapper.substitute("${.:/v}", item=c) == "c"
     assert mapper.substitute("$ $$ $$$ ${.:/v}$", item=c) == "$ $$ $$$ c$"
@@ -102,6 +138,31 @@ def test_item_mapper(tmpdir):
     assert mapper.substitute("$$$${.:/v}", item=c) == "$${.:/v}"
     assert mapper.substitute("$$$$$$$${.:/v}", item=c) == "$$$${.:/v}"
     assert mapper.substitute("$$$$$$$$${.:/v}", item=c) == "$$$$c"
+
+    assert mapper.substitute("@`*:/v}", item=c) == "p"
+    assert mapper.substitute("$`.:/v}", item=c) == "c"
+    assert mapper.substitute("$ $$ $$$ $`.:/v}$", item=c) == "$ $$ $$$ c$"
+    assert mapper.substitute("$$$`.:/v}", item=c) == "$c"
+    assert mapper.substitute("$$$$`.:/v}", item=c) == "$$`.:/v}"
+    assert mapper.substitute("$$$$$$$$`.:/v}", item=c) == "$$$$`.:/v}"
+    assert mapper.substitute("$$$$$$$$$`.:/v}", item=c) == "$$$$c"
+
+    assert mapper.substitute("@{*:/v`", item=c) == "p"
+    assert mapper.substitute("${.:/v`", item=c) == "c"
+    assert mapper.substitute("$ $$ $$$ ${.:/v`$", item=c) == "$ $$ $$$ c$"
+    assert mapper.substitute("$$${.:/v`", item=c) == "$c"
+    assert mapper.substitute("$$$${.:/v`", item=c) == "$${.:/v`"
+    assert mapper.substitute("$$$$$$$${.:/v`", item=c) == "$$$${.:/v`"
+    assert mapper.substitute("$$$$$$$$${.:/v`", item=c) == "$$$$c"
+
+    assert mapper.substitute("@`*:/v`", item=c) == "p"
+    assert mapper.substitute("$`.:/v`", item=c) == "c"
+    assert mapper.substitute("$ $$ $$$ $`.:/v`$", item=c) == "$ $$ $$$ c$"
+    assert mapper.substitute("$$$`.:/v`", item=c) == "$c"
+    assert mapper.substitute("$$$$`.:/v`", item=c) == "$$`.:/v`"
+    assert mapper.substitute("$$$$$$$$`.:/v`", item=c) == "$$$$`.:/v`"
+    assert mapper.substitute("$$$$$$$$$`.:/v`", item=c) == "$$$$c"
+
     assert mapper.substitute("${*:/v}", item=c) == "p"
     assert mapper.substitute("${.:v}", item=c, prefix="/u") == "C"
     assert mapper.substitute("${*:v}", item=c, prefix="/u") == "p"
@@ -129,6 +190,9 @@ def test_item_mapper(tmpdir):
     assert mapper.substitute_flexible_list([], is_enabled_method) == []
     assert mapper.substitute_flexible_list([[]], is_enabled_method) == []
     assert mapper.substitute_flexible_list(["${.:/v}", "@{.:/w}", "w"],
+                                           is_enabled_method,
+                                           c) == ["c", "u", "v", "w"]
+    assert mapper.substitute_flexible_list(["$`.:/v`", "@`.:/w`", "w"],
                                            is_enabled_method,
                                            c) == ["c", "u", "v", "w"]
     assert mapper.substitute_flexible_list([{
