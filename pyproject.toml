@@ -54,6 +54,7 @@ specpickle = "specitems.clipickle:clipickle"
 specdocitems = "specitems.clispecdoc:clispecdocitems"
 spechash = "specitems.clihash:clihash"
 specyamlquery = "specitems.cliyamlquery:cliyamlquery"
+specverify = "specitems.cliverify:cliverify"
 
 [build-system]
 requires = ["uv_build>=0.10.0"]
