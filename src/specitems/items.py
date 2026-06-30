@@ -1054,7 +1054,7 @@ class ItemCacheConfig:
     initialize_links: bool = True
     resolve_proxies: bool = True
     permissive_type_errors: bool = False
-    cache_directory: str = "cache"
+    cache_directory: str = ".specitems/cache"
 
 
 class ItemCache(dict):
