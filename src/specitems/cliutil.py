@@ -88,22 +88,21 @@ def get_arguments(
 
 
 def _add_item_cache_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--spec-directories",
-                        metavar="SPEC_DIRECTORY",
-                        type=str,
-                        action="extend",
+    parser.add_argument("--spec-directory",
+                        action="append",
                         default=None,
-                        nargs="+",
-                        help="a specification directory (default: spec)")
+                        help="a specification item directory; "
+                        "the option can be provided multiple times; "
+                        "if none is present, then the default is 'spec'")
     parser.add_argument(
         "--cache-directory",
-        help="the specification cache directory (default: spec-cache)",
-        default="spec-cache")
+        help="the specification cache directory (default: .specitems/cache)",
+        default=".specitems/cache")
 
 
 def _post_process_item_cache_arguments(args: argparse.Namespace) -> None:
-    if args.spec_directories is None:
-        args.spec_directories = ["spec"]
+    if args.spec_directory is None:
+        args.spec_directory = ["spec"]
 
 
 def get_item_cache_arguments(
