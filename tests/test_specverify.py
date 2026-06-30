@@ -25,10 +25,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import logging
+from pathlib import Path
 
+import specitems
 from specitems import (EmptyItemCache, ItemCache, ItemTypeProvider,
                        SpecTypeProvider, SpecVerifier, SpecYAMLFormatter,
                        monitor_logging, verify_specification_format)
+from specitems.cliverify import cliverify
 
 from .util import (create_item_cache_config, get_and_clear_log,
                    get_other_type_data_by_uid)
@@ -2071,3 +2074,37 @@ INFO /spec2/x:/spec-type: verify using type 'name'"""
     assert info.warning == 0
     assert info.info == 18
     assert info.debug == 0
+
+
+def test_cliverify(tmp_path, monkeypatch):
+
+    def _load_types():
+        return {}
+
+    class _EP:
+
+        def load(self):
+            return _load_types
+
+    def _entry_points(group):
+        return [_EP()]
+
+    monkeypatch.setattr(specitems.cliverify.importlib.metadata, "entry_points",
+                        _entry_points)
+
+    spec_dir = Path(__file__).parent / "spec-refs"
+    status = cliverify(["x", str(spec_dir)])
+    assert status == 0
+    status = cliverify(["x", str(spec_dir / "ref" / "manual.yml")])
+    assert status == 0
+    status = cliverify([
+        "x", "--format-items", "--clang-format-path=abc",
+        "--clang-format-style=def:ghi",
+        str(spec_dir / "ref" / "manual.yml")
+    ])
+    assert status == 0
+    status = cliverify([
+        "x", "--clang-format-style=jkl",
+        str(spec_dir / "ref" / "manual.yml")
+    ])
+    assert status == 1

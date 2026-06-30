@@ -5,5 +5,6 @@ enabled-by: true
 glossary-type: group
 links: []
 name: ${inbook:/title}
-text: Text.
+text: |
+  Text.
 type: glossary
