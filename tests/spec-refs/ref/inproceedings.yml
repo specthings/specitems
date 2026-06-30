@@ -1,8 +1,8 @@
 SPDX-License-Identifier: CC-BY-SA-4.0
-copyrights:
-- Copyright (C) 2025 embedded brains GmbH & Co. KG
 author: Author
 booktitle: Conference Proceedings
+copyrights:
+- Copyright (C) 2025 embedded brains GmbH & Co. KG
 editor:
 - Editor A
 - Editor B
