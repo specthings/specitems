@@ -1,11 +1,9 @@
 SPDX-License-Identifier: CC-BY-SA-4.0
+author: Author
 copyrights:
 - Copyright (C) 2025 embedded brains GmbH & Co. KG
-author: Author
-work-hash: null
-work-url: null
-editor: Editor
 edition: '1'
+editor: Editor
 enabled-by: true
 links: []
 month: January
@@ -17,4 +15,6 @@ series: '3'
 title: Book
 type: reference
 volume: '4'
+work-hash: null
+work-url: null
 year: '5'
