@@ -81,6 +81,16 @@ def _format_myst(_formatter: SpecFormatter, _item: Item, value: str,
     return to_dollar_variables(value)
 
 
+def _format_sorted(_formatter: SpecFormatter, _item: Item, value: Any,
+                   _fmt: dict) -> Any:
+    return sorted(value)
+
+
+def _format_unique(_formatter: SpecFormatter, _item: Item, value: Any,
+                   _fmt: dict) -> Any:
+    return sorted(set(value))
+
+
 class _ListOrder(dict):
     pass
 
@@ -154,6 +164,8 @@ _YAML_FORMATTER = {
     "int-format-string": _format_int_string,
     "int-format-attribute": _format_int_attribute,
     "list-order": _format_list_order,
+    "sorted": _format_sorted,
+    "unique": _format_unique,
 }
 
 

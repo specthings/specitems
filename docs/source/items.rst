@@ -1691,6 +1691,21 @@ spec-value
     specification type refinement attribute value of the specification
     refinement.
 
+.. _SpecTypeSpecificationSortedOrUniqueListFormat:
+
+Specification Sorted or Unique List Format
+==========================================
+
+This type refines the following types:
+
+- :ref:`SpecTypeSpecificationValueFormat` through the ``type`` attribute if the
+  value is ``sorted``
+
+- :ref:`SpecTypeSpecificationValueFormat` through the ``type`` attribute if the
+  value is ``unique``
+
+This set of attributes specifies the sorted and unique formatting for lists.
+
 .. _SpecTypeSpecificationStringAssert:
 
 Specification String Assert
@@ -1832,6 +1847,8 @@ This type is refined by the following types:
 - :ref:`SpecTypeSpecificationListOrderFormat`
 
 - :ref:`SpecTypeSpecificationMySTFormat`
+
+- :ref:`SpecTypeSpecificationSortedOrUniqueListFormat`
 
 This type is used by the following types:
 
