@@ -8,6 +8,8 @@ links:
 spec-example: null
 spec-info:
   list:
+    format:
+      type: sorted
     spec-type: none
 spec-type: some-list
 type: spec

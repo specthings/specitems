@@ -14,13 +14,19 @@ spec-info:
         description: |
           It shall be the description of the list.
         spec-type: optional-str
+      format:
+        description: |
+          This optional attribute defines the format of the string.
+        spec-type: spec-format
       spec-type:
         description: |
           It shall be the specification type of elements of the list.
         spec-type: name
     description: |
       This set of attributes specifies a list of attributes or values.
-    mandatory-attributes: all
+    mandatory-attributes:
+    - description
+    - spec-type
 spec-name: Specification List
 spec-type: spec-list
 type: spec
