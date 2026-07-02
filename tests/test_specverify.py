@@ -139,8 +139,11 @@ INFO type: spec-float
 INFO type: spec-format
 INFO add subtype 'spec-format-int-string' to 'spec-format'
 INFO add subtype 'spec-format-myst' to 'spec-format'
+INFO add subtype 'spec-format-sorted' to 'spec-format'
+INFO add subtype 'spec-format-sorted' to 'spec-format'
 INFO type: spec-format-int-string
 INFO type: spec-format-myst
+INFO type: spec-format-sorted
 INFO type: spec-generic-attributes
 INFO type: spec-info
 INFO type: spec-int
@@ -175,6 +178,7 @@ ERROR /c1: missing mandatory keys for type 'c': ['any-dict', 'bool', 'float', 'i
 INFO /c1:/dict: verify using type 'some-dict'
 INFO /c1:/dict/a: verify using type 'none'
 INFO /c1:/list: verify using type 'some-list'
+INFO /c1:/list: format using type 'sorted'
 INFO /c1:/uid: verify using type 'uid'
 ERROR /c1:/uid: expected type 'str', actual type 'int'
 INFO /c2: verify using type 'root'
@@ -189,6 +193,7 @@ ERROR /c2: missing mandatory keys for type 'c': ['any-dict', 'bool', 'float', 'i
 INFO /c2:/dict: verify using type 'some-dict'
 ERROR /c2:/dict: has unverfied keys for type 'some-dict' and its subtypes: ['b']
 INFO /c2:/list: verify using type 'some-list'
+INFO /c2:/list: format using type 'sorted'
 INFO /c2:/str-contains: verify using type 'str-contains'
 ERROR /c2:/str-contains: invalid value: uvw
 INFO /c3: verify using type 'root'
@@ -230,6 +235,7 @@ ERROR /c4:/float: invalid value: 123.567
 INFO /c4:/int: verify using type 'some-int'
 INFO /c4:/int: format using type 'int-format-string'
 INFO /c4:/list: verify using type 'some-list'
+INFO /c4:/list: format using type 'sorted'
 INFO /c4:/must-be-true: verify using type 'must-be-true'
 INFO /c4:/other-int: verify using type 'other-int'
 INFO /c4:/str: verify using type 'some-str'
@@ -1178,6 +1184,39 @@ INFO /spec/spec-format-myst:/spec-info/dict/description: verify using type 'opti
 INFO /spec/spec-format-myst:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
 INFO /spec/spec-format-myst:/spec-name: verify using type 'optional-str'
 INFO /spec/spec-format-myst:/spec-type: verify using type 'name'
+INFO /spec/spec-format-sorted: verify using type 'root'
+INFO /spec/spec-format-sorted:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
+INFO /spec/spec-format-sorted:/copyrights: verify using type 'copyrights'
+INFO /spec/spec-format-sorted:/copyrights[0]: verify using type 'copyright'
+INFO /spec/spec-format-sorted:/enabled-by: verify using type 'enabled-by'
+INFO /spec/spec-format-sorted:/links: verify using type 'links'
+INFO /spec/spec-format-sorted:/links[0]: verify using type 'link'
+INFO /spec/spec-format-sorted:/links[0]/role: verify using type 'name'
+INFO /spec/spec-format-sorted:/links[0]/uid: verify using type 'uid'
+INFO /spec/spec-format-sorted:/links[0]: verify using type 'spec-member'
+INFO /spec/spec-format-sorted:/links[1]: verify using type 'link'
+INFO /spec/spec-format-sorted:/links[1]/role: verify using type 'name'
+INFO /spec/spec-format-sorted:/links[1]/uid: verify using type 'uid'
+INFO /spec/spec-format-sorted:/links[1]: verify using type 'spec-refinement'
+INFO /spec/spec-format-sorted:/links[1]/spec-key: verify using type 'name'
+INFO /spec/spec-format-sorted:/links[1]/spec-value: verify using type 'name'
+INFO /spec/spec-format-sorted:/links[2]: verify using type 'link'
+INFO /spec/spec-format-sorted:/links[2]/role: verify using type 'name'
+INFO /spec/spec-format-sorted:/links[2]/uid: verify using type 'uid'
+INFO /spec/spec-format-sorted:/links[2]: verify using type 'spec-refinement'
+INFO /spec/spec-format-sorted:/links[2]/spec-key: verify using type 'name'
+INFO /spec/spec-format-sorted:/links[2]/spec-value: verify using type 'name'
+INFO /spec/spec-format-sorted:/type: verify using type 'name'
+INFO /spec/spec-format-sorted: verify using type 'spec'
+INFO /spec/spec-format-sorted:/spec-description: verify using type 'optional-str'
+INFO /spec/spec-format-sorted:/spec-example: verify using type 'optional-str'
+INFO /spec/spec-format-sorted:/spec-info: verify using type 'spec-info'
+INFO /spec/spec-format-sorted:/spec-info/dict: verify using type 'spec-dict'
+INFO /spec/spec-format-sorted:/spec-info/dict/attributes: verify using type 'spec-attributes'
+INFO /spec/spec-format-sorted:/spec-info/dict/description: verify using type 'optional-str'
+INFO /spec/spec-format-sorted:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
+INFO /spec/spec-format-sorted:/spec-name: verify using type 'optional-str'
+INFO /spec/spec-format-sorted:/spec-type: verify using type 'name'
 INFO /spec/spec-generic-attributes: verify using type 'root'
 INFO /spec/spec-generic-attributes:/SPDX-License-Identifier: verify using type 'spdx-license-identifier'
 INFO /spec/spec-generic-attributes:/copyrights: verify using type 'copyrights'
@@ -1315,12 +1354,18 @@ INFO /spec/spec-list:/spec-info/dict/attributes/description: verify using type '
 INFO /spec/spec-list:/spec-info/dict/attributes/description: verify using type 'spec-attribute-value'
 INFO /spec/spec-list:/spec-info/dict/attributes/description/description: verify using type 'optional-str'
 INFO /spec/spec-list:/spec-info/dict/attributes/description/spec-type: verify using type 'name'
+INFO /spec/spec-list:/spec-info/dict/attributes/format: verify using type 'name'
+INFO /spec/spec-list:/spec-info/dict/attributes/format: verify using type 'spec-attribute-value'
+INFO /spec/spec-list:/spec-info/dict/attributes/format/description: verify using type 'optional-str'
+INFO /spec/spec-list:/spec-info/dict/attributes/format/spec-type: verify using type 'name'
 INFO /spec/spec-list:/spec-info/dict/attributes/spec-type: verify using type 'name'
 INFO /spec/spec-list:/spec-info/dict/attributes/spec-type: verify using type 'spec-attribute-value'
 INFO /spec/spec-list:/spec-info/dict/attributes/spec-type/description: verify using type 'optional-str'
 INFO /spec/spec-list:/spec-info/dict/attributes/spec-type/spec-type: verify using type 'name'
 INFO /spec/spec-list:/spec-info/dict/description: verify using type 'optional-str'
 INFO /spec/spec-list:/spec-info/dict/mandatory-attributes: verify using type 'spec-mandatory-attributes'
+INFO /spec/spec-list:/spec-info/dict/mandatory-attributes[0]: verify using type 'name'
+INFO /spec/spec-list:/spec-info/dict/mandatory-attributes[1]: verify using type 'name'
 INFO /spec/spec-list:/spec-name: verify using type 'optional-str'
 INFO /spec/spec-list:/spec-type: verify using type 'name'
 INFO /spec/spec-mandatory-attributes: verify using type 'root'
@@ -1948,6 +1993,9 @@ INFO /spec2/some-list:/spec-example: verify using type 'optional-str'
 INFO /spec2/some-list:/spec-info: verify using type 'spec-info'
 INFO /spec2/some-list:/spec-info/list: verify using type 'spec-list'
 ERROR /spec2/some-list:/spec-info/list: missing mandatory keys for type 'spec-list': ['description']
+INFO /spec2/some-list:/spec-info/list/format: verify using type 'spec-format'
+INFO /spec2/some-list:/spec-info/list/format/type: verify using type 'str'
+INFO /spec2/some-list:/spec-info/list/format: verify using type 'spec-format-sorted'
 INFO /spec2/some-list:/spec-info/list/spec-type: verify using type 'name'
 INFO /spec2/some-list:/spec-type: verify using type 'name'
 INFO /spec2/some-str: verify using type 'root'
@@ -2045,7 +2093,7 @@ INFO finished specification item verification"""
     assert info.critical == 0
     assert info.error == 91
     assert info.warning == 1
-    assert info.info == 1792
+    assert info.info == 1837
     assert info.debug == 0
     info = verifier.verify(item_cache["/spec2/x"])
     assert get_and_clear_log(

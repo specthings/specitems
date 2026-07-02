@@ -552,6 +552,9 @@ class _ItemVerifier(_Verifier):
         for index, element in enumerate(value):
             verifier.verify(_Path(path.item, path.path + f"[{index}]"),
                             element)
+        formatter = self.formatter
+        if formatter is not None:
+            self._format(formatter, path, value, type_info)
         return set()
 
     def verify_none(self, _path: _Path, _value: Any,

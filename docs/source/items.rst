@@ -1589,12 +1589,22 @@ This type is used by the following types:
 Specification List
 ==================
 
-This set of attributes specifies a list of attributes or values. All explicit
-attributes shall be specified. The explicit attributes for this type are:
+This set of attributes specifies a list of attributes or values. The following
+explicit attributes are mandatory:
+
+- ``description``
+
+- ``spec-type``
+
+The explicit attributes for this type are:
 
 description
     The attribute value shall be an optional string. It shall be the
     description of the list.
+
+format
+    The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
+    This optional attribute defines the format of the string.
 
 spec-type
     The attribute value shall be a :ref:`SpecTypeName`. It shall be the
@@ -1855,6 +1865,8 @@ This type is used by the following types:
 - :ref:`SpecTypeSpecificationAttributeSet`
 
 - :ref:`SpecTypeSpecificationIntegerValue`
+
+- :ref:`SpecTypeSpecificationList`
 
 - :ref:`SpecTypeSpecificationStringValue`
 

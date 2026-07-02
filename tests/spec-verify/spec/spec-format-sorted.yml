@@ -1,0 +1,26 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: sorted
+  uid: spec-format
+- role: spec-refinement
+  spec-key: type
+  spec-value: unique
+  uid: spec-format
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes: {}
+    description: |
+      This set of attributes specifies the sorted and unique formatting for lists.
+    mandatory-attributes: all
+spec-name: Specification Sorted or Unique List Format
+spec-type: spec-format-sorted
+type: spec
