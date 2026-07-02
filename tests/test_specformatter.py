@@ -90,6 +90,12 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
     item["j"] = [{"k": "b"}]
     formatter.format_value(item, "/k", {"a": 1, "b": 2}, fmt_list_order)
 
+    fmt_sorted = {"type": "sorted"}
+    formatter.format_value(item, "/l", [2, 1], fmt_sorted)
+
+    fmt_unique = {"type": "unique"}
+    formatter.format_value(item, "/m", [4, 3, 4, 3, 3], fmt_unique)
+
     assert item.data == {
         "a": "x ${abc:def} y\n",
         "b": "x ${abc:/def}y\n",
@@ -107,6 +113,8 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
             "a": 1,
             "b": 2
         },
+        "l": [1, 2],
+        "m": [3, 4],
     }
 
     item.file = "something.txt"
@@ -139,4 +147,10 @@ j:
 k:
   b: 2
   a: 1
+l:
+- 1
+- 2
+m:
+- 3
+- 4
 """
