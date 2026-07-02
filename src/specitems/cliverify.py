@@ -76,6 +76,9 @@ def cliverify(argv: list[str] = sys.argv) -> int:
             "file (example: file-scope:.clang-format); "
             "the style name is not related to the built-in styles "
             "of clang-format; this option can be given multiple times")
+        parser.add_argument("--do-not-indent-lists",
+                            action="store_true",
+                            help="do not indent lists in the YAML output")
         parser.add_argument("spec_items_or_directories",
                             nargs="+",
                             metavar="SPEC_ITEM_OR_DIRECTORY",
@@ -108,8 +111,10 @@ def cliverify(argv: list[str] = sys.argv) -> int:
             return 1
         clang_format_style[style] = file
     if args.format_items:
-        formatter = SpecYAMLFormatter(clang_format_path=args.clang_format_path,
-                                      clang_format_style=clang_format_style)
+        formatter = SpecYAMLFormatter(
+            clang_format_path=args.clang_format_path,
+            clang_format_style=clang_format_style,
+            indent_lists=not args.do_not_indent_lists)
     else:
         formatter = None
     return verify_specification_format(item_cache,

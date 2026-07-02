@@ -169,15 +169,40 @@ _YAML_FORMATTER = {
 }
 
 
+class _ListIndentDumper(yaml.Dumper):
+    # pylint: disable=too-many-ancestors
+
+    def increase_indent(self,
+                        flow: bool = False,
+                        indentless: bool = False) -> None:
+        return super().increase_indent(flow, False)
+
+
 class SpecYAMLFormatter(SpecFormatter):
     """ Provides a method to format values for YAML files. """
 
-    # pylint: disable=too-few-public-methods
+    def __init__(self,
+                 clang_format_path: str,
+                 clang_format_style: dict[str, str],
+                 indent_lists: bool = True) -> None:
+        super().__init__(clang_format_path, clang_format_style)
+        self.indent_lists = indent_lists
+
     def format_value(self, item: Item, path: str, value: Any,
                      fmt: dict) -> None:
         value = _YAML_FORMATTER[fmt["type"]](self, item, value, fmt)
         item.set_value(path, value)
 
     def save(self, item: Item) -> None:
-        if item.file.endswith(".yml"):
-            item.save()
+        path = item.file
+        if path.endswith(".yml"):
+            with open(path, "w", encoding="utf-8") as out:
+                if self.indent_lists:
+                    dumper: type[yaml.Dumper] = _ListIndentDumper
+                else:
+                    dumper = yaml.Dumper
+                out.write(
+                    yaml.dump(item.data,
+                              Dumper=dumper,
+                              default_flow_style=False,
+                              allow_unicode=True))

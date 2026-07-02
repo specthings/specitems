@@ -2099,7 +2099,7 @@ def test_cliverify(tmp_path, monkeypatch):
     assert status == 0
     status = cliverify([
         "x", "--format-items", "--clang-format-path=abc",
-        "--clang-format-style=def:ghi",
+        "--clang-format-style=def:ghi", "--do-not-indent-lists",
         str(spec_dir / "ref" / "manual.yml")
     ])
     assert status == 0

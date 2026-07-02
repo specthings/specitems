@@ -53,7 +53,8 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
                         _subprocess_run)
 
     formatter = SpecYAMLFormatter(clang_format_path="foo",
-                                  clang_format_style={"bar": "baz"})
+                                  clang_format_style={"bar": "baz"},
+                                  indent_lists=False)
     item = EmptyItem()
 
     fmt_myst = {"type": "myst"}
@@ -153,4 +154,35 @@ l:
 m:
 - 3
 - 4
+"""
+
+    file_path_2 = tmp_path / "item_2.yml"
+    item.file = str(file_path_2)
+    formatter.indent_lists = True
+    formatter.save(item)
+    assert file_path_2.read_text(encoding="utf-8") == """a: |
+  x ${abc:def} y
+b: |
+  x ${abc:/def}y
+c: |
+  x${/abc:def} y
+d: |
+  x${/abc:/def}y
+e: 0x01
+f: '{:#05x}'
+g: 0x002
+h: 0x0003
+i: clang format output
+j:
+  - k: b
+  - k: a
+k:
+  b: 2
+  a: 1
+l:
+  - 1
+  - 2
+m:
+  - 3
+  - 4
 """
