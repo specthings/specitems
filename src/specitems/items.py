@@ -28,7 +28,7 @@ Provides a specification item representation organized in an item cache.
 
 # pylint: disable=too-many-lines
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 import base64
 import dataclasses
 import hashlib
@@ -38,6 +38,7 @@ import os
 import pickle
 import re
 import stat
+import tempfile
 from typing import (Any, Callable, Collection, Iterable, Iterator, Match,
                     Optional, Union)
 import json
@@ -704,9 +705,39 @@ def _json_load_data_by_uid(data_by_uid: ItemDataByUID, _cache_dir: str,
                                    path_2)
 
 
+def _atomic_write(path: str, content: str) -> None:
+    """
+    Write the content to the path atomically.
+
+    The content is first written to a temporary file in the same directory
+    as the path.  The temporary file is then renamed to the path.  This
+    way, a failure while producing the content cannot truncate or corrupt
+    an already existing file at the path.
+    """
+    directory = os.path.dirname(os.path.abspath(path))
+    tmp_path: Optional[str] = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w",
+                                         encoding="utf-8",
+                                         dir=directory,
+                                         prefix=".tmp-",
+                                         suffix=os.path.basename(path),
+                                         delete=False) as out:
+            tmp_path = out.name
+            with suppress(OSError):
+                os.chmod(tmp_path, stat.S_IMODE(os.stat(path).st_mode))
+            out.write(content)
+        os.replace(tmp_path, path)
+    except Exception:
+        if tmp_path is not None:
+            with suppress(OSError):
+                os.remove(tmp_path)
+        raise
+
+
 def _json_save_data(path: str, data: dict) -> None:
-    with open(path, "w", encoding="utf-8") as out:
-        json.dump(data, out, sort_keys=True, indent=2)
+    content = json.dumps(data, sort_keys=True, indent=2)
+    _atomic_write(path, content)
 
 
 def _yaml_load_data(path: str) -> dict:
@@ -722,9 +753,8 @@ def _yaml_load_data(path: str) -> dict:
 
 
 def _yaml_save_data(path: str, data: dict) -> None:
-    with open(path, "w", encoding="utf-8") as out:
-        out.write(yaml.dump(data, default_flow_style=False,
-                            allow_unicode=True))
+    content = yaml.dump(data, default_flow_style=False, allow_unicode=True)
+    _atomic_write(path, content)
 
 
 def _yaml_load_items_in_dir(data_by_uid: ItemDataByUID, cache_file: str,

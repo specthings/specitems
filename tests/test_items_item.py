@@ -24,9 +24,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import json
 import os
 from pathlib import Path
 import pytest
+import tempfile
+import yaml
 
 from specitems import (EmptyItemCache, IS_ENABLED_OPS, Item, ItemCacheConfig,
                        ItemGetValueContext, JSONItemCache, Link,
@@ -359,6 +362,84 @@ def test_save_and_load_json(tmp_path):
     json_file.write_text("invalid", encoding="utf-8")
     with pytest.raises(IOError):
         item.load()
+
+
+def test_yaml_save_does_not_truncate_file_on_dump_error(tmp_path, monkeypatch):
+    yaml_file = tmp_path / "i.yml"
+    item = Item(EmptyItemCache(), "i", {"k": "v"})
+    item.file = str(yaml_file)
+    item.save()
+    original = yaml_file.read_text(encoding="utf-8")
+
+    def _raise_value_error(*_args, **_kwargs):
+        raise ValueError("simulated dump error")
+
+    monkeypatch.setattr(yaml, "dump", _raise_value_error)
+    item["k"] = "changed"
+    with pytest.raises(ValueError):
+        item.save()
+
+    assert yaml_file.read_text(encoding="utf-8") == original
+    assert list(tmp_path.iterdir()) == [yaml_file]
+
+
+def test_json_save_does_not_truncate_file_on_dump_error(tmp_path, monkeypatch):
+    json_file = tmp_path / "i.json"
+    item = Item(EmptyItemCache(), "i", {"k": "v"})
+    item.file = str(json_file)
+    item.save()
+    original = json_file.read_text(encoding="utf-8")
+
+    def _raise_value_error(*_args, **_kwargs):
+        raise ValueError("simulated dump error")
+
+    monkeypatch.setattr(json, "dumps", _raise_value_error)
+    item["k"] = "changed"
+    with pytest.raises(ValueError):
+        item.save()
+
+    assert json_file.read_text(encoding="utf-8") == original
+    assert list(tmp_path.iterdir()) == [json_file]
+
+
+def test_atomic_write_does_nothing_if_temp_file_create_fails(
+        tmp_path, monkeypatch):
+    json_file = tmp_path / "i.json"
+    item = Item(EmptyItemCache(), "i", {"k": "v"})
+    item.file = str(json_file)
+    item.save()
+    original = json_file.read_text(encoding="utf-8")
+
+    def _raise_os_error(*_args, **_kwargs):
+        raise OSError("simulated create error")
+
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", _raise_os_error)
+    item["k"] = "changed"
+    with pytest.raises(OSError):
+        item.save()
+
+    assert json_file.read_text(encoding="utf-8") == original
+    assert list(tmp_path.iterdir()) == [json_file]
+
+
+def test_atomic_write_removes_temp_file_and_keeps_original_on_failure(
+        tmp_path, monkeypatch):
+    json_file = tmp_path / "i.json"
+    item = Item(EmptyItemCache(), "i", {"k": "v"})
+    item.file = str(json_file)
+    item.save()
+    original = json_file.read_text(encoding="utf-8")
+
+    def _raise_os_error(*_args, **_kwargs):
+        raise OSError("simulated replace error")
+
+    monkeypatch.setattr(os, "replace", _raise_os_error)
+    item["k"] = "changed"
+    with pytest.raises(OSError):
+        item.save()
+
+    assert json_file.read_text(encoding="utf-8") == original
+    assert list(tmp_path.iterdir()) == [json_file]
 
 
 def test_item_get_value_arg():
