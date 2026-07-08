@@ -28,9 +28,10 @@ import functools
 import pytest
 
 from specitems import (EmptyItem, ItemCache, ItemGetValueContext, ItemMapper,
-                       ItemValueProvider, SpecTypeProvider, is_enabled,
-                       get_value_default, to_at_variables, to_dollar_variables,
-                       unpack_arg, unpack_args)
+                       ItemValueProvider, SpecTypeProvider,
+                       from_clang_variables, is_enabled, get_value_default,
+                       to_at_variables, to_clang_variables,
+                       to_dollar_variables, unpack_arg, unpack_args)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
@@ -81,6 +82,71 @@ def test_to_dollar_variables():
     assert to_dollar_variables("$$$${.:/v}") == "$$$${.:/v}"
     assert to_dollar_variables("$$$$$$$${.:/v}") == "$$$$$$$${.:/v}"
     assert to_dollar_variables("$$$$$$$$${.:/v}") == "$$$$$$$$${.:/v}"
+
+
+def test_to_clang_variables():
+    replacements = {}
+    assert to_clang_variables("", replacements) == ""
+    assert to_clang_variables("@", replacements) == "@"
+    assert to_clang_variables("@@{", replacements) == "@@{"
+    assert to_clang_variables("$${$", replacements) == "$${$"
+    assert to_clang_variables("@@{@", replacements) == "@@{@"
+    assert to_clang_variables("@{.:/v}", replacements) == "_Q74636"
+    assert to_clang_variables("@ @@ @@@ _Q74636@",
+                              replacements) == "@ @@ @@@ _Q74636@"
+    assert to_clang_variables("@@@{.:/v}", replacements) == "@@_Q74636"
+    assert to_clang_variables("@@@@{.:/v}", replacements) == "@@@@{.:/v}"
+    assert to_clang_variables("@@@@@@@@{.:/v}",
+                              replacements) == "@@@@@@@@{.:/v}"
+    assert to_clang_variables("@@@@@@@@@{.:/v}",
+                              replacements) == "@@@@@@@@_Q74636"
+    assert to_clang_variables("$", replacements) == "$"
+    assert to_clang_variables("$${", replacements) == "$${"
+    assert to_clang_variables("@@{@", replacements) == "@@{@"
+    assert to_clang_variables("$${$", replacements) == "$${$"
+    assert to_clang_variables("${.:/v}", replacements) == "_Q74636"
+    assert to_clang_variables("$ $$ $$$ ${.:/v}$",
+                              replacements) == "$ $$ $$$ _Q74636$"
+    assert to_clang_variables("$$${.:/v}", replacements) == "$$_Q74636"
+    assert to_clang_variables("$$$${.:/v}", replacements) == "$$$${.:/v}"
+    assert to_clang_variables("$$$$$$$${.:/v}",
+                              replacements) == "$$$$$$$${.:/v}"
+    assert to_clang_variables("$$$$$$$$${.:/v}",
+                              replacements) == "$$$$$$$$_Q74636"
+    assert replacements == {
+        "_Q74636": "${.:/v}",
+        "@@_Q74636": "@@@{.:/v}",
+        "@@@@@@@@_Q74636": "@@@@@@@@@{.:/v}",
+        "$$_Q74636": "$$${.:/v}",
+        "$$$$$$$$_Q74636": "$$$$$$$$${.:/v}"
+    }
+    assert to_clang_variables("${.:/v}${.:/u}${.:/v}",
+                              replacements) == "_Q74636_Q74637_Q74636"
+    assert to_clang_variables(
+        "${.:/vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv}",
+        replacements
+    ) == "_Q0000000000000000000000000000000000000000005829471035682940294817364509283746501938274636"
+    assert replacements == {
+        "_Q74636":
+        "${.:/v}",
+        "@@_Q74636":
+        "@@@{.:/v}",
+        "@@@@@@@@_Q74636":
+        "@@@@@@@@@{.:/v}",
+        "$$_Q74636":
+        "$$${.:/v}",
+        "$$$$$$$$_Q74636":
+        "$$$$$$$$${.:/v}",
+        "_Q74637":
+        "${.:/u}",
+        "_Q0000000000000000000000000000000000000000005829471035682940294817364509283746501938274636":
+        "${.:/vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv}",
+    }
+    assert from_clang_variables("_Q74637", {}) == "_Q74637"
+    assert from_clang_variables("@@_Q74636", replacements) == "@@@{.:/v}"
+    assert from_clang_variables("@@@@@@@@_Q74636",
+                                replacements) == "@@@@@@@@@{.:/v}"
+    assert from_clang_variables("_Q74637", replacements) == "${.:/u}"
 
 
 def _get_x_to_b_value(ctx):

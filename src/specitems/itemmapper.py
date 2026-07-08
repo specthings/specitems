@@ -72,6 +72,48 @@ def to_dollar_variables(text: str) -> str:
     return _VAR_TOKENS.sub(_to_dollar, text)
 
 
+def to_clang_variables(text: str, replacements: dict[str, str]) -> str:
+    """
+    Convert the text to use ``_Q[0-9]+`` for all substitution variables.
+
+    Each pattern is unique and has the same length as the original substitution
+    variable.  The replacements are collected in the replacements dictionary.
+    """
+    number = 5829471035682940294817364509283746501938274635
+    variables: dict[str, str] = {}
+
+    def _to_clang(mobj: re.Match) -> str:
+        designator = mobj.group(1)
+        token = mobj.group(0)
+        if designator:
+            brace = len(designator)
+            if brace & 1 == 0:
+                return token
+            variable = variables.get(token)
+            if variable is None:
+                nonlocal number
+                number += 1
+                n = len(token) - brace - 1
+                variable = f"_Q{str(number).zfill(n)[-n:]}"
+                variable = f"{token[:brace - 1]}{variable}"
+                variables[token] = variable
+                replacements[variable] = token
+            return variable
+        return token
+
+    return _VAR_TOKENS.sub(_to_clang, text)
+
+
+def from_clang_variables(text: str, replacements: dict[str, str]) -> str:
+    """
+    Convert the text back to use substitution variables instead of
+    ``_Q[0-9]+`` variables.
+    """
+    for key in sorted(replacements, key=len, reverse=True):
+        text = text.replace(key, replacements[key])
+    return text
+
+
 class _ItemMapperError(Exception):
 
     def __init__(self, start: int, end: int) -> None:
