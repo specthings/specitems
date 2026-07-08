@@ -32,7 +32,8 @@ import yaml
 
 from .contentmarkdown import format_markdown_text
 from .items import Item
-from .itemmapper import to_at_variables, to_dollar_variables
+from .itemmapper import (from_clang_variables, to_at_variables,
+                         to_clang_variables, to_dollar_variables)
 
 
 class SpecFormatter(abc.ABC):
@@ -66,12 +67,14 @@ def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
         formatter.clang_format_path, f"--style={style}",
         "--assume-filename=specitems.c"
     ]
+    replacements: dict[str, str] = {}
+    value = to_clang_variables(value, replacements)
     result = subprocess.run(cmd,
                             input=value,
                             capture_output=True,
                             encoding="utf-8",
                             check=True)
-    return result.stdout
+    return from_clang_variables(result.stdout, replacements)
 
 
 def _format_myst(_formatter: SpecFormatter, _item: Item, value: str,
