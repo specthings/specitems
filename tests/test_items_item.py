@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+from pathlib import Path
 import pytest
 
 from specitems import (EmptyItemCache, IS_ENABLED_OPS, Item, ItemCacheConfig,
@@ -309,44 +310,43 @@ def test_is_enabled_with_ops():
     _is_enabled_tests(_is_enabled_with_ops)
 
 
-def test_save_and_load(tmpdir):
-    yaml_file = os.path.join(tmpdir, "i.yml")
-    json_file = os.path.join(tmpdir, "i.json")
+def test_save_and_load(tmp_path):
+    yaml_file = tmp_path / "i.yml"
+    json_file = tmp_path / "i.json"
     item = Item(EmptyItemCache(), "i", {"k": "v"})
     assert item.file == os.devnull
-    item.file = yaml_file
+    item.file = str(yaml_file)
     item.save()
     with open(yaml_file, "r") as src:
         assert src.read() == "k: v\n"
-    assert item.file == yaml_file
+    assert item.file == str(yaml_file)
 
-    item.file = json_file
+    item.file = str(json_file)
     item.save()
     with open(json_file, "r") as src:
         assert src.read() == "{\n  \"k\": \"v\"\n}"
-    assert item.file == json_file
+    assert item.file == str(json_file)
 
     item_2 = Item(EmptyItemCache(), "i2", {})
-    item_2.file = yaml_file
+    item_2.file = str(yaml_file)
     with pytest.raises(KeyError):
         item_2["k"]
     item_2.load()
     assert item_2["k"] == "v"
-    assert item_2.file == yaml_file
+    assert item_2.file == str(yaml_file)
 
 
-def test_save_and_load_json(tmpdir):
-    spec_dir = os.path.join(os.path.dirname(__file__), "spec-json")
+def test_save_and_load_json(tmp_path):
+    spec_dir = Path(__file__).parent / "spec-json"
     config = ItemCacheConfig(paths=[spec_dir])
     item_cache = JSONItemCache(config)
     item = item_cache["/d/b"].parent("b")
-    json_file = os.path.join(tmpdir, "file.json")
-    item.file = json_file
+    json_file = tmp_path / "file.json"
+    item.file = str(json_file)
     assert item["enabled-by"]
     item["enabled-by"] = False
     item.save()
-    with open(json_file, "r") as src:
-        assert src.read() == """{
+    assert json_file.read_text(encoding="utf-8") == """{
   "SPDX-License-Identifier": "CC-BY-SA-4.0 OR BSD-2-Clause",
   "copyrights": [
     "Copyright (C) 2022 embedded brains GmbH & Co. KG"
@@ -356,8 +356,7 @@ def test_save_and_load_json(tmpdir):
   "type": "a"
 }"""
     item.load()
-    with open(json_file, "w") as dst:
-        dst.write("invalid")
+    json_file.write_text("invalid", encoding="utf-8")
     with pytest.raises(IOError):
         item.load()
 
