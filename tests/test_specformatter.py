@@ -48,9 +48,44 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
         assert check
         if "_Specitems" in input:
             assert input == "void _Specitems(void) {\nclang format input\n}"
-            return _Status("void _Specitems(void) {\n clang format function}")
+            return _Status("""void _Specitems(void)
+{
+  int a;
+
+  a = b;
+
+  if ( a == 1 ) {
+    a = c;
+  }
+
+  if ( a == 2 ) {
+    a = d;
+  }
+}
+""")
         assert input == "clang format input"
-        return _Status("  clang format file")
+        return _Status("""void f(void)
+{
+  int a;
+
+  a = b;
+
+  if ( a == 1 ) {
+    a = c;
+  }
+
+  if ( a == 2 ) {
+    a = d;
+  }
+}
+
+int x;
+
+int g( int a )
+{
+  return a + a;
+}
+""")
 
     monkeypatch.setattr(specitems.specformatter.subprocess, "run",
                         _subprocess_run)
@@ -103,16 +138,56 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
     formatter.format_value(item, "/n", [4, 3, 4, 3, 3], fmt_unique)
 
     assert item.data == {
-        "a": "x ${abc:def} y\n",
-        "b": "x ${abc:/def}y\n",
-        "c": "x${/abc:def} y\n",
-        "d": "x${/abc:/def}y\n",
-        "e": 1,
-        "f": "{:#05x}",
-        "g": 2,
-        "h": 3,
-        "i": "clang format file\n",
-        "j": "clang format function\n",
+        "a":
+        "x ${abc:def} y\n",
+        "b":
+        "x ${abc:/def}y\n",
+        "c":
+        "x${/abc:def} y\n",
+        "d":
+        "x${/abc:/def}y\n",
+        "e":
+        1,
+        "f":
+        "{:#05x}",
+        "g":
+        2,
+        "h":
+        3,
+        "i":
+        "void f(void)\n"
+        "{\n"
+        "  int a;\n"
+        "\n"
+        "  a = b;\n"
+        "\n"
+        "  if ( a == 1 ) {\n"
+        "    a = c;\n"
+        "  }\n"
+        "\n"
+        "  if ( a == 2 ) {\n"
+        "    a = d;\n"
+        "  }\n"
+        "}\n"
+        "\n"
+        "int x;\n"
+        "\n"
+        "int g( int a )\n"
+        "{\n"
+        "  return a + a;\n"
+        "}\n",
+        "j":
+        "int a;\n"
+        "\n"
+        "a = b;\n"
+        "\n"
+        "if ( a == 1 ) {\n"
+        "  a = c;\n"
+        "}\n"
+        "\n"
+        "if ( a == 2 ) {\n"
+        "  a = d;\n"
+        "}\n",
         "k": [{
             "l": "b"
         }],
@@ -148,9 +223,39 @@ f: '{:#05x}'
 g: 0x002
 h: 0x0003
 i: |
-  clang format file
+  void f(void)
+  {
+    int a;
+
+    a = b;
+
+    if ( a == 1 ) {
+      a = c;
+    }
+
+    if ( a == 2 ) {
+      a = d;
+    }
+  }
+
+  int x;
+
+  int g( int a )
+  {
+    return a + a;
+  }
 j: |
-  clang format function
+  int a;
+
+  a = b;
+
+  if ( a == 1 ) {
+    a = c;
+  }
+
+  if ( a == 2 ) {
+    a = d;
+  }
 k:
 - l: b
 - l: a
@@ -182,9 +287,39 @@ f: '{:#05x}'
 g: 0x002
 h: 0x0003
 i: |
-  clang format file
+  void f(void)
+  {
+    int a;
+
+    a = b;
+
+    if ( a == 1 ) {
+      a = c;
+    }
+
+    if ( a == 2 ) {
+      a = d;
+    }
+  }
+
+  int x;
+
+  int g( int a )
+  {
+    return a + a;
+  }
 j: |
-  clang format function
+  int a;
+
+  a = b;
+
+  if ( a == 1 ) {
+    a = c;
+  }
+
+  if ( a == 2 ) {
+    a = d;
+  }
 k:
   - l: b
   - l: a
