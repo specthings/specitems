@@ -69,12 +69,21 @@ def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
     ]
     replacements: dict[str, str] = {}
     value = to_clang_variables(value, replacements)
+    if fmt["scope"] == "function":
+        value = f"void _Specitems(void) {{\n{value}\n}}"
     result = subprocess.run(cmd,
                             input=value,
                             capture_output=True,
                             encoding="utf-8",
                             check=True)
-    return from_clang_variables(result.stdout, replacements)
+    value = from_clang_variables(result.stdout, replacements)
+    if fmt["scope"] == "function":
+        value = value[value.index("{") + 1:value.rindex("}")]
+    value = value.lstrip("\n")
+    indent_level = len(value) - len(value.lstrip())
+    indent = value[:indent_level]
+    value = value[indent_level:].replace(f"\n{indent}", "\n").rstrip()
+    return f"{value}\n"
 
 
 def _format_myst(_formatter: SpecFormatter, _item: Item, value: str,
