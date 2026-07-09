@@ -31,7 +31,7 @@ from typing import Any
 import yaml
 
 from .contentmarkdown import format_markdown_text
-from .items import Item
+from .items import Item, atomic_dump_to_file
 from .itemmapper import (from_clang_variables, to_at_variables,
                          to_clang_variables, to_dollar_variables)
 
@@ -205,20 +205,21 @@ class SpecYAMLFormatter(SpecFormatter):
         value = _YAML_FORMATTER[fmt["type"]](self, item, value, fmt)
         item.set_value(path, value)
 
+    def _dump(self, data: dict) -> str:
+        if self.indent_lists:
+            dumper: type[yaml.Dumper] = _ListIndentDumper
+        else:
+            dumper = yaml.Dumper
+        return yaml.dump(data,
+                         Dumper=dumper,
+                         default_flow_style=False,
+                         allow_unicode=True)
+
     def save(self, item: Item) -> None:
         path = item.file
         if path.endswith(".yml"):
             try:
-                with open(path, "w", encoding="utf-8") as out:
-                    if self.indent_lists:
-                        dumper: type[yaml.Dumper] = _ListIndentDumper
-                    else:
-                        dumper = yaml.Dumper
-                    out.write(
-                        yaml.dump(item.data,
-                                  Dumper=dumper,
-                                  default_flow_style=False,
-                                  allow_unicode=True))
+                atomic_dump_to_file(path, item.data, self._dump)
             except Exception as err:
                 err.add_note(f"saving item {path} failed")
                 raise
