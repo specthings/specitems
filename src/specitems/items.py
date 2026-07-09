@@ -705,14 +705,15 @@ def _json_load_data_by_uid(data_by_uid: ItemDataByUID, _cache_dir: str,
                                    path_2)
 
 
-def _atomic_write(path: str, content: str) -> None:
+def atomic_dump_to_file(path: str, data: dict, dumper: Callable[[dict],
+                                                                str]) -> None:
     """
-    Write the content to the path atomically.
+    Dump the data and write to the path atomically.
 
-    The content is first written to a temporary file in the same directory
-    as the path.  The temporary file is then renamed to the path.  This
-    way, a failure while producing the content cannot truncate or corrupt
-    an already existing file at the path.
+    The dumped data is first written to a temporary file in the same directory
+    as the path.  The temporary file is then renamed to the path.  This way, a
+    failure while producing the content cannot truncate or corrupt an already
+    existing file at the path.
     """
     directory = os.path.dirname(os.path.abspath(path))
     tmp_path: Optional[str] = None
@@ -726,7 +727,7 @@ def _atomic_write(path: str, content: str) -> None:
             tmp_path = out.name
             with suppress(OSError):
                 os.chmod(tmp_path, stat.S_IMODE(os.stat(path).st_mode))
-            out.write(content)
+            out.write(dumper(data))
         os.replace(tmp_path, path)
     except Exception:
         if tmp_path is not None:
@@ -735,9 +736,12 @@ def _atomic_write(path: str, content: str) -> None:
         raise
 
 
+def _json_dump(data: dict) -> str:
+    return json.dumps(data, sort_keys=True, indent=2)
+
+
 def _json_save_data(path: str, data: dict) -> None:
-    content = json.dumps(data, sort_keys=True, indent=2)
-    _atomic_write(path, content)
+    atomic_dump_to_file(path, data, _json_dump)
 
 
 def _yaml_load_data(path: str) -> dict:
@@ -752,9 +756,12 @@ def _yaml_load_data(path: str) -> dict:
     return data
 
 
+def _yaml_dump(data: dict) -> str:
+    return yaml.dump(data, default_flow_style=False, allow_unicode=True)
+
+
 def _yaml_save_data(path: str, data: dict) -> None:
-    content = yaml.dump(data, default_flow_style=False, allow_unicode=True)
-    _atomic_write(path, content)
+    atomic_dump_to_file(path, data, _yaml_dump)
 
 
 def _yaml_load_items_in_dir(data_by_uid: ItemDataByUID, cache_file: str,
