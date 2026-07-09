@@ -43,11 +43,14 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
             "--style=baz",
             "--assume-filename=specitems.c",
         ]
-        assert input == "clang format input"
         assert capture_output
         assert encoding == "utf-8"
         assert check
-        return _Status("clang format output")
+        if "_Specitems" in input:
+            assert input == "void _Specitems(void) {\nclang format input\n}"
+            return _Status("void _Specitems(void) {\n clang format function}")
+        assert input == "clang format input"
+        return _Status("  clang format file")
 
     monkeypatch.setattr(specitems.specformatter.subprocess, "run",
                         _subprocess_run)
@@ -80,22 +83,24 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
     fmt_int_default["default"] = "{:#06x}"
     formatter.format_value(item, "/h", 3, fmt_int_default)
 
-    fmt_clang_format = {"type": "clang", "style": "nix"}
+    fmt_clang_format = {"type": "clang", "style": "nix", "scope": "file"}
     with pytest.raises(ValueError):
         formatter.format_value(item, "/i", "clang format input",
                                fmt_clang_format)
     fmt_clang_format["style"] = "bar"
     formatter.format_value(item, "/i", "clang format input", fmt_clang_format)
+    fmt_clang_format["scope"] = "function"
+    formatter.format_value(item, "/j", "clang format input", fmt_clang_format)
 
-    fmt_list_order = {"type": "list-order", "path": "/j", "key": "k"}
-    item["j"] = [{"k": "b"}]
-    formatter.format_value(item, "/k", {"a": 1, "b": 2}, fmt_list_order)
+    fmt_list_order = {"type": "list-order", "path": "/k", "key": "l"}
+    item["k"] = [{"l": "b"}]
+    formatter.format_value(item, "/l", {"a": 1, "b": 2}, fmt_list_order)
 
     fmt_sorted = {"type": "sorted"}
-    formatter.format_value(item, "/l", [2, 1], fmt_sorted)
+    formatter.format_value(item, "/m", [2, 1], fmt_sorted)
 
     fmt_unique = {"type": "unique"}
-    formatter.format_value(item, "/m", [4, 3, 4, 3, 3], fmt_unique)
+    formatter.format_value(item, "/n", [4, 3, 4, 3, 3], fmt_unique)
 
     assert item.data == {
         "a": "x ${abc:def} y\n",
@@ -106,16 +111,17 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
         "f": "{:#05x}",
         "g": 2,
         "h": 3,
-        "i": "clang format output",
-        "j": [{
-            "k": "b"
+        "i": "clang format file\n",
+        "j": "clang format function\n",
+        "k": [{
+            "l": "b"
         }],
-        "k": {
+        "l": {
             "a": 1,
             "b": 2
         },
-        "l": [1, 2],
-        "m": [3, 4],
+        "m": [1, 2],
+        "n": [3, 4],
     }
 
     item.file = "something.txt"
@@ -126,7 +132,7 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
 
     with pytest.raises(ValueError):
         formatter.save(item)
-    item["j"].append({"k": "a"})
+    item["k"].append({"l": "a"})
 
     formatter.save(item)
     assert file_path.read_text(encoding="utf-8") == """a: |
@@ -141,17 +147,20 @@ e: 0x01
 f: '{:#05x}'
 g: 0x002
 h: 0x0003
-i: clang format output
-j:
-- k: b
-- k: a
+i: |
+  clang format file
+j: |
+  clang format function
 k:
+- l: b
+- l: a
+l:
   b: 2
   a: 1
-l:
+m:
 - 1
 - 2
-m:
+n:
 - 3
 - 4
 """
@@ -172,17 +181,20 @@ e: 0x01
 f: '{:#05x}'
 g: 0x002
 h: 0x0003
-i: clang format output
-j:
-  - k: b
-  - k: a
+i: |
+  clang format file
+j: |
+  clang format function
 k:
+  - l: b
+  - l: a
+l:
   b: 2
   a: 1
-l:
+m:
   - 1
   - 2
-m:
+n:
   - 3
   - 4
 """

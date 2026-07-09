@@ -1269,8 +1269,14 @@ This type refines the :ref:`SpecTypeSpecificationValueFormat` through the
 a C language source code formatting. All explicit attributes shall be
 specified. The explicit attributes for this type are:
 
+scope
+    The attribute value shall be a string. It shall be the formatting scope,
+    for example ``function`` or `file`.
+
 style
     The attribute value shall be a string. It shall be the formatting style.
+    The formatting style is used to lookup the value for the
+    ``--style=<value>`` option for the ``clang-format`` tool invocation.
 
 .. _SpecTypeSpecificationExplicitAttributes:
 

@@ -16,7 +16,13 @@ spec-info:
     attributes:
       style:
         description: |
-          It shall be the formatting style.
+          It shall be the formatting style.  The formatting style is used to
+          lookup the value for the `--style=<value>` option for the
+          `clang-format` tool invocation.
+        spec-type: str
+      scope:
+        description: |
+          It shall be the formatting scope, for example `function` or `file`.
         spec-type: str
     description: |
       This set of attributes specifies a C language source code formatting.
