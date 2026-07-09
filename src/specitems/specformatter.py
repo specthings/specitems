@@ -208,13 +208,17 @@ class SpecYAMLFormatter(SpecFormatter):
     def save(self, item: Item) -> None:
         path = item.file
         if path.endswith(".yml"):
-            with open(path, "w", encoding="utf-8") as out:
-                if self.indent_lists:
-                    dumper: type[yaml.Dumper] = _ListIndentDumper
-                else:
-                    dumper = yaml.Dumper
-                out.write(
-                    yaml.dump(item.data,
-                              Dumper=dumper,
-                              default_flow_style=False,
-                              allow_unicode=True))
+            try:
+                with open(path, "w", encoding="utf-8") as out:
+                    if self.indent_lists:
+                        dumper: type[yaml.Dumper] = _ListIndentDumper
+                    else:
+                        dumper = yaml.Dumper
+                    out.write(
+                        yaml.dump(item.data,
+                                  Dumper=dumper,
+                                  default_flow_style=False,
+                                  allow_unicode=True))
+            except Exception as err:
+                err.add_note(f"saving item {path} failed")
+                raise
