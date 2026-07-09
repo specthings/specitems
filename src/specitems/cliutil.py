@@ -66,16 +66,16 @@ def get_arguments(
     """
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
-        '--log-level',
+        "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         type=str.upper,
         default=default_log_level,
         help="log level")
-    parser.add_argument('--log-file',
+    parser.add_argument("--log-file",
                         type=str,
                         default=None,
                         help="log to this file")
-    parser.add_argument('--log-file-and-stderr',
+    parser.add_argument("--log-file-and-stderr",
                         action="store_true",
                         help="log to file and stderr")
     for add in add_arguments:
@@ -91,6 +91,7 @@ def _add_item_cache_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--spec-directory",
                         action="append",
                         default=None,
+                        dest="spec_directories",
                         help="a specification item directory; "
                         "the option can be provided multiple times; "
                         "if none is present, then the default is 'spec'")
@@ -101,8 +102,8 @@ def _add_item_cache_arguments(parser: argparse.ArgumentParser) -> None:
 
 
 def _post_process_item_cache_arguments(args: argparse.Namespace) -> None:
-    if args.spec_directory is None:
-        args.spec_directory = ["spec"]
+    if args.spec_directories is None:
+        args.spec_directories = ["spec"]
 
 
 def get_item_cache_arguments(

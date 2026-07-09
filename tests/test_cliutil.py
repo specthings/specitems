@@ -114,7 +114,7 @@ def test_init_logging_file_and_stderr(tmpdir, capfd):
 
 def test_get_item_cache_arguments_default():
     args = get_item_cache_arguments([])
-    assert args.spec_directory == ["spec"]
+    assert args.spec_directories == ["spec"]
     assert args.cache_directory == ".specitems/cache"
 
 
@@ -126,6 +126,6 @@ def test_get_item_cache_arguments_explicit():
     args = get_item_cache_arguments(
         ["--spec-directory", "a", "--spec-directory", "b", "c"],
         add_arguments=(_add, ))
-    assert args.spec_directory == ["a", "b"]
+    assert args.spec_directories == ["a", "b"]
     assert args.cache_directory == ".specitems/cache"
     assert args.args == ["c"]
