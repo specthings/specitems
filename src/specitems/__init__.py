@@ -55,6 +55,7 @@ from .contenttext import (
     ROW_SPAN,
     TextContent,
     TextMapper,
+    escape_code_line,
     latex_escape,
     make_label,
 )
@@ -67,7 +68,6 @@ from .contentmarkdown import (MarkdownContent, MarkdownMapper,
 from .contentsphinx import (
     SphinxContent,
     SphinxMapper,
-    escape_code_line,
     get_reference,
 )
 from .getvaluesubprocess import get_value_subprocess
