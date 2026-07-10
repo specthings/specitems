@@ -26,6 +26,7 @@
 
 import abc
 import contextlib
+import re
 from typing import Iterable, Iterator, Optional, Sequence
 
 from .content import Content, GenericContent, get_value_plural, to_camel_case
@@ -63,6 +64,25 @@ def make_label(name: str) -> str:
 def latex_escape(text: str) -> str:
     """ Escape the special LaTeX characters '_' and '&'.  """
     return text.replace("_", "\\_").replace("&", "\\&")
+
+
+_BINARY_DATA = re.compile(r"[^\x09\x20-\x7e]")
+
+
+def _escape_char(match: re.Match[str]) -> str:
+    return f"\\x{ord(match.group(0)):02x}"
+
+
+def escape_code_line(line: str) -> str:
+    """ Escape binary data and enforce a maximum line width. """
+    line = _BINARY_DATA.sub(_escape_char, line)
+    if len(line) > 1000:
+        line = line[:1000]
+        index = line.rfind("\\")
+        if index >= 996:
+            line = line[:index]
+        line = f"{line}[... more data not shown in report ...]"
+    return "\u200b" + "\u200b".join(char for char in line)
 
 
 class TextContent(Content):
@@ -343,6 +363,40 @@ class TextContent(Content):
                        font_size: str | int = "footnotesize",
                        line_number_start: int = 1) -> None:
         """ Add the code block. """
+
+    def add_program_output(self,
+                           output: list[str],
+                           data_ranges: list[tuple[int, int]],
+                           output_label: str | None = None,
+                           font_size: str | int = "tiny") -> None:
+        """ Add the program output. """
+        with self.latex_font_size(font_size):
+            end = len(output)
+            data_ranges = data_ranges + [(end + 100, end + 100)]
+            index = 0
+            label = 0
+            while index < end:
+                if index >= label:
+                    if output_label is not None:
+                        self.add_label(f"{output_label}{label}")
+                    label += 100
+                options = [":linenos:", f":lineno-start: {index + 1}"]
+                block_begin = index
+                data_begin = data_ranges[0][0]
+                if index <= data_begin < index + 100:
+                    index = data_ranges[0][1]
+                    data_ranges.pop(0)
+                    block_end = data_begin
+                    more = ["[... data lines not shown in report ...]"]
+                else:
+                    index += 100
+                    block_end = index
+                    more = []
+                with self.directive("code-block", "none", options):
+                    self.add([
+                        escape_code_line(line)
+                        for line in output[block_begin:block_end]
+                    ] + more)
 
 
 class TextMapper(ItemMapper):
