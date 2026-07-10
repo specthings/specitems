@@ -34,7 +34,7 @@ import subprocess
 from typing import Any, BinaryIO, Callable
 
 from .itemmapper import ItemGetValueContext, unpack_arg
-from .contentsphinx import SphinxContent
+from .contenttext import TextMapper
 
 _Substitute = Callable[[str], str]
 _AugmentReport = Callable[[list[str]], tuple[list[str], list[tuple[int, int]]]]
@@ -129,7 +129,8 @@ def get_value_subprocess(substitute: _Substitute,
             raise err
         if process.hide:
             return ""
-        content = SphinxContent()
+        assert isinstance(ctx.mapper, TextMapper)
+        content = ctx.mapper.create_content()
         with content.indent(levels=process.indent):
             lines: list[str] = []
             if not process.hide_args:

@@ -30,9 +30,8 @@ import pytest
 import subprocess
 
 import specitems
-from specitems.getvaluesubprocess import get_value_subprocess
-from specitems.items import EmptyItem, ItemType
-from specitems.itemmapper import ItemMapper
+from specitems import (EmptyItemCache, ItemType, SpecTypeProvider,
+                       SphinxMapper, get_value_subprocess)
 
 
 def _subprocess_run(args, stdin, stdout, stderr, shell, cwd, check, encoding):
@@ -68,16 +67,22 @@ def _augment_report(lines):
 def test_getvaluesubprocess(monkeypatch, tmpdir):
     monkeypatch.setattr(specitems.getvaluesubprocess.subprocess, "run",
                         _subprocess_run)
-    item = EmptyItem()
-    item.cache.type_provider.root_type.refinements["foobar"] = ItemType(
-        None, {})
-    item.type = "foobar"
-    item["SPDX-License-Identifier"] = "BSD-2-Clause"
-    item["copyrights"] = ["Copyright (C) 2025 embedded brains GmbH & Co. KG"]
-    item["dir"] = str(tmpdir)
     cwd = os.getcwd()
-    item["cwd"] = cwd
-    mapper = ItemMapper(item)
+    item_cache = EmptyItemCache(type_provider=SpecTypeProvider({}))
+    item_cache.type_provider.root_type.refinements["foobar"] = ItemType(
+        None, {})
+    item = item_cache.add_item(
+        "/i", {
+            "SPDX-License-Identifier": "BSD-2-Clause",
+            "copyrights": ["Copyright (C) 2025 embedded brains GmbH & Co. KG"],
+            "cwd": cwd,
+            "dir": str(tmpdir),
+            "enabled-by": True,
+            "links": []
+        },
+        set_types=False)
+    item.type = "foobar"
+    mapper = SphinxMapper(item)
     mapper.add_get_value(
         "foobar:/subprocess",
         functools.partial(get_value_subprocess, mapper.substitute,
