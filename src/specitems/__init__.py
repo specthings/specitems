@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from .cite import BibTeXCitationProvider
+from .clangformat import ClangFormatter
 from .cliutil import (
     LoggingStatus,
     create_config,
@@ -149,6 +150,7 @@ from .subprocessaction import (
 __all__ = [
     "BibTeXCitationProvider",
     "COL_SPAN",
+    "ClangFormatter",
     "CommonMarkContent",
     "CommonMarkMapper",
     "Content",

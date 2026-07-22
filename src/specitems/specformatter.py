@@ -25,11 +25,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import abc
-import subprocess
 from typing import Any
 
 import yaml
 
+from .clangformat import ClangFormatter
 from .contentmarkdown import format_markdown_text
 from .items import Item, atomic_dump_to_file
 from .itemmapper import (from_clang_variables, to_at_variables,
@@ -63,20 +63,13 @@ def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
     except KeyError as err:
         raise ValueError(f"unknown clang-format style '{name}', "
                          "configure it via --clang-format-style") from err
-    cmd = [
-        formatter.clang_format_path, f"--style={style}",
-        "--assume-filename=specitems.c"
-    ]
+    clang_formatter = ClangFormatter(formatter.clang_format_path, style)
     replacements: dict[str, str] = {}
     value = to_clang_variables(value, replacements)
     if fmt["scope"] == "function":
         value = f"void _Specitems(void) {{\n{value}\n}}"
-    result = subprocess.run(cmd,
-                            input=value,
-                            capture_output=True,
-                            encoding="utf-8",
-                            check=True)
-    value = from_clang_variables(result.stdout, replacements)
+    value = clang_formatter.format_text(value, "specitems.c")
+    value = from_clang_variables(value, replacements)
     if fmt["scope"] == "function":
         value = value[value.index("{") + 1:value.rindex("}")]
     value = value.lstrip("\n")
