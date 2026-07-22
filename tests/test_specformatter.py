@@ -87,7 +87,7 @@ int g( int a )
 }
 """)
 
-    monkeypatch.setattr(specitems.specformatter.subprocess, "run",
+    monkeypatch.setattr(specitems.clangformat.subprocess, "run",
                         _subprocess_run)
 
     formatter = SpecYAMLFormatter(clang_format_path="foo",
