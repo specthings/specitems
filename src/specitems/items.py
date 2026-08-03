@@ -774,53 +774,80 @@ def _yaml_save_data(path: str, data: dict) -> None:
     atomic_dump_to_file(path, data, _yaml_dump)
 
 
+# Bump this if the layout of the cached data changes.
+_CACHE_VERSION = 1
+
+# Determines the content of a cache file: the UID prefix, the base directory
+# and the scanned directory.
+_CacheKey = tuple[str, str, str]
+
+
+def _yaml_cache_file(cache_dir: str, key: _CacheKey) -> str:
+    digest = hashlib.sha256("\0".join(key).encode("utf-8")).hexdigest()
+    return os.path.join(cache_dir, digest + ".pickle")
+
+
+def _yaml_cache_is_fresh(cache_file: str, path: str, files: list[str]) -> bool:
+    try:
+        mtime = os.path.getmtime(cache_file)
+    except OSError:
+        return False
+    if mtime <= os.path.getmtime(path):
+        return False
+    for file in files:
+        if mtime <= os.path.getmtime(file):
+            return False
+    return True
+
+
 def _yaml_load_items_in_dir(data_by_uid: ItemDataByUID, cache_file: str,
-                            uid_prefix: str, base: str, path: str) -> None:
+                            key: _CacheKey, files: list[str]) -> None:
+    uid_prefix, base, _ = key
     data_by_uid_2: dict[str, dict] = {}
-    for name in sorted(os.listdir(path)):
-        path_2 = os.path.join(path, name)
-        if name.endswith(".yml") and not name.startswith("."):
-            uid = uid_prefix + os.path.relpath(path_2, base).replace(
-                ".yml", "")
-            data_by_uid_2[uid] = _yaml_load_data(path_2)
+    for path in files:
+        uid = uid_prefix + os.path.relpath(path, base).replace(".yml", "")
+        data_by_uid_2[uid] = _yaml_load_data(path)
     os.makedirs(os.path.dirname(cache_file), exist_ok=True)
-    with open(cache_file, "wb") as out:
-        pickle.dump(data_by_uid_2, out)
+    atomic_dump_to_file(cache_file, (_CACHE_VERSION, key, data_by_uid_2),
+                        pickle.dumps)
     data_by_uid.update(data_by_uid_2)
+
+
+def _yaml_load_items_from_cache(cache_file: str,
+                                key: _CacheKey) -> Optional[dict]:
+    try:
+        with open(cache_file, "rb") as src:
+            cached = pickle.load(src)
+    except (EOFError, OSError, ValueError, pickle.UnpicklingError) as err:
+        logging.debug("%s: cannot load specification item cache file: %s",
+                      cache_file, err)
+        return None
+    if (isinstance(cached, tuple) and len(cached) == 3
+            and cached[:2] == (_CACHE_VERSION, key)):
+        return cached[2]
+    logging.debug("%s: specification item cache file is stale", cache_file)
+    return None
 
 
 def _yaml_load_data_by_uid(data_by_uid: ItemDataByUID, cache_dir: str,
                            uid_prefix: str, base: str, path: str) -> None:
-    root_dir = os.path.normpath(os.path.dirname(cache_dir))
-    common_path = os.path.normpath(os.path.commonpath([root_dir, path]))
-    if root_dir == common_path:
-        cache_file = os.path.join(cache_dir, "rel",
-                                  os.path.relpath(path, root_dir),
-                                  "spec.pickle")
-    else:
-        cache_file = os.path.join(cache_dir, "abs", os.path.relpath(path, "/"),
-                                  "spec.pickle")
-    try:
-        mtime = os.path.getmtime(cache_file)
-        update_cache = False
-    except FileNotFoundError:
-        update_cache = True
-    else:
-        update_cache = mtime <= os.path.getmtime(path)
+    files: list[str] = []
     for name in sorted(os.listdir(path)):
         path_2 = os.path.join(path, name)
         if name.endswith(".yml") and not name.startswith("."):
-            if not update_cache:
-                update_cache = mtime <= os.path.getmtime(path_2)
+            files.append(path_2)
         elif stat.S_ISDIR(os.lstat(path_2).st_mode):
             _yaml_load_data_by_uid(data_by_uid, cache_dir, uid_prefix, base,
                                    path_2)
-    if update_cache:
-        _yaml_load_items_in_dir(data_by_uid, cache_file, uid_prefix, base,
-                                path)
+    key = (uid_prefix, base, path)
+    cache_file = _yaml_cache_file(cache_dir, key)
+    cached = None
+    if _yaml_cache_is_fresh(cache_file, path, files):
+        cached = _yaml_load_items_from_cache(cache_file, key)
+    if cached is None:
+        _yaml_load_items_in_dir(data_by_uid, cache_file, key, files)
     else:
-        with open(cache_file, "rb") as src:
-            data_by_uid.update(pickle.load(src))
+        data_by_uid.update(cached)
 
 
 _LOAD_DATA_BY_UID = {
