@@ -27,14 +27,16 @@
 import json
 import os
 from pathlib import Path
+import pickle
 import pytest
 import tempfile
 import yaml
 
 from specitems import (EmptyItemCache, IS_ENABLED_OPS, Item, ItemCacheConfig,
                        ItemGetValueContext, JSONItemCache, Link,
-                       create_unique_link, is_enabled_with_ops,
-                       link_is_enabled, to_collection, to_iterable)
+                       atomic_dump_to_file, create_unique_link,
+                       is_enabled_with_ops, link_is_enabled, to_collection,
+                       to_iterable)
 
 
 def test_to_abs_uid():
@@ -440,6 +442,15 @@ def test_atomic_write_removes_temp_file_and_keeps_original_on_failure(
 
     assert json_file.read_text(encoding="utf-8") == original
     assert list(tmp_path.iterdir()) == [json_file]
+
+
+def test_atomic_write_binary(tmp_path):
+    pickle_file = tmp_path / "i.pickle"
+    atomic_dump_to_file(str(pickle_file), {"k": "v"}, pickle.dumps)
+
+    with open(pickle_file, "rb") as src:
+        assert pickle.load(src) == {"k": "v"}
+    assert list(tmp_path.iterdir()) == [pickle_file]
 
 
 def test_item_get_value_arg():

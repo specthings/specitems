@@ -705,21 +705,31 @@ def _json_load_data_by_uid(data_by_uid: ItemDataByUID, _cache_dir: str,
                                    path_2)
 
 
-def atomic_dump_to_file(path: str, data: dict, dumper: Callable[[dict],
-                                                                str]) -> None:
+def atomic_dump_to_file(path: str, data: Any,
+                        dumper: Callable[[Any], str | bytes]) -> None:
     """
     Dump the data and write to the path atomically.
+
+    The dumper may return text or binary content.  The file mode is selected
+    according to the type of the dumped data.
 
     The dumped data is first written to a temporary file in the same directory
     as the path.  The temporary file is then renamed to the path.  This way, a
     failure while producing the content cannot truncate or corrupt an already
     existing file at the path.
     """
+    dumped = dumper(data)
+    encoding: Optional[str] = None
+    if isinstance(dumped, bytes):
+        mode = "wb"
+    else:
+        mode = "w"
+        encoding = "utf-8"
     directory = os.path.dirname(os.path.abspath(path))
     tmp_path: Optional[str] = None
     try:
-        with tempfile.NamedTemporaryFile(mode="w",
-                                         encoding="utf-8",
+        with tempfile.NamedTemporaryFile(mode=mode,
+                                         encoding=encoding,
                                          dir=directory,
                                          prefix=".tmp-",
                                          suffix=os.path.basename(path),
@@ -727,7 +737,7 @@ def atomic_dump_to_file(path: str, data: dict, dumper: Callable[[dict],
             tmp_path = out.name
             with suppress(OSError):
                 os.chmod(tmp_path, stat.S_IMODE(os.stat(path).st_mode))
-            out.write(dumper(data))
+            out.write(dumped)
         os.replace(tmp_path, path)
     except Exception:
         if tmp_path is not None:
