@@ -25,13 +25,19 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import pickle
 import pytest
 
 from specitems.items import (EmptyItem, EmptyItemCache, ItemCache,
                              ItemCacheConfig, ItemSelection, ItemView,
-                             SpecTypeProvider, item_is_enabled)
+                             SpecTypeProvider, _CACHE_VERSION, item_is_enabled)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
+
+
+def _cache_files(cache_dir: str) -> list[str]:
+    return sorted(
+        os.path.join(cache_dir, name) for name in os.listdir(cache_dir))
 
 
 def test_add_remove_item():
@@ -97,11 +103,9 @@ def test_load(tmpdir):
     assert list(item.uid for item in sorted(item_cache.items_by_type[""])) == [
         "/c", "/d/c", "/p", "/proxy-member-default", "/q", "/r", "/s"
     ]
-    cache_dir = config.cache_directory
-    assert os.path.exists(os.path.join(cache_dir, "rel", "spec",
-                                       "spec.pickle"))
-    assert os.path.exists(
-        os.path.join(cache_dir, "rel", "spec", "d", "spec.pickle"))
+    # One cache file for the specification directory and one for its
+    # subdirectory.
+    assert len(_cache_files(config.cache_directory)) == 2
     dc = item_cache["/d/c"]
     assert dc["v"] == "c"
     assert item_cache["/p"]["v"] == "p"
@@ -428,6 +432,46 @@ def test_load_uid_prefix(tmpdir):
     item_cache_2 = ItemCache(config)
     item_cache_2.load_items((spec_dir, "/prefix/"), True, True)
     assert item_cache_2["/prefix/c"]["v"] == "c"
+
+
+def test_load_uid_prefix_change(tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-item-cache")
+    spec_dir = config.paths[0]
+    config.paths = {spec_dir: "/x/"}
+    item_cache = ItemCache(config)
+    assert item_cache["/x/d/c"]["v"] == "c"
+    # The unchanged specification directory is loaded again with another UID
+    # prefix.  The cache must not serve the UIDs of the previous prefix.
+    config.paths = {spec_dir: "/y/"}
+    item_cache_2 = ItemCache(config)
+    assert item_cache_2["/y/d/c"]["v"] == "c"
+    assert "/x/d/c" not in item_cache_2
+    assert len(_cache_files(config.cache_directory)) == 4
+
+
+def test_load_cache_stale(tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-item-cache")
+    ItemCache(config)
+    for cache_file in _cache_files(config.cache_directory):
+        with open(cache_file, "wb") as out:
+            pickle.dump((_CACHE_VERSION + 1, ("", "", ""), {}), out)
+    item_cache = ItemCache(config)
+    assert item_cache["/d/c"]["v"] == "c"
+
+
+def test_load_cache_unreadable(tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-item-cache")
+    ItemCache(config)
+    # Garbage and a pickle using an unsupported protocol, for example one
+    # written by a newer Python version, are both a cache miss.
+    contents = [b"nonsense", b"\x80\x09" + pickle.dumps({})[2:]]
+    for cache_file, content in zip(_cache_files(config.cache_directory),
+                                   contents):
+        with open(cache_file, "wb") as out:
+            out.write(content)
+    item_cache = ItemCache(config)
+    assert item_cache["/c"]["v"] == "c"
+    assert item_cache["/d/c"]["v"] == "c"
 
 
 def test_load_link_error(tmpdir):
