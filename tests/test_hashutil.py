@@ -52,11 +52,16 @@ def test_hash_file(tmpdir):
         path, []) == "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU="
     assert hash_file_lines_md5(path, []) == "1B2M2Y8AsgTpgAmY7PhCfg=="
     assert hash_file_lines(
-        path, [(2, 3)]
+        path, [(2, 2)]
     ) == "9mawIP_zA_BOJFHgZYFP14Ff9J963kNd6BDVlVta7kdS8pgAtxV_sGMRGg8Db_ugqp9VEsxbv2QOW5lJv43VXQ=="
     assert hash_file_lines_sha256(
-        path, [(2, 3)]) == "Lo1AWhfBaZdfs51JmDjsidJE2EZguoApv_UxMR--tnY="
-    assert hash_file_lines_md5(path, [(2, 3)]) == "JoEuC0Tm-HxS5It4AWve9g=="
+        path, [(2, 2)]) == "Lo1AWhfBaZdfs51JmDjsidJE2EZguoApv_UxMR--tnY="
+    assert hash_file_lines_md5(path, [(2, 2)]) == "JoEuC0Tm-HxS5It4AWve9g=="
+    # The last line of a range is included, so a range over all lines of a
+    # file without a trailing newline has the digest of the whole file.
+    assert hash_file_lines(path, [(1, 2)]) == hash_file(path)
+    assert hash_file_lines_sha256(path, [(1, 2)]) == hash_file_sha256(path)
+    assert hash_file_lines_md5(path, [(1, 2)]) == hash_file_md5(path)
     symlink = os.path.join(tmpdir, "symlink")
     os.symlink("jumps over the lazy dog.", symlink)
     assert hash_file(

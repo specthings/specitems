@@ -67,8 +67,8 @@ def clihash(argv: list[str] = sys.argv) -> None:
     parser.add_argument('--line',
                         action="append",
                         default=None,
-                        help=("hash line B (format: B) or lines "
-                              "from B to E excluding E (format B:E); "
+                        help=("hash line B (format: B) or the lines "
+                              "from B to L including L (format B:L); "
                               "the line numbering starts with one"))
     parser.add_argument("files",
                         metavar="FILES",
@@ -80,10 +80,10 @@ def clihash(argv: list[str] = sys.argv) -> None:
         lines: list[tuple[int, int]] = []
         do_hash_file_lines = _HASH_FILE_LINES[args.algorithm]
         for line in args.line:
-            begin, _, end = line.partition(":")
-            if not end:
-                end = int(begin) + 1
-            lines.append((int(begin), int(end)))
+            begin, _, last = line.partition(":")
+            if not last:
+                last = begin
+            lines.append((int(begin), int(last)))
         for path in args.files:
             print(path, formatter(do_hash_file_lines(path, lines)))
     else:
