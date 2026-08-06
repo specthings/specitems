@@ -76,8 +76,8 @@ def _hash_file_lines(path: str, lines: list[tuple[int, int]],
                      file_hash) -> str:
     with open(path, "rb") as src:
         data = src.read().splitlines()
-        for begin, end in lines:
-            file_hash.update(b"\n".join(data[begin - 1:end - 1]))
+        for begin, last in lines:
+            file_hash.update(b"\n".join(data[begin - 1:last]))
     return base64.urlsafe_b64encode(file_hash.digest()).decode("ascii")
 
 
@@ -86,7 +86,8 @@ def hash_file_lines(path: str, lines: list[tuple[int, int]]) -> str:
     Return the SHA512 digest of the file lines specified by the path and lines
     ranges.
 
-    The line numbering starts with one.
+    The line numbering starts with one.  Each range covers the lines from its
+    begin line to its last line, both included.
     """
     return _hash_file_lines(path, lines, hashlib.sha512())
 
@@ -96,7 +97,8 @@ def hash_file_lines_md5(path: str, lines: list[tuple[int, int]]) -> str:
     Return the MD5 digest of the file lines specified by the path and lines
     ranges.
 
-    The line numbering starts with one.
+    The line numbering starts with one.  Each range covers the lines from its
+    begin line to its last line, both included.
     """
     return _hash_file_lines(path, lines, hashlib.md5(usedforsecurity=False))
 
@@ -106,6 +108,7 @@ def hash_file_lines_sha256(path: str, lines: list[tuple[int, int]]) -> str:
     Return the SHA256 digest of the file lines specified by the path and lines
     ranges.
 
-    The line numbering starts with one.
+    The line numbering starts with one.  Each range covers the lines from its
+    begin line to its last line, both included.
     """
     return _hash_file_lines(path, lines, hashlib.sha256())

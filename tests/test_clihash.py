@@ -29,8 +29,19 @@ import os
 from specitems.clihash import clihash
 
 
-def test_clihash():
+def _digest(capsys, argv: list[str]) -> str:
+    clihash(argv)
+    return capsys.readouterr().out.split()[1]
+
+
+def test_clihash(capsys):
     path = os.path.join(os.path.dirname(__file__), "foobar.txt")
-    clihash(["x", path])
-    clihash(["x", "--line=2", path])
-    clihash(["x", "--line=2:3", path])
+    whole = _digest(capsys, ["x", path])
+    single = _digest(capsys, ["x", "--line=2", path])
+    # A range without a last line covers exactly the begin line.
+    assert _digest(capsys, ["x", "--line=2:2", path]) == single
+    # The last line is included, so the range over all lines of a file without
+    # a trailing newline yields the digest of the whole file.
+    assert _digest(capsys, ["x", "--line=1:2", path]) == whole
+    assert single != whole
+    clihash(["x", "--algorithm=SHA256", "--format=hex", "--line=1:2", path])
