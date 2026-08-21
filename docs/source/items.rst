@@ -1013,6 +1013,8 @@ This type is refined by the following types:
 
 - :ref:`SpecTypeProxyMemberLinkRole`
 
+- :ref:`SpecTypeReferenceLinkRole`
+
 - :ref:`SpecTypeSpecificationMemberLinkRole`
 
 - :ref:`SpecTypeSpecificationRefinementLinkRole`
@@ -1137,6 +1139,16 @@ This type refines the following types:
 
 It defines the proxy member role of links.  Items may use this role to link to
 :ref:`SpecTypeProxyItemType` items.
+
+.. _SpecTypeReferenceLinkRole:
+
+Reference Link Role
+===================
+
+This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
+value is ``reference``. Items may link to a reference using this role.  The
+link states that the referenced work is the authority for the content of the
+item.  The item locates the parts of the work it uses.
 
 .. _SpecTypeSPDXLicenseIdentifier:
 

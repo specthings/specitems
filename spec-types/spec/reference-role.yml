@@ -1,0 +1,24 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: role
+  spec-value: reference
+  uid: link
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes: {}
+    description: |
+      Items may link to a reference using this role.  The link states that the
+      referenced work is the authority for the content of the item.  The item
+      locates the parts of the work it uses.
+    mandatory-attributes: all
+spec-name: Reference Link Role
+spec-type: reference-role
+type: spec
