@@ -1158,7 +1158,9 @@ SPDX License Identifier
 The value shall be a string. It defines the license of the item expressed
 though an SPDX License Identifier. The value
 
-- shall be equal to "``CC-BY-SA-4.0``",
+- shall be equal to "``Apache-2.0``",
+
+- or, shall be equal to "``CC-BY-SA-4.0``",
 
 - or, shall be equal to "``CC-BY-SA-4.0 OR BSD-2-Clause``",
 
