@@ -62,7 +62,9 @@ def _simple_row(row: Iterable[str], maxi: Iterable[int]) -> str:
 
 
 def _cell_len(cell: str | int) -> int:
-    return len(cell) if isinstance(cell, str) else 0
+    if isinstance(cell, str):
+        return max(len(line) for line in cell.split("\n"))
+    return 0
 
 
 def _grid_sep(maxi: Iterable[int], sep: str) -> str:
@@ -70,16 +72,25 @@ def _grid_sep(maxi: Iterable[int], sep: str) -> str:
                                            for width in maxi) + f"{sep}+"
 
 
-def _grid_row(row: Iterable[str | int], maxi: Iterable[int]) -> str:
-    line = ""
-    for cell, width in zip(row, maxi):
-        if isinstance(cell, str):
-            line = f"{line} | {cell:{width}}"
-        elif (cell & COL_SPAN) == 0:
-            line = f"{line} | {' ' * width}"
-        else:
-            line = f"{line}   {' ' * width}"
-    return f"|{line[2:]} |"
+def _grid_row(row: Iterable[str | int], maxi: Iterable[int]) -> list[str]:
+    cells = [
+        cell.split("\n") if isinstance(cell, str) else cell for cell in row
+    ]
+    height = max((len(cell) for cell in cells if isinstance(cell, list)),
+                 default=1)
+    rows = []
+    for line_index in range(height):
+        line = ""
+        for cell, width in zip(cells, maxi):
+            if isinstance(cell, list):
+                text = cell[line_index] if line_index < len(cell) else ""
+                line = f"{line} | {text:{width}}"
+            elif (cell & COL_SPAN) == 0:
+                line = f"{line} | {' ' * width}"
+            else:
+                line = f"{line}   {' ' * width}"
+        rows.append(f"|{line[2:]} |")
+    return rows
 
 
 def _role_to_rest(match: Match) -> str:
@@ -267,7 +278,7 @@ class SphinxContent(TextContent):
                     else:
                         sep = f"{sep} {' ' * (width + 2)}"
                 lines.append(f"{sep}+")
-            lines.append(_grid_row(row, maxi))
+            lines.extend(_grid_row(row, maxi))
         lines.append(begin_end)
         self._add_table(lines, widths, font_size)
 
