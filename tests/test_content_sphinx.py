@@ -664,6 +664,59 @@ def test_grid_table():
 """
 
 
+def test_grid_table_multiline_cells():
+    # Multi-line cell: width = longest line, not total length.
+    content = SphinxContent()
+    content.add_grid_table(
+        [["Parameter", "Description"], ["value", "A single-line description."],
+         ["items", "First line of a two-line\ndescription that wraps."]])
+    assert str(content) == """.. table::
+    :class: longtable
+
+    +-----------+----------------------------+
+    | Parameter | Description                |
+    +===========+============================+
+    | value     | A single-line description. |
+    +-----------+----------------------------+
+    | items     | First line of a two-line   |
+    |           | description that wraps.    |
+    +-----------+----------------------------+
+"""
+    # Span must merge every line, not just the first; two tables since
+    # combining needs an unsupported L-shaped merge.
+    content = SphinxContent()
+    content.add_grid_table([["1", "2", "3"], ["multi\nline", "x", COL_SPAN]],
+                           widths=[30, 30, 40])
+    assert str(content) == """.. table::
+    :class: longtable
+    :widths: 30,30,40
+
+    +-------+---+---+
+    | 1     | 2 | 3 |
+    +=======+===+===+
+    | multi | x     |
+    | line  |       |
+    +-------+---+---+
+"""
+    content = SphinxContent()
+    content.add_grid_table(
+        [["1", "2", "3"], ["a", "b", "c"], ["multi\nline", ROW_SPAN, "y"]],
+        widths=[30, 30, 40])
+    assert str(content) == """.. table::
+    :class: longtable
+    :widths: 30,30,40
+
+    +-------+---+---+
+    | 1     | 2 | 3 |
+    +=======+===+===+
+    | a     | b | c |
+    +-------+   +---+
+    | multi |   | y |
+    | line  |   |   |
+    +-------+---+---+
+"""
+
+
 def test_substitute(tmpdir):
     config = create_item_cache_config(tmpdir, "spec-sphinx")
     item_cache = ItemCache(config,
