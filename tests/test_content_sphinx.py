@@ -539,6 +539,11 @@ def test_license():
     match = r"for item : no overlap of \['a', 'b'\] and \['x'\]"
     with pytest.raises(ValueError, match=match):
         content.register_license_and_copyrights_of_item(item)
+    item["SPDX-License-Identifier"] = "a"
+    item["copyrights"] = ["Copyright (C) A"]
+    match = r"for item : Copyright \(C\) A"
+    with pytest.raises(ValueError, match=match):
+        content.register_license_and_copyrights_of_item(item)
     content.register_license("a")
     assert str(content) == ""
     content.add_licence_and_copyrights()

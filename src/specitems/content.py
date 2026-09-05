@@ -56,6 +56,13 @@ def split_copyright_statement(statement: str) -> tuple[str, set[int]]:
     if match:
         return match.group(3), set((int(match.group(1)), int(match.group(2))))
     match = re.search(
+        r"^\s*Copyright\s+\(C\)\s+([0-9]+)\s*-\s*([0-9]+)\s+(.+)\s*$",
+        statement,
+        flags=re.I,
+    )
+    if match:
+        return match.group(3), set((int(match.group(1)), int(match.group(2))))
+    match = re.search(
         r"^\s*Copyright\s+\(C\)\s+([0-9]+)\s+(.+)\s*$",
         statement,
         flags=re.I,
@@ -548,8 +555,11 @@ class Content(abc.ABC):
             self.register_license(item["SPDX-License-Identifier"])
         except ValueError as err:
             raise ValueError(f"for item {item.uid}: {err}") from err
-        for statement in item["copyrights"]:
-            self.register_copyright(statement)
+        try:
+            for statement in item["copyrights"]:
+                self.register_copyright(statement)
+        except ValueError as err:
+            raise ValueError(f"for item {item.uid}: {err}") from err
 
     def set_comment_prefix(self, comment_prefix: str) -> None:
         """ Set the comment prefix. """
