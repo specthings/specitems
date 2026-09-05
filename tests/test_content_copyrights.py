@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """ Tests for the content module. """
 
-# Copyright (C) 2025 embedded brains GmbH & Co. KG
+# Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -62,6 +62,16 @@ def test_copyright_lt():
     assert c < b
     b.add_year(1)
     assert b < a
+
+
+def test_copyright_from_a_year_range():
+    """ A statement of a year range gives the first and the last year. """
+    c = Copyright.from_statement("Copyright (C) 2018-2020 John Doe")
+    assert "John Doe" == c.holder
+    assert {2018, 2020} == c.years
+    assert "Copyright (C) 2018, 2020 John Doe" == c.get_statement()
+    c = Copyright.from_statement("Copyright (C) 2018 - 2020 John Doe")
+    assert {2018, 2020} == c.years
 
 
 def test_copyrights_register():
