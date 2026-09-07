@@ -29,8 +29,9 @@ import os
 
 from specitems.contentmarkdown import MarkdownContent, MarkdownMapper
 from specitems.contentsphinx import SphinxContent, SphinxMapper
-from specitems.glossary import (DocumentGlossaryConfig, GlossaryConfig,
-                                augment_glossary_terms, generate_glossary)
+from specitems.glossary import (_GLOSSARY_PATH, DocumentGlossaryConfig,
+                                GlossaryConfig, augment_glossary_terms,
+                                generate_glossary)
 from specitems.items import EmptyItemCache, ItemCache, SpecTypeProvider
 
 from .util import create_item_cache_config
@@ -174,3 +175,83 @@ U
 ```
 """
         assert content == src.read()
+
+
+def _add_late_term(item_cache, uid, group, term):
+    late = item_cache.add_item(
+        uid, {
+            "SPDX-License-Identifier": "CC-BY-SA-4.0",
+            "copyrights": ["Copyright (C) 2020 embedded brains GmbH & Co. KG"],
+            "enabled-by": True,
+            "glossary-type": "term",
+            "links": [{
+                "role": "glossary-member",
+                "uid": group
+            }],
+            "term": term,
+            "text": f"Term text {term}.\n",
+            "type": "glossary"
+        })
+    item_cache.reinitialize_links()
+    return late
+
+
+def test_glossary_term_added_after_augment(tmpdir):
+    """
+    A member which arrives after the augmentation reads the path prefix of its
+    group.
+    """
+    item_cache_config = create_item_cache_config(tmpdir, "spec-glossary")
+    item_cache = ItemCache(item_cache_config,
+                           type_provider=SpecTypeProvider({}))
+    glossary_item = item_cache["/g"]
+    augment_glossary_terms(glossary_item, [])
+
+    top = _add_late_term(item_cache, "/glossary/late", "../g", "Late")
+    assert top.view["term"] == "Late"
+    assert top.view.get("term") == "Late"
+
+    sub = _add_late_term(item_cache, "/glossary/sub/late", "g", "SubLate")
+    assert sub.view["term"] == "Not so General - SubLate"
+    assert sub.view.get("term") == "Not so General - SubLate"
+
+    # A member of a group outside the augmented tree keeps its plain term.
+    other_group = item_cache.add_item(
+        "/other/g", {
+            "SPDX-License-Identifier": "CC-BY-SA-4.0",
+            "copyrights": ["Copyright (C) 2020 embedded brains GmbH & Co. KG"],
+            "enabled-by": True,
+            "glossary-type": "group",
+            "links": [],
+            "name": "Other",
+            "text": "Text.\n",
+            "type": "glossary"
+        })
+    assert other_group.view.get(_GLOSSARY_PATH) is None
+    other = _add_late_term(item_cache, "/other/late", "g", "Other")
+    assert other.view["term"] == "Other"
+
+    mapper = SphinxMapper(glossary_item)
+    assert mapper.substitute(
+        "${/glossary/sub/late:/term}",
+        glossary_item) == (":term:`SubLate <Not so General - SubLate>`")
+    assert mapper.substitute(
+        "${/glossary/sub/late:/plural}",
+        glossary_item) == (":term:`SubLates <Not so General - SubLate>`")
+
+    doc = DocumentGlossaryConfig(md_source_paths=[str(tmpdir)],
+                                 rest_source_paths=[str(tmpdir)])
+    glossary_config = GlossaryConfig(project_header="Project Glossary",
+                                     project_groups=["/g"],
+                                     documents=[doc])
+    glossary_config.project_target = os.path.join(tmpdir, "project",
+                                                  "glossary.rst")
+    doc.target = os.path.join(tmpdir, "document", "glossary.rst")
+    mapper.add_get_value("glossary/term:/foobar", lambda x: "foobar")
+    generate_glossary(glossary_config, item_cache, mapper,
+                      functools.partial(SphinxContent, 1))
+
+    with open(glossary_config.project_target, "r") as src:
+        content = src.read()
+        assert "Not so General - SubLate" in content
+        assert "\n    Late\n" in content
