@@ -1148,7 +1148,13 @@ Reference Link Role
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``reference``. Items may link to a reference using this role.  The
 link states that the referenced work is the authority for the content of the
-item.  The item locates the parts of the work it uses.
+item.  The optional location attribute locates the parts of the work the item
+uses. None of the explicit attributes is mandatory, they are all optional. The
+explicit attributes for this type are:
+
+location
+    The attribute value shall be a string. It shall be the location of the used
+    parts within the referenced work.  An example is a section number.
 
 .. _SpecTypeSPDXLicenseIdentifier:
 

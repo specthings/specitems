@@ -3,7 +3,10 @@ copyrights:
 - Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
 enabled-by: true
 glossary-type: group
-links: []
+links:
+- location: '95.6.4'
+  role: reference
+  uid: misc
 name: ${inbook:/title}
 text: |
   Text.
