@@ -35,7 +35,7 @@ _Fields = dict[str, str | list[str]]
 _GetFields = Callable[[Item], tuple[str, _Fields]]
 
 _FIELDS = {
-    "author", "booktitle", "chapter", "doi", "edition", "editor",
+    "author", "booktitle", "chapter", "date", "doi", "edition", "editor",
     "howpublished", "institution", "journal", "month", "note", "number",
     "organization", "pages", "publisher", "school", "series", "title",
     "volume", "year"
