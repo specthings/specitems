@@ -1,6 +1,6 @@
 SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
 copyrights:
-- Copyright (C) 2022, 2024 embedded brains GmbH & Co. KG
+- Copyright (C) 2022, 2026 embedded brains GmbH & Co. KG
 enabled-by: true
 links:
 - role: spec-member
@@ -27,9 +27,8 @@ spec-info:
         spec-type: optional-int
       stdout:
         description: |
-          It the value is present, then it shall be the target file of the
-          standard output stream.
-        spec-type: optional-str
+          It shall be the target file of the standard output stream.
+        spec-type: str
       working-directory:
         description: |
           It shall be the working directory of the subprocess.
