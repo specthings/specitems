@@ -56,16 +56,36 @@ IsLinkEnabled = Callable[["Link"], bool]
 ItemViewGetMissing = Callable[["Item"], Any]
 
 
+def _get_missing_value(item: "Item", key: str, get_missing: ItemViewGetMissing,
+                       in_progress: set[tuple[str, str]]) -> Any:
+    # A get missing method may read the same key of another item.  The link
+    # graph of the items has cycles, so a walk which returns to its own item
+    # and key would not end.
+    guard = (item.uid, key)
+    if guard in in_progress:
+        raise ValueError(f"{item.uid}: the value of '{key}' depends on itself")
+    in_progress.add(guard)
+    try:
+        return get_missing(item)
+    finally:
+        in_progress.discard(guard)
+
+
 class _DirectView(dict):
 
-    def __init__(self, item: "Item",
-                 get_missing_map: dict[str, ItemViewGetMissing]) -> None:
+    def __init__(self, item: "Item", get_missing_map: dict[str,
+                                                           ItemViewGetMissing],
+                 in_progress: set[tuple[str, str]]) -> None:
         super().__init__()
         self._item = item
         self._get_missing_map = get_missing_map
+        self._in_progress = in_progress
 
     def __missing__(self, key):
-        return self._get_missing_map[key](self._item)
+        value = _get_missing_value(self._item, key, self._get_missing_map[key],
+                                   self._in_progress)
+        self[key] = value
+        return value
 
     def get(self, key, default=None):
         try:
@@ -78,10 +98,11 @@ class _InheritanceView(dict):
 
     def __init__(self, item: "Item", get_missing_map: dict[str,
                                                            ItemViewGetMissing],
-                 view: "ItemView") -> None:
+                 in_progress: set[tuple[str, str]], view: "ItemView") -> None:
         super().__init__()
         self._item = item
         self._get_missing_map = get_missing_map
+        self._in_progress = in_progress
         self._view = view
 
     def __missing__(self, key):
@@ -89,7 +110,8 @@ class _InheritanceView(dict):
         if get_missing is None:
             value = self._view[self._item][key]
         else:
-            value = get_missing(self._item)
+            value = _get_missing_value(self._item, key, get_missing,
+                                       self._in_progress)
         self[key] = value
         return value
 
@@ -113,13 +135,15 @@ class ItemView(dict):
         super().__init__()
         self._view = view
         self._get_missing_map: dict[str, ItemViewGetMissing] = {}
+        self._in_progress: set[tuple[str, str]] = set()
 
     def __missing__(self, item: "Item") -> dict:
         if self._view is None:
-            new_dict: dict = _DirectView(item, self._get_missing_map)
+            new_dict: dict = _DirectView(item, self._get_missing_map,
+                                         self._in_progress)
         else:
             new_dict = _InheritanceView(item, self._get_missing_map,
-                                        self._view)
+                                        self._in_progress, self._view)
         return self.setdefault(item, new_dict)
 
     def add_get_missing(self, key: str,
