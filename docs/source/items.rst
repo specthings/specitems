@@ -190,8 +190,23 @@ Reference
 
 This type refines the :ref:`SpecTypeRootItemType` through the ``type``
 attribute if the value is ``reference``. This set of attributes specifies a
-reference to something with a title. All explicit attributes shall be
-specified. The explicit attributes for this type are:
+reference to something with a title. The following explicit attributes are
+mandatory:
+
+- ``reference-type``
+
+- ``title``
+
+- ``work-hash``
+
+- ``work-url``
+
+The explicit attributes for this type are:
+
+date
+    The attribute value shall be a :ref:`SpecTypeDate`. It shall be the date of
+    the referenced work.  A work identified by a commit needs a date, since a
+    change of the version control system rewrites the commit.
 
 reference-type
     The attribute value shall be a string. It shall be the reference type.
@@ -896,6 +911,21 @@ holder of the specification item. The value
 This type is used by the following types:
 
 - :ref:`SpecTypeRootItemType`
+
+.. _SpecTypeDate:
+
+Date
+====
+
+The value shall be a string. It shall be a date in the ISO 8601 format.  A
+capital T separates an optional time from the date.  A Z or an offset such as
+``+08:00`` gives the time zone of the time. The value shall match with the
+regular expression
+"``^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(Z|(\+|-)([01][0-9]|2[0-3]):([0-5][0-9]))?)?\Z``".
+
+This type is used by the following types:
+
+- :ref:`SpecTypeReference`
 
 .. _SpecTypeEnabledByExpression:
 

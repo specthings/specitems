@@ -3,7 +3,8 @@ author:
 - A, B
 - C D, E
 copyrights:
-- Copyright (C) 2025 embedded brains GmbH & Co. KG
+- Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
+date: '2026-09-07'
 enabled-by: true
 howpublished: How published
 links: []
