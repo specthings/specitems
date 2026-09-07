@@ -231,6 +231,71 @@ v: x""")
         item_cache_4["/d/c"]
 
 
+def test_view_get_missing_is_cached():
+    item_cache = EmptyItemCache()
+    item = item_cache.add_item("/a", {"enabled-by": True, "links": []})
+    calls = []
+
+    def counting(the_item):
+        calls.append(the_item.uid)
+        return "value"
+
+    item_cache.view.add_get_missing("counted", counting)
+    assert item.view["counted"] == "value"
+    assert item.view["counted"] == "value"
+    assert item.view.get("counted") == "value"
+    assert calls == ["/a"]
+
+    with item_cache.view_scope(ItemView(item_cache.view)):
+        item_cache.view.add_get_missing("counted-2", counting)
+        assert item.view["counted-2"] == "value"
+        assert item.view["counted-2"] == "value"
+        assert calls == ["/a", "/a"]
+
+
+def test_view_get_missing_cycle():
+    item_cache = EmptyItemCache()
+    item_b = item_cache.add_item("/b", {"enabled-by": True, "links": []})
+    item_a = item_cache.add_item("/a", {
+        "enabled-by": True,
+        "links": [{
+            "role": "r",
+            "uid": "b"
+        }]
+    })
+    item_cache.reinitialize_links()
+
+    def make_walk(key):
+
+        def walk(the_item):
+            for parent in the_item.parents("r"):
+                parent.view[key]
+            for child in the_item.children("r"):
+                child.view[key]
+            return the_item.uid
+
+        return walk
+
+    item_cache.view.add_get_missing("walk", make_walk("walk"))
+    match = r"/a: the value of 'walk' depends on itself"
+    with pytest.raises(ValueError, match=match):
+        item_a.view["walk"]
+
+    # The guard of a failed read does not stay behind.
+    def fine(the_item):
+        return the_item.uid
+
+    item_cache.view.add_get_missing("fine", fine)
+    assert item_a.view["fine"] == "/a"
+    assert item_b.view["fine"] == "/b"
+
+    with item_cache.view_scope(ItemView(item_cache.view)):
+        item_cache.view.add_get_missing("walk-2", make_walk("walk-2"))
+        with pytest.raises(ValueError,
+                           match=r"/a: the value of 'walk-2' depends on"):
+            item_a.view["walk-2"]
+
+
 def test_item_type_provider():
     item_cache = EmptyItemCache(SpecTypeProvider(get_other_type_data_by_uid()))
     match = r"item /no-type has no type attribute 'type' for partial type ''"
