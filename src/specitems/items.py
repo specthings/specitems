@@ -67,6 +67,12 @@ class _DirectView(dict):
     def __missing__(self, key):
         return self._get_missing_map[key](self._item)
 
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
 
 class _InheritanceView(dict):
 

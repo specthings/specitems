@@ -61,15 +61,41 @@ class _Glossary(NamedTuple):
     term_to_item: _ItemMap
 
 
+# The view of a glossary group holds the path prefix of the terms of its
+# members.
+_GLOSSARY_PATH = "glossary-path"
+
+
+def _term_with_path(path: list[str], item: Item) -> str:
+    return " - ".join(path + [item["term"]])
+
+
+def _get_missing_term(item: Item) -> Any:
+    for group in item.parents("glossary-member"):
+        path = group.view.get(_GLOSSARY_PATH)
+        if path is not None:
+            return _term_with_path(path, item)
+    return item["term"]
+
+
+def _augment_glossary_terms(item: Item, path: list[str]) -> None:
+    item.view[_GLOSSARY_PATH] = path
+    for child in item.children("requirement-refinement"):
+        _augment_glossary_terms(child, path + [child["name"]])
+    for child in item.children("glossary-member"):
+        child.view["term"] = _term_with_path(path, child)
+
+
 def augment_glossary_terms(item: Item, path: list[str]) -> None:
     """
     Augment the glossary term items of the cache with a glossary path prefix.
+
+    The view of each group keeps the path prefix of its members.  A member
+    which this function does not reach reads the prefix of its group, so a
+    caller may add a member to the cache after the call.
     """
-    for child in item.children("requirement-refinement"):
-        augment_glossary_terms(child, path + [child["name"]])
-    for child in item.children("glossary-member"):
-        term = " - ".join(path + [child["term"]])
-        child.view["term"] = term
+    item.cache.view.add_get_missing("term", _get_missing_term)
+    _augment_glossary_terms(item, path)
 
 
 def _gather_glossary_terms(item: Item, glossary: _Glossary) -> None:
