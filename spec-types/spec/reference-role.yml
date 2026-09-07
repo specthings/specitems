@@ -13,12 +13,17 @@ spec-description: null
 spec-example: null
 spec-info:
   dict:
-    attributes: {}
+    attributes:
+      location:
+        description: |
+          It shall be the location of the used parts within the referenced
+          work.  An example is a section number.
+        spec-type: str
     description: |
       Items may link to a reference using this role.  The link states that the
-      referenced work is the authority for the content of the item.  The item
-      locates the parts of the work it uses.
-    mandatory-attributes: all
+      referenced work is the authority for the content of the item.  The
+      optional location attribute locates the parts of the work the item uses.
+    mandatory-attributes: none
 spec-name: Reference Link Role
 spec-type: reference-role
 type: spec
