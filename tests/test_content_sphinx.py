@@ -990,3 +990,36 @@ def test_topic_as_definition():
 Description
     A description.
 """
+
+
+def test_context_balance_on_exception():
+    # Each context restores its state even where the body raises.  The label
+    # stack, the section stack and the line context stack are then ready for
+    # the next section.
+    contexts = (
+        lambda c: c.indent(),
+        lambda c: c.indent(levels=3),
+        lambda c: c.comment_block(),
+        lambda c: c.list_item("item"),
+        lambda c: c.label_scope("Scope"),
+        lambda c: c.topic("Name"),
+        lambda c: c.section("Sec"),
+        lambda c: c.directive("note"),
+        lambda c: c.latex_environment("small"),
+    )
+    for open_context in contexts:
+        content = SphinxContent()
+        with pytest.raises(RuntimeError):
+            with open_context(content):
+                raise RuntimeError("boom")
+        assert content.get_label() == ""
+        text = str(content)
+        assert text.count("\\begin{") == text.count("\\end{")
+        with content.section("Next") as label:
+            content.add("body")
+        assert label == "Next"
+        assert str(content).endswith("""Next
+####
+
+body
+""")

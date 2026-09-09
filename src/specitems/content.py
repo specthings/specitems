@@ -491,9 +491,11 @@ class Content(abc.ABC):
         for _ in range(levels):
             self.push_indent(initial_indent, subsequent_indent,
                              empty_line_indent)
-        yield
-        for _ in range(levels):
-            self.pop_indent()
+        try:
+            yield
+        finally:
+            for _ in range(levels):
+                self.pop_indent()
 
     def indent_lines(self, level: int) -> None:
         """ Indent all lines by the specified indentation level. """
@@ -584,8 +586,10 @@ class Content(abc.ABC):
     def comment_block(self) -> Iterator[None]:
         """ Open a comment block context. """
         self.open_comment_block()
-        yield
-        self.close_comment_block()
+        try:
+            yield
+        finally:
+            self.close_comment_block()
 
     def add_list_item(self, content: GenericContent) -> None:
         """ Add the list item. """
@@ -624,8 +628,10 @@ class Content(abc.ABC):
     def list_item(self, content: GenericContent) -> Iterator[None]:
         """ Open a list item context. """
         self.open_list_item(content)
-        yield
-        self.close_list_item()
+        try:
+            yield
+        finally:
+            self.close_list_item()
 
     def add_automatically_generated_warning(self) -> None:
         """ Add a warning that the file is automatically generated. """

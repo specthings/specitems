@@ -157,8 +157,10 @@ class TextContent(Content):
     def label_scope(self, label: str) -> Iterator[None]:
         """ Open a label scope context. """
         self.push_label(label)
-        yield
-        self.pop_label()
+        try:
+            yield
+        finally:
+            self.pop_label()
 
     @abc.abstractmethod
     def link(self, name: str, target: str) -> str:
@@ -235,8 +237,10 @@ class TextContent(Content):
     def topic(self, name: str) -> Iterator[None]:
         """ Open a topic context with the name. """
         self.open_topic(name)
-        yield
-        self.close_topic()
+        try:
+            yield
+        finally:
+            self.close_topic()
 
     def add_image(self, base: str, width: Optional[str] = None) -> None:
         """
@@ -284,8 +288,11 @@ class TextContent(Content):
                 label_tail: Optional[str] = None,
                 label: Optional[str] = None) -> Iterator[str]:
         """ Open the section context. """
-        yield self.open_section(name, label_tail, label)
-        self.close_section()
+        section_label = self.open_section(name, label_tail, label)
+        try:
+            yield section_label
+        finally:
+            self.close_section()
 
     @abc.abstractmethod
     def open_directive(self,
@@ -305,8 +312,10 @@ class TextContent(Content):
                   options: Optional[list[str]] = None):
         """ Open the directive context. """
         self.open_directive(name, value, options)
-        yield
-        self.close_directive()
+        try:
+            yield
+        finally:
+            self.close_directive()
 
     def open_latex_environment(self, environment: str) -> None:
         """ Open a LaTeX environment. """
@@ -329,8 +338,10 @@ class TextContent(Content):
         """ Open a LaTeX environment context. """
         if use:
             self.open_latex_environment(environment)
-            yield
-            self.close_latex_environment(environment)
+            try:
+                yield
+            finally:
+                self.close_latex_environment(environment)
         else:
             yield
 
