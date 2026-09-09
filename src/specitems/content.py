@@ -533,8 +533,11 @@ class Content(abc.ABC):
         self._indent([""], False)
 
     def ensure_blank_line(self):
-        """ Ensure that the last line is blank. """
-        if self._last_is_not_empty:
+        """
+        Ensure that the last line is blank unless at the start of a fresh
+        indentation level.
+        """
+        if self._last_is_not_empty and not self._is_initial_indents[-1]:
             self.add_blank_line()
 
     def register_license(self, the_license: str) -> None:

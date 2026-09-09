@@ -410,6 +410,17 @@ y
 """
 
 
+def test_ensure_blank_line_in_fresh_indent():
+    content = Content("BSD-2-Clause")
+    content.add("term")
+    with content.indent():
+        content.ensure_blank_line()
+        content.add("body")
+    assert str(content) == """term
+  body
+"""
+
+
 def test_indent_lines():
     content = Content("BSD-2-Clause")
     content.add_blank_line()
