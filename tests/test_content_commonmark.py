@@ -353,3 +353,19 @@ def test_add_code_block():
 c
 ```
 """
+
+
+def test_topic():
+    content = CommonMarkContent()
+    with content.topic("Parameters"):
+        content.add("param")
+    assert str(content) == """*PARAMETERS:*
+
+param
+"""
+    content = CommonMarkContent(topic_as_definition=True)
+    with content.topic("Parameters"):
+        content.add("param")
+    assert str(content) == """Parameters
+: param
+"""

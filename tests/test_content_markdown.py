@@ -488,3 +488,32 @@ def test_add_code_block():
 c
 ```
 """
+
+
+def test_topic_as_rubric():
+    content = MarkdownContent()
+    with content.topic("Parameters"):
+        content.add("param")
+    assert str(content) == """```{eval-rst}
+.. rubric:: PARAMETERS:
+```
+
+param
+"""
+
+
+def test_topic_as_definition():
+    content = MarkdownContent(topic_as_definition=True)
+    with content.topic("Parameters"):
+        content.add("param")
+        content.add("more")
+    with content.topic("Description"):
+        content.add("A description.")
+    assert str(content) == """Parameters
+: param
+
+  more
+
+Description
+: A description.
+"""

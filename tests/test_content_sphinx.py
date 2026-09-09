@@ -963,3 +963,30 @@ def test_add_program_output():
 
     \\end{tiny}
 """
+
+
+def test_topic_as_rubric():
+    content = SphinxContent()
+    with content.topic("Parameters"):
+        content.add("param")
+    assert str(content) == """.. rubric:: PARAMETERS:
+
+param
+"""
+
+
+def test_topic_as_definition():
+    content = SphinxContent(topic_as_definition=True)
+    with content.topic("Parameters"):
+        with content.directive("code-block", "c"):
+            content.add("int x;")
+    with content.topic("Description"):
+        content.add("A description.")
+    assert str(content) == """Parameters
+    .. code-block:: c
+
+        int x;
+
+Description
+    A description.
+"""

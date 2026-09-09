@@ -92,11 +92,13 @@ class TextContent(Content):
 
     def __init__(self,
                  section_level: int = 0,
-                 the_license: str | set[str] | None = None) -> None:
+                 the_license: str | set[str] | None = None,
+                 topic_as_definition: bool = False) -> None:
         super().__init__(the_license)
         self._section_level = section_level
         self._label_stack = [""]
         self._section_stack: list[str] = []
+        self.topic_as_definition = topic_as_definition
 
     def add_licence_and_copyrights(self) -> None:
         """
@@ -214,6 +216,27 @@ class TextContent(Content):
     @abc.abstractmethod
     def add_rubric(self, name: str) -> None:
         """ Add a rubric with the name. """
+
+    @abc.abstractmethod
+    def open_topic(self, name: str) -> None:
+        """
+        Open a topic with the name.
+
+        A topic is a rubric, or a definition list item where
+        topic_as_definition is set.
+        """
+
+    def close_topic(self) -> None:
+        """ Close the topic. """
+        if self.topic_as_definition:
+            self.pop_indent()
+
+    @contextlib.contextmanager
+    def topic(self, name: str) -> Iterator[None]:
+        """ Open a topic context with the name. """
+        self.open_topic(name)
+        yield
+        self.close_topic()
 
     def add_image(self, base: str, width: Optional[str] = None) -> None:
         """
