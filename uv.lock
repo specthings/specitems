@@ -1126,7 +1126,7 @@ wheels = [
 
 [[package]]
 name = "specitems"
-version = "1.6.19"
+version = "1.6.20.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "mdformat" },
