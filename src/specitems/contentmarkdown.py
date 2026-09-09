@@ -66,8 +66,9 @@ class MarkdownContent(TextContent):
     # pylint: disable=too-many-public-methods
     def __init__(self,
                  section_level: int = 0,
-                 the_license: str | set[str] | None = None):
-        super().__init__(section_level, the_license)
+                 the_license: str | set[str] | None = None,
+                 topic_as_definition: bool = False):
+        super().__init__(section_level, the_license, topic_as_definition)
         self.set_pop_indent_gap(True)
         self.set_comment_prefix("%")
 
@@ -115,6 +116,13 @@ class MarkdownContent(TextContent):
 
     def add_rubric(self, name: str) -> None:
         self.add(["```{eval-rst}", f".. rubric:: {name}", "```", ""])
+
+    def open_topic(self, name: str) -> None:
+        if self.topic_as_definition:
+            self.add(name)
+            self.push_indent(": ", "  ")
+        else:
+            self.add_rubric(f"{name.upper()}:")
 
     def add_index_entries(self, entries: list[str]) -> None:
         for entry in entries:
