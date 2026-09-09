@@ -516,6 +516,19 @@ def test_add_definition_item():
 """
 
 
+def test_definition_item_with_directive():
+    content = SphinxContent()
+    content.add("term")
+    with content.indent():
+        with content.directive("code-block", "c"):
+            content.add("int x;")
+    assert str(content) == """term
+    .. code-block:: c
+
+        int x;
+"""
+
+
 def test_add_glossary_term():
     content = SphinxContent()
     content.add_glossary_term("x", ["y", "z"])
