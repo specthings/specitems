@@ -394,14 +394,14 @@ def test_item_mapper(tmpdir):
     assert err.start == 0
     assert err.end == 2
     assert err.line == 1
-    assert err.cause is None
+    assert err.lookup_error is None
     with pytest.raises(SubstitutionError) as exc_info:
         mapper.substitute("first line\n${.:/nope}", p)
     err = exc_info.value
     assert err.item == p
     assert err.token == "${.:/nope}"
     assert err.line == 2
-    assert isinstance(err.cause, ValueError)
+    assert isinstance(err.lookup_error, ValueError)
     mapper.add_get_value("other:/out-of-memory", _get_value_out_of_memory)
     with pytest.raises(MemoryError) as mem_info:
         mapper.substitute("${d/c:/out-of-memory}", p)
