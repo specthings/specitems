@@ -451,7 +451,8 @@ def test_substitute(tmpdir):
                                get_other_type_data_by_uid()))
     augment_glossary_terms(item_cache["/g"], [])
     mapper = MarkdownMapper(item_cache["/x"])
-    match = (r"substitution for spec:/x using prefix '' failed in line 1 "
+    match = (r"substitution in text of an unnamed item \(mapper spec:/x\) "
+             r"using prefix '' failed in line 1 "
              r"of '\${x:/y}': KeyError: 'y'\n1: \${x:/y}")
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${x:/y}")
