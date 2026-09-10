@@ -163,6 +163,10 @@ def _get_value_dict(ctx):
     return ctx.key
 
 
+def _get_nested_substitution(ctx):
+    return ctx.substitute_and_transform("${}")
+
+
 def _get_value_other_item(ctx):
     uid_end = ctx.remaining_path.find("/")
     other = ctx.item.cache[f"/{ctx.remaining_path[:uid_end]}"]
@@ -367,9 +371,16 @@ def test_item_mapper(tmpdir):
     assert mapper["d/c:/other/s/v"] == "s"
     assert mapper.substitute("${.:/r1/r2/r3}") == "foobar"
     assert mapper[".:/r1/r2/r3"] == "foobar"
-    match = r"substitution for spec:/p using prefix 'blub' failed for text:\n1: \${}"
+    match = (r"substitution for spec:/p using prefix 'blub' failed in line 1 "
+             r"of '\${': malformed substitution variable\n1: \${}")
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${}", p, "blub")
+    mapper.add_get_value("other:/nested", _get_nested_substitution)
+    match = (r"substitution for spec:/p using prefix '' failed in line 1 of "
+             r"'\${d/c:/nested}': malformed substitution variable\n"
+             r"1: \${d/c:/nested}")
+    with pytest.raises(ValueError, match=match):
+        mapper.substitute("${d/c:/nested}")
     match = r"item 'boom' relative to spec:/p specified by 'boom:bam' does not exist"
     with pytest.raises(ValueError, match=match):
         mapper.map("boom:bam", p, "blub")
