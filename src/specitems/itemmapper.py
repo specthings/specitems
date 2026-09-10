@@ -114,6 +114,9 @@ def from_clang_variables(text: str, replacements: dict[str, str]) -> str:
     return text
 
 
+_PASS_THROUGH = (MemoryError, RecursionError)
+
+
 class _ItemMapperError(Exception):
 
     def __init__(self, start: int, end: int, token: str) -> None:
@@ -206,6 +209,9 @@ class _ItemMapperContext:
             try:
                 value = self._mapper.map(token[brace + 1:-1], self._item,
                                          self._prefix)[2]
+            except _PASS_THROUGH as err:
+                err.add_note(f"in substitution of '{token}'")
+                raise
             except Exception as err:
                 raise _ItemMapperError(mobj.start(), mobj.end(),
                                        token) from err
@@ -598,6 +604,10 @@ class ItemMapper(abc.ABC):
         key_path = _normalize_key_path(key_path, prefix)
         try:
             ctx = self._get_by_normalized_key_path(item, key_path, args)
+        except _PASS_THROUGH as err:
+            err.add_note(f"in the value for '{key_path}' of {item.spec} "
+                         f"specified by '{identifier}'")
+            raise
         except Exception as err:
             msg = (f"cannot get value for '{key_path}' of {item.spec} "
                    f"specified by '{identifier}'")
@@ -621,6 +631,10 @@ class ItemMapper(abc.ABC):
         context = _ItemMapperContext(self, item, prefix)
         try:
             return _VAR_TOKENS.sub(context.replace, text)
+        except _PASS_THROUGH as err:
+            spec = self.item.spec if item is None else item.spec
+            err.add_note(f"in text of {spec}")
+            raise
         except _ItemMapperError as err:
             raise SubstitutionError(item, self.item, prefix, text, err.token,
                                     err.start, err.end, err.__cause__) from err

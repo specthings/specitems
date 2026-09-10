@@ -167,6 +167,10 @@ def _get_nested_substitution(ctx):
     return ctx.substitute_and_transform("${}")
 
 
+def _get_value_out_of_memory(ctx):
+    raise MemoryError("out of memory")
+
+
 def _get_value_other_item(ctx):
     uid_end = ctx.remaining_path.find("/")
     other = ctx.item.cache[f"/{ctx.remaining_path[:uid_end]}"]
@@ -392,6 +396,15 @@ def test_item_mapper(tmpdir):
     assert err.token == "${.:/nope}"
     assert err.line == 2
     assert isinstance(err.cause, ValueError)
+    mapper.add_get_value("other:/out-of-memory", _get_value_out_of_memory)
+    with pytest.raises(MemoryError) as mem_info:
+        mapper.substitute("${d/c:/out-of-memory}", p)
+    assert mem_info.value.__notes__ == [
+        "in the value for '/out-of-memory' of spec:/d/c specified by "
+        "'d/c:/out-of-memory'",
+        "in substitution of '${d/c:/out-of-memory}'",
+        "in text of spec:/p",
+    ]
     mapper.add_get_value("other:/nested", _get_nested_substitution)
     match = (r"substitution for spec:/p using prefix '' failed in line 1 of "
              r"'\${d/c:/nested}': malformed substitution variable\n"
