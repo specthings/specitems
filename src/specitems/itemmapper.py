@@ -198,14 +198,17 @@ class SubstitutionError(ValueError):
         return "\n".join(window)
 
     def _cause_chain(self) -> str:
-        causes = []
+        causes: list[BaseException] = []
         cause = self.cause
         while cause is not None:
             causes.append(cause)
             cause = cause.__cause__
-        return "".join(f"  via {str(c).partition(chr(10))[0]}\n"
-                       for c in causes[:-1]
-                       if not isinstance(c, _ItemMapperError))
+        chain = ""
+        for member in causes[:-1]:
+            if not isinstance(member, _ItemMapperError):
+                first_line = str(member).split("\n", 1)[0]
+                chain += f"  via {first_line}\n"
+        return chain
 
     def _message(self) -> str:
         names = _item_names(self.item, self.mapper_item)
