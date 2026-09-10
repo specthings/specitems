@@ -63,7 +63,7 @@ def _clang_wrap_function(value: str) -> str:
     return f"void _Specitems(void) {{\n{value}\n}}"
 
 
-def _clang_unwrap_text(value: str) -> str:
+def _clang_unwrap_text(value: str, _original: str) -> str:
     value = value.lstrip("\n")
     indent_level = len(value) - len(value.lstrip())
     indent = value[:indent_level]
@@ -71,19 +71,46 @@ def _clang_unwrap_text(value: str) -> str:
     return f"{value}\n"
 
 
-def _clang_unwrap_function(value: str) -> str:
-    return _clang_unwrap_text(value[value.index("{") + 1:value.rindex("}")])
+def _clang_unwrap_function(value: str, original: str) -> str:
+    return _clang_unwrap_text(value[value.index("{") + 1:value.rindex("}")],
+                              original)
+
+
+def _clang_unwrap_declaration(value: str, original: str) -> str:
+    # The tool breaks a declaration which passes the column limit and aligns
+    # the parts of the result.  Such a result has no single line form.
+    value = value.strip()
+    if "\n" in value:
+        return original
+    return value
 
 
 # Each scope gives the text which the clang-format tool receives and the text
 # of the value in the formatted result.
-_CLANG_SCOPE: dict[str, tuple[Callable[[str], str], Callable[[str], str]]] = {
-    "file": (_clang_wrap_text, _clang_unwrap_text),
-    "function": (_clang_wrap_function, _clang_unwrap_function),
-}
+_CLANG_SCOPE: dict[str,
+                   tuple[Callable[[str], str], Callable[[str, str], str]]] = {
+                       "declaration":
+                       (_clang_wrap_text, _clang_unwrap_declaration),
+                       "file": (_clang_wrap_text, _clang_unwrap_text),
+                       "function":
+                       (_clang_wrap_function, _clang_unwrap_function),
+                   }
 
 
-def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
+def _clang_skip(item: Item, fmt: dict) -> bool:
+    skip = fmt.get("skip")
+    if skip is None:
+        return False
+    path = skip["path"]
+    try:
+        value = item.get_value(path)
+    except KeyError as err:
+        raise ValueError(f"cannot get the value of '{path}' of {item.spec} "
+                         "to evaluate the clang-format skip") from err
+    return value in skip["values"]
+
+
+def _format_clang(formatter: SpecFormatter, item: Item, value: str,
                   fmt: dict) -> str:
     scope = fmt["scope"]
     try:
@@ -91,6 +118,8 @@ def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
     except KeyError as err:
         raise ValueError(f"unknown clang-format scope '{scope}', "
                          f"use one of {sorted(_CLANG_SCOPE)}") from err
+    if _clang_skip(item, fmt):
+        return value
     name = fmt["style"]
     try:
         style = formatter.clang_format_style[name]
@@ -99,9 +128,9 @@ def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
                          "configure it via --clang-format-style") from err
     clang_formatter = ClangFormatter(formatter.clang_format_path, style)
     replacements: dict[str, str] = {}
-    value = clang_formatter.format_text(
+    formatted = clang_formatter.format_text(
         wrap(to_clang_variables(value, replacements)), "specitems.c")
-    return unwrap(from_clang_variables(value, replacements))
+    return unwrap(from_clang_variables(formatted, replacements), value)
 
 
 def _format_myst(_formatter: SpecFormatter, _item: Item, value: str,

@@ -1,0 +1,29 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      path:
+        description: |
+          It shall be the path to the item attribute which decides the skip.
+        spec-type: str
+      values:
+        description: |
+          It shall be the list of values of the item attribute for which the
+          formatter returns the value unchanged.
+        spec-type: list-str
+    description: |
+      This set of attributes specifies the condition under which a C language
+      source code formatting is skipped.  A value of a language for which the
+      clang-format tool has no valid interpretation needs such a condition.
+    mandatory-attributes: all
+spec-name: Specification C Language Format Skip
+spec-type: spec-format-clang-skip
+type: spec
