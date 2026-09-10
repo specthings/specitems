@@ -381,7 +381,8 @@ def test_item_mapper(tmpdir):
     assert mapper[".:/r1/r2/r3"] == "foobar"
     match = (
         r"substitution in text of spec:/p using prefix 'blub' failed in line 1 "
-        r"of '\${': malformed substitution variable\n1: \${}")
+        r"of '\${': malformed substitution variable\n"
+        r"  > 1: \${}\n       \^")
     with pytest.raises(SubstitutionError, match=match) as exc_info:
         mapper.substitute("${}", p, "blub")
     err = exc_info.value
@@ -419,14 +420,22 @@ def test_item_mapper(tmpdir):
              r"  via substitution in text of spec:/d/c \(mapper spec:/p\) "
              r"using prefix '/' failed in line 1 of '\${': malformed "
              r"substitution variable\n"
-             r"1: \${d/c:/nested}")
+             r"  > 1: \${d/c:/nested}\n       \^")
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${d/c:/nested}")
     match = (r"substitution in text of spec:/c \(mapper spec:/p\) using "
              r"prefix '' failed in line 1 of '\${': malformed substitution "
-             r"variable\n1: \${}")
+             r"variable\n  > 1: \${}\n       \^")
     with pytest.raises(SubstitutionError, match=match):
         mapper.substitute("${}", c)
+    text = "".join(f"line {i}\n" for i in range(1, 10)) + "x ${.:/nope} y"
+    with pytest.raises(SubstitutionError) as exc_info:
+        mapper.substitute(text, p)
+    assert str(exc_info.value).endswith("\n     7: line 7"
+                                        "\n     8: line 8"
+                                        "\n     9: line 9"
+                                        "\n  > 10: x ${.:/nope} y"
+                                        "\n          ^")
     mapper.add_get_value("other:/nested-failure", _get_nested_failure)
     match = (r"substitution in text of an unnamed item \(mapper spec:/p\) "
              r"using prefix '' failed in line 1 of "
@@ -438,7 +447,7 @@ def test_item_mapper(tmpdir):
              r"KeyError: 'nope'\n"
              r"  via cannot get value for '/nope' of spec:/d/c specified by "
              r"'\.:/nope'\n"
-             r"1: \${d/c:/nested-failure}")
+             r"  > 1: \${d/c:/nested-failure}\n       \^")
     with pytest.raises(SubstitutionError, match=match):
         mapper.substitute("${d/c:/nested-failure}")
     match = r"item 'boom' relative to spec:/p specified by 'boom:bam' does not exist"
