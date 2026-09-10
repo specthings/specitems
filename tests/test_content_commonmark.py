@@ -319,7 +319,7 @@ def test_substitute(tmpdir):
              r"using prefix '' failed in line 1 "
              r"of '\${x:/y}': KeyError: 'y'\n"
              r"  via cannot get value for '/y' of spec:/x specified by "
-             r"'x:/y'\n1: \${x:/y}")
+             r"'x:/y'\n  > 1: \${x:/y}\n       \^")
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${x:/y}")
     assert mapper.substitute("${x:/term}") == "y"

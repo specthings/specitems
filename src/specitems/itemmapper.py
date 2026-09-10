@@ -184,9 +184,18 @@ class SubstitutionError(ValueError):
     def _text_window(self) -> str:
         first = max(self.text.count("\n", 0, self.start) - 3, 0)
         last = self.text.count("\n", 0, self.end) + 4
-        return "\n".join(
-            f"{i + first + 1}: {line}"
-            for i, line in enumerate(self.text.splitlines()[first:last]))
+        lines = self.text.splitlines()[first:last]
+        width = len(str(first + len(lines)))
+        column = self.start - self.text.rfind("\n", 0, self.start) - 1
+        window = []
+        for index, line in enumerate(lines):
+            number = first + index + 1
+            if number == self.line:
+                window.append(f"  > {number:{width}}: {line}")
+                window.append(f"    {' ' * width}  {' ' * column}^")
+            else:
+                window.append(f"    {number:{width}}: {line}")
+        return "\n".join(window)
 
     def _cause_chain(self) -> str:
         causes = []
