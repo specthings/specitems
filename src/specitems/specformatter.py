@@ -25,7 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import abc
-from typing import Any
+from typing import Any, Callable
 
 import yaml
 
@@ -55,8 +55,42 @@ class SpecFormatter(abc.ABC):
         """ Save the item if it has a matching format. """
 
 
+def _clang_wrap_text(value: str) -> str:
+    return value
+
+
+def _clang_wrap_function(value: str) -> str:
+    return f"void _Specitems(void) {{\n{value}\n}}"
+
+
+def _clang_unwrap_text(value: str) -> str:
+    value = value.lstrip("\n")
+    indent_level = len(value) - len(value.lstrip())
+    indent = value[:indent_level]
+    value = value[indent_level:].replace(f"\n{indent}", "\n").rstrip()
+    return f"{value}\n"
+
+
+def _clang_unwrap_function(value: str) -> str:
+    return _clang_unwrap_text(value[value.index("{") + 1:value.rindex("}")])
+
+
+# Each scope gives the text which the clang-format tool receives and the text
+# of the value in the formatted result.
+_CLANG_SCOPE: dict[str, tuple[Callable[[str], str], Callable[[str], str]]] = {
+    "file": (_clang_wrap_text, _clang_unwrap_text),
+    "function": (_clang_wrap_function, _clang_unwrap_function),
+}
+
+
 def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
                   fmt: dict) -> str:
+    scope = fmt["scope"]
+    try:
+        wrap, unwrap = _CLANG_SCOPE[scope]
+    except KeyError as err:
+        raise ValueError(f"unknown clang-format scope '{scope}', "
+                         f"use one of {sorted(_CLANG_SCOPE)}") from err
     name = fmt["style"]
     try:
         style = formatter.clang_format_style[name]
@@ -65,18 +99,9 @@ def _format_clang(formatter: SpecFormatter, _item: Item, value: str,
                          "configure it via --clang-format-style") from err
     clang_formatter = ClangFormatter(formatter.clang_format_path, style)
     replacements: dict[str, str] = {}
-    value = to_clang_variables(value, replacements)
-    if fmt["scope"] == "function":
-        value = f"void _Specitems(void) {{\n{value}\n}}"
-    value = clang_formatter.format_text(value, "specitems.c")
-    value = from_clang_variables(value, replacements)
-    if fmt["scope"] == "function":
-        value = value[value.index("{") + 1:value.rindex("}")]
-    value = value.lstrip("\n")
-    indent_level = len(value) - len(value.lstrip())
-    indent = value[:indent_level]
-    value = value[indent_level:].replace(f"\n{indent}", "\n").rstrip()
-    return f"{value}\n"
+    value = clang_formatter.format_text(
+        wrap(to_clang_variables(value, replacements)), "specitems.c")
+    return unwrap(from_clang_variables(value, replacements))
 
 
 def _format_myst(_formatter: SpecFormatter, _item: Item, value: str,
