@@ -116,10 +116,21 @@ def from_clang_variables(text: str, replacements: dict[str, str]) -> str:
 
 class _ItemMapperError(Exception):
 
-    def __init__(self, start: int, end: int) -> None:
+    def __init__(self, start: int, end: int, token: str) -> None:
         super().__init__()
         self.start = start
         self.end = end
+        self.token = token
+
+
+def _root_cause(err: BaseException) -> str:
+    """ Return the type and the message of the root cause of the error. """
+    cause = err
+    while cause.__cause__ is not None:
+        cause = cause.__cause__
+    if isinstance(cause, _ItemMapperError):
+        return "malformed substitution variable"
+    return f"{type(cause).__name__}: {cause}"
 
 
 class _ItemMapperContext:
@@ -146,10 +157,11 @@ class _ItemMapperContext:
                 value = self._mapper.map(token[brace + 1:-1], self._item,
                                          self._prefix)[2]
             except Exception as err:
-                raise _ItemMapperError(mobj.start(), mobj.end()) from err
+                raise _ItemMapperError(mobj.start(), mobj.end(),
+                                       token) from err
             return f"{token[:brace // 2]}{value}"
         if len(token) & 1 == 0:
-            raise _ItemMapperError(mobj.start(), mobj.end())
+            raise _ItemMapperError(mobj.start(), mobj.end(), token)
         return token[len(token) // 2:]
 
 
@@ -566,8 +578,10 @@ class ItemMapper(abc.ABC):
             enumerated = "\n".join(
                 f"{i + start + 1}: {line}"
                 for i, line in enumerate(text.splitlines()[start:end]))
+            line = text.count("\n", 0, err.start) + 1
             msg = (f"substitution for {spec} using prefix '{prefix}' "
-                   f"failed for text:\n{enumerated}")
+                   f"failed in line {line} of '{err.token}': "
+                   f"{_root_cause(err)}\n{enumerated}")
             raise ValueError(msg) from err
 
     def substitute_data(self,
