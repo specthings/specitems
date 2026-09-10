@@ -1316,17 +1316,54 @@ Specification C Language Format
 
 This type refines the :ref:`SpecTypeSpecificationValueFormat` through the
 ``type`` attribute if the value is ``clang``. This set of attributes specifies
-a C language source code formatting. All explicit attributes shall be
-specified. The explicit attributes for this type are:
+a C language source code formatting. The following explicit attributes are
+mandatory:
+
+- ``scope``
+
+- ``style``
+
+The explicit attributes for this type are:
 
 scope
-    The attribute value shall be a string. It shall be the formatting scope,
-    for example ``function`` or `file`.
+    The attribute value shall be a string. It shall be the formatting scope.
+    The scope ``file`` formats the value as it is.  The scope ``function``
+    formats the value in a function definition and returns the text of the
+    function body.  The scope ``declaration`` formats the value as it is and
+    returns it as a single line without a trailing newline.  The value stays
+    unchanged where the result of the tool has more than one line.
+
+skip
+    The attribute value shall be a
+    :ref:`SpecTypeSpecificationCLanguageFormatSkip`.
 
 style
     The attribute value shall be a string. It shall be the formatting style.
     The formatting style is used to lookup the value for the
     ``--style=<value>`` option for the ``clang-format`` tool invocation.
+
+.. _SpecTypeSpecificationCLanguageFormatSkip:
+
+Specification C Language Format Skip
+====================================
+
+This set of attributes specifies the condition under which a C language source
+code formatting is skipped.  A value of a language for which the clang-format
+tool has no valid interpretation needs such a condition. All explicit
+attributes shall be specified. The explicit attributes for this type are:
+
+path
+    The attribute value shall be a string. It shall be the path to the item
+    attribute which decides the skip.
+
+values
+    The attribute value shall be a list of strings. It shall be the list of
+    values of the item attribute for which the formatter returns the value
+    unchanged.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeSpecificationCLanguageFormat`
 
 .. _SpecTypeSpecificationExplicitAttributes:
 

@@ -63,6 +63,10 @@ def test_spec_yaml_formatter(tmp_path, monkeypatch):
   }
 }
 """)
+        if input == "declaration input":
+            return _Status("const long long *restrict a\n")
+        if input == "long declaration input":
+            return _Status("const long long\n    *restrict   a\n")
         assert input == "clang format input"
         return _Status("""void f(void)
 {
@@ -126,10 +130,31 @@ int g( int a )
     formatter.format_value(item, "/i", "clang format input", fmt_clang_format)
     fmt_clang_format["scope"] = "function"
     formatter.format_value(item, "/j", "clang format input", fmt_clang_format)
+    fmt_clang_format["scope"] = "declaration"
+    formatter.format_value(item, "/o", "declaration input", fmt_clang_format)
+    formatter.format_value(item, "/u", "long declaration input",
+                           fmt_clang_format)
     fmt_clang_format["scope"] = "nix"
     with pytest.raises(ValueError):
-        formatter.format_value(item, "/o", "clang format input",
+        formatter.format_value(item, "/p", "declaration input",
                                fmt_clang_format)
+
+    fmt_clang_skip = {
+        "type": "clang",
+        "style": "bar",
+        "scope": "declaration",
+        "skip": {
+            "path": "/q",
+            "values": ["macro"],
+        },
+    }
+    item["q"] = "macro"
+    formatter.format_value(item, "/r", "declaration input", fmt_clang_skip)
+    item["q"] = "function"
+    formatter.format_value(item, "/s", "declaration input", fmt_clang_skip)
+    fmt_clang_skip["skip"]["path"] = "/nix"
+    with pytest.raises(ValueError):
+        formatter.format_value(item, "/t", "declaration input", fmt_clang_skip)
 
     fmt_list_order = {"type": "list-order", "path": "/k", "key": "l"}
     item["k"] = [{"l": "b"}]
@@ -201,6 +226,16 @@ int g( int a )
         },
         "m": [1, 2],
         "n": [3, 4],
+        "o":
+        "const long long *restrict a",
+        "q":
+        "function",
+        "r":
+        "declaration input",
+        "s":
+        "const long long *restrict a",
+        "u":
+        "long declaration input",
     }
 
     item.file = "something.txt"
@@ -272,6 +307,11 @@ m:
 n:
 - 3
 - 4
+o: const long long *restrict a
+q: function
+r: declaration input
+s: const long long *restrict a
+u: long declaration input
 """
 
     file_path_2 = tmp_path / "item_2.yml"
@@ -336,4 +376,9 @@ m:
 n:
   - 3
   - 4
+o: const long long *restrict a
+q: function
+r: declaration input
+s: const long long *restrict a
+u: long declaration input
 """

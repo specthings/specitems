@@ -14,6 +14,9 @@ spec-example: null
 spec-info:
   dict:
     attributes:
+      skip:
+        description: null
+        spec-type: spec-format-clang-skip
       style:
         description: |
           It shall be the formatting style.  The formatting style is used to
@@ -22,11 +25,18 @@ spec-info:
         spec-type: str
       scope:
         description: |
-          It shall be the formatting scope, for example `function` or `file`.
+          It shall be the formatting scope.  The scope `file` formats the
+          value as it is.  The scope `function` formats the value in a
+          function definition and returns the text of the function body.  The
+          scope `declaration` formats the value as it is and returns it as a
+          single line without a trailing newline.  The value stays unchanged
+          where the result of the tool has more than one line.
         spec-type: str
     description: |
       This set of attributes specifies a C language source code formatting.
-    mandatory-attributes: all
+    mandatory-attributes:
+    - scope
+    - style
 spec-name: Specification C Language Format
 spec-type: spec-format-clang
 type: spec
