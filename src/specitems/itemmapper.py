@@ -184,7 +184,7 @@ class SubstitutionError(ValueError):
         super().__init__(self._message())
 
     def _text_window(self) -> str:
-        first = max(self.text.count("\n", 0, self.start) - 3, 0)
+        first = max(self.line - 4, 0)
         last = self.text.count("\n", 0, self.end) + 4
         lines = self.text.split("\n")
         if lines[-1] == "":
