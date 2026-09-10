@@ -123,14 +123,64 @@ class _ItemMapperError(Exception):
         self.token = token
 
 
-def _root_cause(err: BaseException) -> str:
+def _root_cause(cause: Optional[BaseException]) -> str:
     """ Return the type and the message of the root cause of the error. """
-    cause = err
+    if cause is None:
+        return "malformed substitution variable"
     while cause.__cause__ is not None:
         cause = cause.__cause__
     if isinstance(cause, _ItemMapperError):
         return "malformed substitution variable"
     return f"{type(cause).__name__}: {cause}"
+
+
+class SubstitutionError(ValueError):
+    """Indicates that the variable substitution of a text failed.
+
+    Attributes:
+        item: The item which owns the text.  It is None where the caller of
+            :py:meth:`ItemMapper.substitute` provides no item.
+        mapper_item: The item of the item mapper.
+        prefix: The key path prefix of the substitution.
+        text: The text of the substitution.
+        token: The variable token which failed.
+        start: The offset of the token in the text.
+        end: The offset behind the token in the text.
+        line: The line number of the token in the text.  The first line of
+            the text is line one.
+        cause: The error which the value lookup raised.  It is None where the
+            token is a malformed variable.
+    """
+
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
+    # pylint: disable=too-many-instance-attributes
+    def __init__(self, item: Optional[Item], mapper_item: Item, prefix: str,
+                 text: str, token: str, start: int, end: int,
+                 cause: Optional[BaseException]) -> None:
+        self.item = item
+        self.mapper_item = mapper_item
+        self.prefix = prefix
+        self.text = text
+        self.token = token
+        self.start = start
+        self.end = end
+        self.line = text.count("\n", 0, start) + 1
+        self.cause = cause
+        super().__init__(self._message())
+
+    def _text_window(self) -> str:
+        first = max(self.text.count("\n", 0, self.start) - 3, 0)
+        last = self.text.count("\n", 0, self.end) + 4
+        return "\n".join(
+            f"{i + first + 1}: {line}"
+            for i, line in enumerate(self.text.splitlines()[first:last]))
+
+    def _message(self) -> str:
+        spec = self.mapper_item.spec if self.item is None else self.item.spec
+        return (f"substitution for {spec} using prefix '{self.prefix}' "
+                f"failed in line {self.line} of '{self.token}': "
+                f"{_root_cause(self.cause)}\n{self._text_window()}")
 
 
 class _ItemMapperContext:
@@ -572,17 +622,8 @@ class ItemMapper(abc.ABC):
         try:
             return _VAR_TOKENS.sub(context.replace, text)
         except _ItemMapperError as err:
-            start = max(text.count("\n", 0, err.start) - 3, 0)
-            end = text.count("\n", 0, err.end) + 4
-            spec = self.item.spec if item is None else item.spec
-            enumerated = "\n".join(
-                f"{i + start + 1}: {line}"
-                for i, line in enumerate(text.splitlines()[start:end]))
-            line = text.count("\n", 0, err.start) + 1
-            msg = (f"substitution for {spec} using prefix '{prefix}' "
-                   f"failed in line {line} of '{err.token}': "
-                   f"{_root_cause(err)}\n{enumerated}")
-            raise ValueError(msg) from err
+            raise SubstitutionError(item, self.item, prefix, text, err.token,
+                                    err.start, err.end, err.__cause__) from err
 
     def substitute_data(self,
                         data: Any,
