@@ -436,6 +436,11 @@ def test_item_mapper(tmpdir):
                                         "\n     9: line 9"
                                         "\n  > 10: x ${.:/nope} y"
                                         "\n          ^")
+    with pytest.raises(SubstitutionError) as exc_info:
+        mapper.substitute("a\rb\n${.:/nope}\n", p)
+    assert str(exc_info.value).endswith("\n    1: a\rb"
+                                        "\n  > 2: ${.:/nope}"
+                                        "\n       ^")
     mapper.add_get_value("other:/nested-failure", _get_nested_failure)
     match = (r"substitution in text of an unnamed item \(mapper spec:/p\) "
              r"using prefix '' failed in line 1 of "
