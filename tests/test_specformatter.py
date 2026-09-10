@@ -126,6 +126,10 @@ int g( int a )
     formatter.format_value(item, "/i", "clang format input", fmt_clang_format)
     fmt_clang_format["scope"] = "function"
     formatter.format_value(item, "/j", "clang format input", fmt_clang_format)
+    fmt_clang_format["scope"] = "nix"
+    with pytest.raises(ValueError):
+        formatter.format_value(item, "/o", "clang format input",
+                               fmt_clang_format)
 
     fmt_list_order = {"type": "list-order", "path": "/k", "key": "l"}
     item["k"] = [{"l": "b"}]
