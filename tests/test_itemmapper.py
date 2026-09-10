@@ -28,7 +28,7 @@ import functools
 import pytest
 
 from specitems import (EmptyItem, ItemCache, ItemGetValueContext, ItemMapper,
-                       ItemValueProvider, SpecTypeProvider,
+                       ItemValueProvider, SpecTypeProvider, SubstitutionError,
                        from_clang_variables, is_enabled, get_value_default,
                        to_at_variables, to_clang_variables,
                        to_dollar_variables, unpack_arg, unpack_args)
@@ -373,8 +373,25 @@ def test_item_mapper(tmpdir):
     assert mapper[".:/r1/r2/r3"] == "foobar"
     match = (r"substitution for spec:/p using prefix 'blub' failed in line 1 "
              r"of '\${': malformed substitution variable\n1: \${}")
-    with pytest.raises(ValueError, match=match):
+    with pytest.raises(SubstitutionError, match=match) as exc_info:
         mapper.substitute("${}", p, "blub")
+    err = exc_info.value
+    assert err.item == p
+    assert err.mapper_item == mapper.item
+    assert err.prefix == "blub"
+    assert err.text == "${}"
+    assert err.token == "${"
+    assert err.start == 0
+    assert err.end == 2
+    assert err.line == 1
+    assert err.cause is None
+    with pytest.raises(SubstitutionError) as exc_info:
+        mapper.substitute("first line\n${.:/nope}", p)
+    err = exc_info.value
+    assert err.item == p
+    assert err.token == "${.:/nope}"
+    assert err.line == 2
+    assert isinstance(err.cause, ValueError)
     mapper.add_get_value("other:/nested", _get_nested_substitution)
     match = (r"substitution for spec:/p using prefix '' failed in line 1 of "
              r"'\${d/c:/nested}': malformed substitution variable\n"
