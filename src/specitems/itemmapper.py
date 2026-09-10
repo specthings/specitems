@@ -119,11 +119,10 @@ _PASS_THROUGH = (MemoryError, RecursionError)
 
 class _ItemMapperError(Exception):
 
-    def __init__(self, start: int, end: int, token: str) -> None:
+    def __init__(self, start: int, end: int) -> None:
         super().__init__()
         self.start = start
         self.end = end
-        self.token = token
 
 
 def _root_cause(cause: Optional[BaseException]) -> str:
@@ -155,7 +154,8 @@ class SubstitutionError(ValueError):
         mapper_item: The item of the item mapper.
         prefix: The key path prefix of the substitution.
         text: The text of the substitution.
-        token: The variable token which failed.
+        token: The variable token which failed.  It is the text between the
+            offsets.
         start: The offset of the token in the text.
         end: The offset behind the token in the text.
         line: The line number of the token in the text.  The first line of
@@ -168,13 +168,13 @@ class SubstitutionError(ValueError):
     # pylint: disable=too-many-positional-arguments
     # pylint: disable=too-many-instance-attributes
     def __init__(self, item: Optional[Item], mapper_item: Item, prefix: str,
-                 text: str, token: str, start: int, end: int,
+                 text: str, start: int, end: int,
                  cause: Optional[BaseException]) -> None:
         self.item = item
         self.mapper_item = mapper_item
         self.prefix = prefix
         self.text = text
-        self.token = token
+        self.token = text[start:end]
         self.start = start
         self.end = end
         self.line = text.count("\n", 0, start) + 1
@@ -242,11 +242,10 @@ class _ItemMapperContext:
                 err.add_note(f"in substitution of '{token}'")
                 raise
             except Exception as err:
-                raise _ItemMapperError(mobj.start(), mobj.end(),
-                                       token) from err
+                raise _ItemMapperError(mobj.start(), mobj.end()) from err
             return f"{token[:brace // 2]}{value}"
         if len(token) & 1 == 0:
-            raise _ItemMapperError(mobj.start(), mobj.end(), token)
+            raise _ItemMapperError(mobj.start(), mobj.end())
         return token[len(token) // 2:]
 
 
@@ -664,8 +663,8 @@ class ItemMapper(abc.ABC):
             err.add_note(f"in text of {_item_names(item, self.item)}")
             raise
         except _ItemMapperError as err:
-            raise SubstitutionError(item, self.item, prefix, text, err.token,
-                                    err.start, err.end, err.__cause__) from err
+            raise SubstitutionError(item, self.item, prefix, text, err.start,
+                                    err.end, err.__cause__) from err
 
     def substitute_data(self,
                         data: Any,
