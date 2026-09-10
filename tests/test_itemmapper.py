@@ -167,6 +167,10 @@ def _get_nested_substitution(ctx):
     return ctx.substitute_and_transform("${}")
 
 
+def _get_nested_failure(ctx):
+    return ctx.substitute_and_transform("${.:/nope}")
+
+
 def _get_value_out_of_memory(ctx):
     raise MemoryError("out of memory")
 
@@ -410,6 +414,11 @@ def test_item_mapper(tmpdir):
     match = (r"substitution in text of an unnamed item \(mapper spec:/p\) "
              r"using prefix '' failed in line 1 of "
              r"'\${d/c:/nested}': malformed substitution variable\n"
+             r"  via cannot get value for '/nested' of spec:/d/c specified "
+             r"by 'd/c:/nested'\n"
+             r"  via substitution in text of spec:/d/c \(mapper spec:/p\) "
+             r"using prefix '/' failed in line 1 of '\${': malformed "
+             r"substitution variable\n"
              r"1: \${d/c:/nested}")
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${d/c:/nested}")
@@ -418,6 +427,20 @@ def test_item_mapper(tmpdir):
              r"variable\n1: \${}")
     with pytest.raises(SubstitutionError, match=match):
         mapper.substitute("${}", c)
+    mapper.add_get_value("other:/nested-failure", _get_nested_failure)
+    match = (r"substitution in text of an unnamed item \(mapper spec:/p\) "
+             r"using prefix '' failed in line 1 of "
+             r"'\${d/c:/nested-failure}': KeyError: 'nope'\n"
+             r"  via cannot get value for '/nested-failure' of spec:/d/c "
+             r"specified by 'd/c:/nested-failure'\n"
+             r"  via substitution in text of spec:/d/c \(mapper spec:/p\) "
+             r"using prefix '/' failed in line 1 of '\${\.:/nope}': "
+             r"KeyError: 'nope'\n"
+             r"  via cannot get value for '/nope' of spec:/d/c specified by "
+             r"'\.:/nope'\n"
+             r"1: \${d/c:/nested-failure}")
+    with pytest.raises(SubstitutionError, match=match):
+        mapper.substitute("${d/c:/nested-failure}")
     match = r"item 'boom' relative to spec:/p specified by 'boom:bam' does not exist"
     with pytest.raises(ValueError, match=match):
         mapper.map("boom:bam", p, "blub")

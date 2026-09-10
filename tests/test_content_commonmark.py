@@ -317,7 +317,9 @@ def test_substitute(tmpdir):
     mapper = CommonMarkMapper(item_cache["/x"])
     match = (r"substitution in text of an unnamed item \(mapper spec:/x\) "
              r"using prefix '' failed in line 1 "
-             r"of '\${x:/y}': KeyError: 'y'\n1: \${x:/y}")
+             r"of '\${x:/y}': KeyError: 'y'\n"
+             r"  via cannot get value for '/y' of spec:/x specified by "
+             r"'x:/y'\n1: \${x:/y}")
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${x:/y}")
     assert mapper.substitute("${x:/term}") == "y"

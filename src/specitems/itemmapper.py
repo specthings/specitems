@@ -188,12 +188,22 @@ class SubstitutionError(ValueError):
             f"{i + first + 1}: {line}"
             for i, line in enumerate(self.text.splitlines()[first:last]))
 
+    def _cause_chain(self) -> str:
+        causes = []
+        cause = self.cause
+        while cause is not None:
+            causes.append(cause)
+            cause = cause.__cause__
+        return "".join(f"  via {str(c).partition(chr(10))[0]}\n"
+                       for c in causes[:-1]
+                       if not isinstance(c, _ItemMapperError))
+
     def _message(self) -> str:
         names = _item_names(self.item, self.mapper_item)
         return (f"substitution in text of {names} using prefix "
                 f"'{self.prefix}' failed in line {self.line} of "
                 f"'{self.token}': {_root_cause(self.cause)}\n"
-                f"{self._text_window()}")
+                f"{self._cause_chain()}{self._text_window()}")
 
 
 class _ItemMapperContext:
