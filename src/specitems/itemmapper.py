@@ -160,8 +160,10 @@ class SubstitutionError(ValueError):
         end: The offset behind the token in the text.
         line: The line number of the token in the text.  The first line of
             the text is line one.
-        cause: The error which the value lookup raised.  It is None where the
-            token is a malformed variable.
+        lookup_error: The error which the value lookup raised.  It is None
+            where the token is a malformed variable.  It differs from the
+            __cause__ of the exception, which is the internal carrier of the
+            offsets.
     """
 
     # pylint: disable=too-many-arguments
@@ -169,7 +171,7 @@ class SubstitutionError(ValueError):
     # pylint: disable=too-many-instance-attributes
     def __init__(self, item: Optional[Item], mapper_item: Item, prefix: str,
                  text: str, start: int, end: int,
-                 cause: Optional[BaseException]) -> None:
+                 lookup_error: Optional[BaseException]) -> None:
         self.item = item
         self.mapper_item = mapper_item
         self.prefix = prefix
@@ -178,7 +180,7 @@ class SubstitutionError(ValueError):
         self.start = start
         self.end = end
         self.line = text.count("\n", 0, start) + 1
-        self.cause = cause
+        self.lookup_error = lookup_error
         super().__init__(self._message())
 
     def _text_window(self) -> str:
@@ -199,7 +201,7 @@ class SubstitutionError(ValueError):
 
     def _cause_chain(self) -> str:
         causes: list[BaseException] = []
-        cause = self.cause
+        cause = self.lookup_error
         while cause is not None:
             causes.append(cause)
             cause = cause.__cause__
@@ -214,7 +216,7 @@ class SubstitutionError(ValueError):
         names = _item_names(self.item, self.mapper_item)
         return (f"substitution in text of {names} using prefix "
                 f"'{self.prefix}' failed in line {self.line} of "
-                f"'{self.token}': {_root_cause(self.cause)}\n"
+                f"'{self.token}': {_root_cause(self.lookup_error)}\n"
                 f"{self._cause_chain()}{self._text_window()}")
 
 
