@@ -186,7 +186,10 @@ class SubstitutionError(ValueError):
     def _text_window(self) -> str:
         first = max(self.text.count("\n", 0, self.start) - 3, 0)
         last = self.text.count("\n", 0, self.end) + 4
-        lines = self.text.splitlines()[first:last]
+        lines = self.text.split("\n")
+        if lines[-1] == "":
+            lines.pop()
+        lines = lines[first:last]
         width = len(str(first + len(lines)))
         column = self.start - self.text.rfind("\n", 0, self.start) - 1
         window = []
