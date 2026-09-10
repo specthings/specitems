@@ -375,8 +375,9 @@ def test_item_mapper(tmpdir):
     assert mapper["d/c:/other/s/v"] == "s"
     assert mapper.substitute("${.:/r1/r2/r3}") == "foobar"
     assert mapper[".:/r1/r2/r3"] == "foobar"
-    match = (r"substitution for spec:/p using prefix 'blub' failed in line 1 "
-             r"of '\${': malformed substitution variable\n1: \${}")
+    match = (
+        r"substitution in text of spec:/p using prefix 'blub' failed in line 1 "
+        r"of '\${': malformed substitution variable\n1: \${}")
     with pytest.raises(SubstitutionError, match=match) as exc_info:
         mapper.substitute("${}", p, "blub")
     err = exc_info.value
@@ -406,11 +407,17 @@ def test_item_mapper(tmpdir):
         "in text of spec:/p",
     ]
     mapper.add_get_value("other:/nested", _get_nested_substitution)
-    match = (r"substitution for spec:/p using prefix '' failed in line 1 of "
+    match = (r"substitution in text of an unnamed item \(mapper spec:/p\) "
+             r"using prefix '' failed in line 1 of "
              r"'\${d/c:/nested}': malformed substitution variable\n"
              r"1: \${d/c:/nested}")
     with pytest.raises(ValueError, match=match):
         mapper.substitute("${d/c:/nested}")
+    match = (r"substitution in text of spec:/c \(mapper spec:/p\) using "
+             r"prefix '' failed in line 1 of '\${': malformed substitution "
+             r"variable\n1: \${}")
+    with pytest.raises(SubstitutionError, match=match):
+        mapper.substitute("${}", c)
     match = r"item 'boom' relative to spec:/p specified by 'boom:bam' does not exist"
     with pytest.raises(ValueError, match=match):
         mapper.map("boom:bam", p, "blub")

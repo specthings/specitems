@@ -137,6 +137,15 @@ def _root_cause(cause: Optional[BaseException]) -> str:
     return f"{type(cause).__name__}: {cause}"
 
 
+def _item_names(item: Optional[Item], mapper_item: Item) -> str:
+    """ Return the name of the item of the text and of the mapper item. """
+    if item is None:
+        return f"an unnamed item (mapper {mapper_item.spec})"
+    if item.spec == mapper_item.spec:
+        return item.spec
+    return f"{item.spec} (mapper {mapper_item.spec})"
+
+
 class SubstitutionError(ValueError):
     """Indicates that the variable substitution of a text failed.
 
@@ -180,10 +189,11 @@ class SubstitutionError(ValueError):
             for i, line in enumerate(self.text.splitlines()[first:last]))
 
     def _message(self) -> str:
-        spec = self.mapper_item.spec if self.item is None else self.item.spec
-        return (f"substitution for {spec} using prefix '{self.prefix}' "
-                f"failed in line {self.line} of '{self.token}': "
-                f"{_root_cause(self.cause)}\n{self._text_window()}")
+        names = _item_names(self.item, self.mapper_item)
+        return (f"substitution in text of {names} using prefix "
+                f"'{self.prefix}' failed in line {self.line} of "
+                f"'{self.token}': {_root_cause(self.cause)}\n"
+                f"{self._text_window()}")
 
 
 class _ItemMapperContext:
@@ -632,8 +642,7 @@ class ItemMapper(abc.ABC):
         try:
             return _VAR_TOKENS.sub(context.replace, text)
         except _PASS_THROUGH as err:
-            spec = self.item.spec if item is None else item.spec
-            err.add_note(f"in text of {spec}")
+            err.add_note(f"in text of {_item_names(item, self.item)}")
             raise
         except _ItemMapperError as err:
             raise SubstitutionError(item, self.item, prefix, text, err.token,
