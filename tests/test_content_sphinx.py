@@ -59,7 +59,7 @@ def test_special():
                           "abcdefghijklmnopqrstuvwxyz{|}~") == (
                               " !\"#$%&'()\\*+,-./0123456789:;<=>?"
                               "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^\\_\\`"
-                              "abcdefghijklmnopqrstuvwxyz{|}~")
+                              "abcdefghijklmnopqrstuvwxyz{\\|}~")
 
 
 def test_add_label():

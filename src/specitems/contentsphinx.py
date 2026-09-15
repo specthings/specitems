@@ -36,7 +36,7 @@ _MD_EMPHASIZE = re.compile(r"(^|\s)_([^_]+)_(\s|$)", flags=re.DOTALL)
 _MD_STRONG = re.compile(r"(^|\s)\*([^*]+)\*(\s|$)", flags=re.DOTALL)
 _MD_REF = re.compile(r"\[([^\]]+)\]\(([^)]+)\)", flags=re.DOTALL)
 
-_REST_SPECIAL_CHAR = re.compile(r"[\\*_`]")
+_REST_SPECIAL_CHAR = re.compile(r"[\\*_`|]")
 
 _HEADER_LEVELS = ["#", "*", "=", "-", "^", "\""]
 

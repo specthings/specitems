@@ -41,7 +41,7 @@ _MDFORMAT_OPTIONS = {"end_of_line": "lf", "number": True, "wrap": 79}
 
 _MDFORMAT_TERM_OPTIONS = {"end_of_line": "lf", "number": True, "wrap": 77}
 
-_MD_SPECIAL_CHAR = re.compile(r"[\\\$\][*<_`]")
+_MD_SPECIAL_CHAR = re.compile(r"[\\\$\][*<_`&]")
 
 
 def _md_escape(match: Match) -> str:
