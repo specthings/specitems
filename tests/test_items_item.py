@@ -341,6 +341,26 @@ def test_save_and_load(tmp_path):
     assert item_2.file == str(yaml_file)
 
 
+def test_save_block_scalar_with_tab(tmp_path):
+    yaml_file = tmp_path / "i.yml"
+    patch = "@@ -1,2 +1,2 @@\n-\tone\n+\ttwo\n"
+    item = Item(EmptyItemCache(), "i", {"k": patch})
+    item.file = str(yaml_file)
+    item.save()
+    with open(yaml_file, "r") as src:
+        text = src.read()
+    assert text.startswith("k: |\n")
+    assert yaml.safe_load(text)["k"] == patch
+
+    item_2 = Item(EmptyItemCache(), "i", {"k": patch + "trailing \n"})
+    item_2.file = str(yaml_file)
+    item_2.save()
+    with open(yaml_file, "r") as src:
+        text_2 = src.read()
+    assert text_2.startswith("k: \"")
+    assert yaml.safe_load(text_2)["k"] == patch + "trailing \n"
+
+
 def test_save_and_load_json(tmp_path):
     spec_dir = Path(__file__).parent / "spec-json"
     config = ItemCacheConfig(paths=[spec_dir])

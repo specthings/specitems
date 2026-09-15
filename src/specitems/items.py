@@ -242,6 +242,24 @@ def _str_representer(dumper, data):
 yaml.add_representer(str, _str_representer)
 
 
+class ItemDumper(yaml.Dumper):
+    """ Dumps the data of a specification item. """
+
+    # pylint: disable=too-many-ancestors
+
+    def analyze_scalar(self, scalar: str) -> Any:
+        analysis = super().analyze_scalar(scalar)
+        if not analysis.allow_block and "\t" in scalar:
+            # PyYAML treats a tab as a special character and refuses the
+            # block style for it.  YAML counts a tab as printable, and a
+            # block scalar carries it as content.  Take the decision from
+            # the same text with each tab replaced by a space, so every
+            # other reason to refuse the block style still applies.
+            analysis.allow_block = super().analyze_scalar(
+                scalar.replace("\t", " ")).allow_block
+        return analysis
+
+
 class Link:
     """ Represents a link to an item. """
 
@@ -797,7 +815,10 @@ def _yaml_load_data(path: str) -> dict:
 
 
 def _yaml_dump(data: dict) -> str:
-    return yaml.dump(data, default_flow_style=False, allow_unicode=True)
+    return yaml.dump(data,
+                     Dumper=ItemDumper,
+                     default_flow_style=False,
+                     allow_unicode=True)
 
 
 def _yaml_save_data(path: str, data: dict) -> None:
