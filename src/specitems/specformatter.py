@@ -31,7 +31,7 @@ import yaml
 
 from .clangformat import ClangFormatter
 from .contentmarkdown import format_markdown_text
-from .items import Item, atomic_dump_to_file
+from .items import Item, ItemDumper, atomic_dump_to_file
 from .itemmapper import (from_clang_variables, to_at_variables,
                          to_clang_variables, to_dollar_variables)
 
@@ -228,7 +228,7 @@ _YAML_FORMATTER = {
 }
 
 
-class _ListIndentDumper(yaml.Dumper):
+class _ListIndentDumper(ItemDumper):
     # pylint: disable=too-many-ancestors
 
     def increase_indent(self,
@@ -256,7 +256,7 @@ class SpecYAMLFormatter(SpecFormatter):
         if self.indent_lists:
             dumper: type[yaml.Dumper] = _ListIndentDumper
         else:
-            dumper = yaml.Dumper
+            dumper = ItemDumper
         return yaml.dump(data,
                          Dumper=dumper,
                          default_flow_style=False,
