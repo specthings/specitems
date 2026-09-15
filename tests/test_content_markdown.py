@@ -57,7 +57,7 @@ def test_markdown_special():
     assert content.escape(" !\"#$%&'()*+,-./0123456789:;<=>?"
                           "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
                           "abcdefghijklmnopqrstuvwxyz{|}~") == (
-                              " !\"#\\$%&'()\\*+,-./0123456789:;\\<=>?"
+                              " !\"#\\$%\\&'()\\*+,-./0123456789:;\\<=>?"
                               "@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\[\\\\\\]^\\_\\`"
                               "abcdefghijklmnopqrstuvwxyz{|}~")
 
