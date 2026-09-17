@@ -29,18 +29,31 @@ Provides a command line interface to Print the specified value of a YAML file.
 import argparse
 import sys
 
-from specitems import EmptyItemCache, Item, load_data
+from specitems import EmptyItemCache, Item, ItemMapper, load_data
 
 
 def cliyamlquery(argv: list[str] = sys.argv) -> None:
     """ Print the specified value of a YAML file. """
 
     parser = argparse.ArgumentParser(description=cliyamlquery.__doc__)
+    parser.add_argument("--substitute",
+                        action="store_true",
+                        help="substitute the variables of the value. "
+                        "The file must provide the SPDX-License-Identifier "
+                        "and copyrights attributes. Only variables which "
+                        "reference the item itself resolve.")
     parser.add_argument("path",
                         metavar="PATH",
                         nargs=1,
                         help="the path to the value")
     parser.add_argument("file", metavar="FILE", nargs=1, help="the YAML file")
     args = parser.parse_args(argv[1:])
-    item = Item(EmptyItemCache(), "/x", load_data(args.file[0]))
-    print(item.get_value(args.path[0]))
+    item = Item(EmptyItemCache(), args.file[0], load_data(args.file[0]))
+    if not args.substitute:
+        print(item.get_value(args.path[0]))
+        return
+    mapper = ItemMapper(item)
+    if args.path[0].strip("/"):
+        print(mapper.map(f".:{args.path[0]}")[2])
+    else:
+        print(mapper.substitute_data(item.data, item))

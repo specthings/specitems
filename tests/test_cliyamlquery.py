@@ -24,15 +24,30 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import ast
 import os
 
 from specitems.cliyamlquery import cliyamlquery
 
+_C_YML = os.path.join(os.path.dirname(__file__), "spec-item-cache", "c.yml")
+
 
 def test_cliyamlquery(capsys):
-    cliyamlquery([
-        "x", "/v",
-        os.path.join(os.path.dirname(__file__), "spec-item-cache", "c.yml")
-    ])
+    cliyamlquery(["x", "/v", _C_YML])
     captured = capsys.readouterr()
     assert captured.out == f"c{os.linesep}"
+    cliyamlquery(["x", "/r", _C_YML])
+    captured = capsys.readouterr()
+    assert captured.out == f"${{.:/s}}{os.linesep}"
+
+
+def test_cliyamlquery_substitute(capsys):
+    cliyamlquery(["x", "--substitute", "/r", _C_YML])
+    captured = capsys.readouterr()
+    assert captured.out == f"c{os.linesep}"
+
+
+def test_cliyamlquery_substitute_item(capsys):
+    cliyamlquery(["x", "--substitute", "/", _C_YML])
+    captured = capsys.readouterr()
+    assert ast.literal_eval(captured.out)["r"] == "c"
