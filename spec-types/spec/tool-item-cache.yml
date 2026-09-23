@@ -1,0 +1,52 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      cache-directory:
+        description: |
+          It shall be the directory of the item cache.
+        spec-type: str
+      enabled-set:
+        description: |
+          It shall be the enabled set of the item cache.
+        spec-type: list-str
+      initialize-links:
+        description: |
+          It shall be true, if the item cache initializes the links of the
+          items, otherwise it shall be false.
+        spec-type: bool
+      paths:
+        description: |
+          It shall be the specification item directories.  A dictionary maps a
+          directory to the UID prefix of the items which it holds.
+        spec-type: tool-item-cache-paths
+      permissive-type-errors:
+        description: |
+          It shall be true, if a type error is a warning, otherwise it shall
+          be false.
+        spec-type: bool
+      resolve-proxies:
+        description: |
+          It shall be true, if the item cache resolves the proxy items,
+          otherwise it shall be false.
+        spec-type: bool
+      spec-type-root-uid:
+        description: |
+          If the value is present, then it shall be the UID of the root
+          specification type item.
+        spec-type: optional-str
+    description: |
+      This set of attributes specifies the item cache of a configuration.  A
+      configuration which states no path states an empty item cache.
+    mandatory-attributes: none
+spec-name: Tool Item Cache
+spec-type: tool-item-cache
+type: spec

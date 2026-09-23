@@ -1,0 +1,26 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: task-type
+  spec-value: spec-verification
+  uid: tool-task
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      root-type:
+        description: |
+          It shall be the UID of the root specification type item.
+        spec-type: str
+    description: |
+      This set of attributes specifies a specification verification task.
+    mandatory-attributes: all
+spec-name: Tool Specification Verification Task
+spec-type: tool-task-spec-verification
+type: spec

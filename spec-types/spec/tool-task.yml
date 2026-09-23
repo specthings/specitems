@@ -1,0 +1,36 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      params:
+        description: |
+          If the value is present, then it shall be the parameters of the
+          task.  A task uses them as substitution variables.
+        spec-type: any
+      task-name:
+        description: |
+          It shall be the name of the task.  The name shall be unique within
+          the configuration.  The messages of a tool use it to name the task.
+        spec-type: name
+      task-type:
+        description: |
+          It shall be the type of the task.  This attribute is used for type
+          refinements.
+        spec-type: name
+    description: |
+      This set of attributes specifies a task of a tool.  The configuration
+      carries a list of tasks.  A tool performs every task of its type.
+    mandatory-attributes:
+    - task-name
+    - task-type
+spec-name: Tool Task
+spec-type: tool-task
+type: spec

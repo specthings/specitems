@@ -1,0 +1,55 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: task-type
+  spec-value: glossary
+  uid: tool-task
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      accepted-licenses:
+        description: |
+          It shall be the licenses which the produced files accept for a part
+          whose license expression permits not the license.
+        spec-type: list-str
+      automatically-generated-warning:
+        description: |
+          It shall be the warning which every produced file carries.
+          An empty warning adds no comment block to a file.
+        spec-type: str
+      documents:
+        description: |
+          It shall be the document glossaries.
+        spec-type: tool-task-glossary-document-list
+      license:
+        description: |
+          It shall be the license of the produced files.
+        spec-type: spdx-license-identifier
+      project-groups:
+        description: |
+          It shall be the UIDs of the glossary group items of the project.
+        spec-type: list-uid
+      project-header:
+        description: |
+          It shall be the header of the project glossary.
+        spec-type: str
+      project-target:
+        description: |
+          If the value is present, then it shall be the target file of the
+          project glossary.
+        spec-type: optional-str
+    description: |
+      This set of attributes specifies a glossary task.
+    mandatory-attributes:
+    - license
+    - project-groups
+spec-name: Tool Glossary Task
+spec-type: tool-task-glossary
+type: spec

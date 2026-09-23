@@ -1,0 +1,79 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: task-type
+  spec-value: spec-documentation
+  uid: tool-task
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      accepted-licenses:
+        description: |
+          It shall be the licenses which the produced file accepts for a part
+          whose license expression permits not the license.
+        spec-type: list-str
+      automatically-generated-warning:
+        description: |
+          It shall be the warning which the produced file carries.
+          An empty warning adds no comment block to a file.
+        spec-type: str
+      hierarchy-subsection-name:
+        description: |
+          It shall be the name of the hierarchy subsection.
+        spec-type: str
+      hierarchy-text:
+        description: |
+          It shall be the text which introduces the hierarchy.
+        spec-type: str
+      ignore:
+        description: |
+          It shall be a regular expression.  The documentation leaves out a
+          type whose name it matches.
+        spec-type: str
+      item-types-subsection-name:
+        description: |
+          It shall be the name of the item types subsection.
+        spec-type: str
+      label-prefix:
+        description: |
+          It shall be the prefix of the labels of the documented types.
+        spec-type: str
+      license:
+        description: |
+          It shall be the license of the produced file.
+        spec-type: spdx-license-identifier
+      root-type-uid:
+        description: |
+          It shall be the UID of the root specification type item.
+        spec-type: str
+      section-label-prefix:
+        description: |
+          It shall be the prefix of the labels of the sections.
+        spec-type: str
+      section-name:
+        description: |
+          It shall be the name of the section.
+        spec-type: str
+      target:
+        description: |
+          It shall be the target file of the documentation.
+        spec-type: str
+      value-types-subsection-name:
+        description: |
+          It shall be the name of the value types subsection.
+        spec-type: str
+    description: |
+      This set of attributes specifies a specification documentation task.
+    mandatory-attributes:
+    - license
+    - target
+spec-name: Tool Specification Documentation Task
+spec-type: tool-task-spec-documentation
+type: spec
