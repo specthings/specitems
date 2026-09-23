@@ -33,13 +33,13 @@ import os
 import re
 import textwrap
 from typing import (Callable, ContextManager, Deque, Iterable, Iterator,
-                    Optional, Sequence, Union)
+                    Optional, Self, Sequence, Union)
 
-from .copyrights import Copyrights
 from .items import Item
 from .itemmapper import ItemGetValueContext
+from .licenseinfo import LicenseAggregate, LicenseProvider
 
-ContentAddContext = Callable[["Content"], ContextManager[None]]
+ContentAddScope = Callable[["Content"], ContextManager[None]]
 GenericContent = Union[str, list[str], "Content"]
 GenericContentIterable = Union[Iterable[str], Iterable[list[str]],
                                Iterable[GenericContent]]
@@ -117,6 +117,109 @@ class _LineContext:
         self.content_begin_index = len(content)
 
 
+class ContentContext:
+    """
+    Holds what every content of one work shares.
+
+    A work builds its text from many content objects.  They share the license
+    and copyright information of the work, the warning which a produced file
+    carries, and the presentation of the licenses of the tree.
+    """
+
+    # pylint: disable=too-few-public-methods
+
+    #: The warning of a produced file which the configuration states not.
+    DEFAULT_AUTOMATICALLY_GENERATED_WARNING = (
+        "This file was automatically generated.  Do not edit it.")
+
+    def __init__(self,
+                 licenses: str | LicenseAggregate,
+                 automatically_generated_warning: Optional[str] = None,
+                 provider: Optional[LicenseProvider] = None) -> None:
+        """
+        Initialize the context.
+
+        Args:
+            licenses: The aggregated license and copyright information of the
+                work.  A string is the primary license of the work.
+            automatically_generated_warning: The warning which a produced
+                file of the work carries.  An empty warning adds nothing to the
+                file.
+            provider: The presentation of the licenses of the tree.
+        """
+        if isinstance(licenses, str):
+            licenses = LicenseAggregate(licenses)
+        self.licenses = licenses
+        self.automatically_generated_warning = (
+            ContentContext.DEFAULT_AUTOMATICALLY_GENERATED_WARNING
+            if automatically_generated_warning is None else
+            automatically_generated_warning)
+        self.provider = provider
+
+    def check_license_items(self) -> None:
+        """
+        Check that the tree states every license which the work may take.
+
+        Raises:
+            ValueError: The work knows no license presentation, or no item
+                states the primary license or an accepted license.
+        """
+        licenses = self.licenses
+        if self.provider is None:
+            raise ValueError(f"the work {licenses.name} states no license "
+                             "presentation")
+        missing = [
+            the_license
+            for the_license in [licenses.primary, *licenses.accepted]
+            if the_license not in self.provider
+        ]
+        if missing:
+            raise ValueError("no item states a license which the work "
+                             f"{licenses.name} may take: {', '.join(missing)}")
+
+    def license_text(self) -> Optional[str]:
+        """
+        Is the text which a produced file of the work reproduces.
+
+        Returns:
+            The license text, or None where the work reproduces it not.
+
+        Raises:
+            ValueError: The work knows no license presentation.
+        """
+        if self.provider is None:
+            raise ValueError(
+                f"the work {self.licenses.name} states no license "
+                "presentation, so it reproduces no license text")
+        return self.provider.text_of(self.licenses.primary)
+
+    def for_work(self,
+                 name: str,
+                 primary: Optional[str] = None) -> "ContentContext":
+        """
+        Create the context of one work which the task produces.
+
+        A task produces many works and every work aggregates the licenses and
+        the copyrights of its own parts.
+
+        Args:
+            name: The name of the work.
+            primary: The primary license of the work.  None takes the primary
+                license of this context.
+
+        Returns:
+            The context of the work.
+
+        Raises:
+            ValueError: The primary license is invalid.
+        """
+        licenses = LicenseAggregate(
+            self.licenses.primary if primary is None else primary,
+            self.licenses.accepted, name)
+        return ContentContext(licenses, self.automatically_generated_warning,
+                              self.provider)
+
+
 class Content(abc.ABC):
     """
     Builds content.
@@ -124,23 +227,24 @@ class Content(abc.ABC):
     While the gap property is true, the add() method shall add a gap before the
     added content, otherwise no gap shall be added.
     """
+
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-public-methods
 
-    AUTOMATICALLY_GENERATED_WARNING = [
-        "This file was automatically generated.  Do not edit it."
-    ]
+    def __init__(self, context: str | ContentContext):
+        """
+        Initialize the content.
 
-    def __init__(self, the_license: str | set[str] | None):
+        Args:
+            context: What every content of the work shares.  A string is the
+                primary license of a work of its own.
+        """
         self.gap = False
         self.text_width = 79
-        self.copyrights = Copyrights()
         self._lines: list[str] = []
-        if the_license is None:
-            the_license = {"CC-BY-SA-4.0"}
-        elif isinstance(the_license, str):
-            the_license = {the_license}
-        self._license = the_license
+        if isinstance(context, str):
+            context = ContentContext(context)
+        self.context = context
         self._tab = "  "
         self._is_initial_indents: list[bool] = [False]
         self._indents = [""]
@@ -155,6 +259,18 @@ class Content(abc.ABC):
         self._pop_indent_gap = False
         self._comment_prefix = "#"
         self._line_contexts: list[_LineContext] = []
+
+    def fragment(self) -> Self:
+        """
+        Create an empty content which shares the context of this content.
+
+        A fragment belongs to the same work, so a part which it registers
+        reaches the aggregate of that work.
+
+        Returns:
+            The fragment.
+        """
+        return type(self)(context=self.context)
 
     def __iter__(self):
         yield from self._lines
@@ -178,9 +294,9 @@ class Content(abc.ABC):
         return self._tab
 
     @property
-    def licenses(self) -> str:
-        """ The licenses of the content in SPDX format. """
-        return " OR ".join(sorted(self._license))
+    def license(self) -> str:
+        """ The license of the content as an SPDX license identifier. """
+        return self.context.licenses.primary
 
     @property
     def last(self) -> str:
@@ -235,7 +351,7 @@ class Content(abc.ABC):
 
     def add(self,
             content: Optional[GenericContent],
-            context: ContentAddContext = _add_context) -> None:
+            context: ContentAddScope = _add_context) -> None:
         """
         Skip leading empty lines, add a gap if needed, then add the content.
         """
@@ -285,7 +401,7 @@ class Content(abc.ABC):
                   text: str,
                   initial_indent: str = "",
                   subsequent_indent: Optional[str] = None,
-                  context: ContentAddContext = _add_context) -> None:
+                  context: ContentAddScope = _add_context) -> None:
         """ Add a gap if needed, then add the wrapped text.  """
         with context(self):
             if subsequent_indent is None:
@@ -326,7 +442,7 @@ class Content(abc.ABC):
              content: Optional[GenericContent],
              initial_indent: str = "",
              subsequent_indent: Optional[str] = None,
-             context: ContentAddContext = _add_context) -> None:
+             context: ContentAddScope = _add_context) -> None:
         """ Add a gap if needed, then add the wrapped content.  """
         text = make_text(content).strip()
         if not text:
@@ -450,29 +566,48 @@ class Content(abc.ABC):
         if self._last_is_not_empty and not self._is_initial_indents[-1]:
             self.add_blank_line()
 
-    def register_license(self, the_license: str) -> None:
-        """ Register the licence for the content. """
-        licenses = set(re.split(r"\s+OR\s+", the_license))
-        if not self._license.intersection(licenses):
-            raise ValueError(
-                f"no overlap of {sorted(self._license)} and {sorted(licenses)}"
-            )
+    def register_license(self, the_license: str, provenance: str = "") -> str:
+        """
+        Register a part of the work for its license.
+
+        Args:
+            the_license: The SPDX license expression of the part.
+            provenance: The origin of the part.
+
+        Returns:
+            The license under which the work takes the part.
+
+        Raises:
+            ValueError: The expression is invalid, or it permits neither the
+                primary license of the work nor an accepted license.
+        """
+        return self.context.licenses.register(the_license,
+                                              provenance=provenance)
 
     def register_copyright(self, statement: str) -> None:
-        """ Register the copyright statement for the content. """
-        self.copyrights.register(statement)
+        """ Register the copyright statement of the work itself. """
+        self.context.licenses.register_copyrights([statement])
 
-    def register_license_and_copyrights_of_item(self, item: Item) -> None:
-        """ Register the license and copyrights of the item. """
-        try:
-            self.register_license(item["SPDX-License-Identifier"])
-        except ValueError as err:
-            raise ValueError(f"for item {item.uid}: {err}") from err
-        try:
-            for statement in item["copyrights"]:
-                self.register_copyright(statement)
-        except ValueError as err:
-            raise ValueError(f"for item {item.uid}: {err}") from err
+    def register_license_and_copyrights_of_item(self, item: Item) -> str:
+        """
+        Register the item as a part of the work.
+
+        The copyrights of the item join the license under which the work takes
+        it, so a foreign part contributes to the list of its own license.
+
+        Args:
+            item: The item which the content documents.
+
+        Returns:
+            The license under which the work takes the item.
+
+        Raises:
+            ValueError: The license expression of the item is invalid, or it
+                permits neither the primary license of the work nor an
+                accepted license.
+        """
+        return self.context.licenses.register(item["SPDX-License-Identifier"],
+                                              item["copyrights"], item.uid)
 
     def set_comment_prefix(self, comment_prefix: str) -> None:
         """ Set the comment prefix. """
@@ -543,8 +678,10 @@ class Content(abc.ABC):
 
     def add_automatically_generated_warning(self) -> None:
         """ Add a warning that the file is automatically generated. """
-        with self.comment_block():
-            self.append(Content.AUTOMATICALLY_GENERATED_WARNING)
+        warning = self.context.automatically_generated_warning
+        if warning:
+            with self.comment_block():
+                self.append(warning.splitlines())
 
     def beautify(self) -> str:
         """ Return the beautified content. """

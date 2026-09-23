@@ -601,6 +601,7 @@ def generate_specification_documentation(content: TextContent,
         mapper: The item mapper used for content substitutions.
     """
     content.add_automatically_generated_warning()
-    add_specification_documentation(content, config, mapper)
+    with mapper.work(content.context):
+        add_specification_documentation(content, config, mapper)
     content.add_licence_and_copyrights()
     content.write(config.target, beautify=True)

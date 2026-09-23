@@ -133,8 +133,5 @@ class CommonMarkContent(MarkdownContent):
 class CommonMarkMapper(TextMapper):
     """ Provides an item mapper for CommonMark formatted text production. """
 
-    def create_content(
-            self,
-            section_level: int = 0,
-            the_license: str | set[str] | None = None) -> TextContent:
-        return CommonMarkContent(section_level, the_license)
+    def create_content(self, section_level: int = 0) -> TextContent:
+        return CommonMarkContent(section_level, context=self.context)

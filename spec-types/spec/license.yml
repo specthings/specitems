@@ -1,0 +1,53 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: license
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      identifier:
+        description: |
+          It shall be the SPDX license identifier of the license.
+        spec-type: spdx-license-identifier
+      name:
+        description: |
+          It shall be the full name of the license.
+        spec-type: str
+      reproduce-text:
+        description: |
+          It shall be true, if a work under this license shall reproduce the
+          license text, otherwise it shall be false.  A work which reproduces
+          no text states the identifier and the optional uri.
+        spec-type: bool
+      text:
+        description: |
+          If the value is present, then it shall be the license text.  The
+          value shall be present, if reproduce-text is true.
+        spec-type: optional-str
+      uri:
+        description: |
+          If the value is present, then it shall be the uniform resource
+          identifier of the license.
+        spec-type: optional-str
+    description: |
+      This set of attributes specifies a license which a work may take.  The
+      tooling uses the item to present the license of a work.  It also uses
+      the item to list the license of a foreign part.
+    mandatory-attributes:
+    - identifier
+    - name
+    - reproduce-text
+    - text
+    - uri
+spec-name: License Item Type
+spec-type: license
+type: spec

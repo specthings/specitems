@@ -67,7 +67,8 @@ uv.lock: pyproject.toml
 endif
 
 docs/source/items.rst: src/$(PACKAGE)/spec.pickle
-	uv run specdocitems --format=rest docs/source/items.rst
+	uv run specdocitems --format=rest --license CC-BY-SA-4.0 \
+		--accepted-license BSD-2-Clause docs/source/items.rst
 
 .PHONY: docs
 docs: | docs/source/items.rst

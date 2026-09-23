@@ -26,26 +26,28 @@
 
 import pytest
 
-from specitems import (COL_SPAN, EmptyItem, Item, ItemCache, ItemMapper,
-                       ROW_SPAN, SpecTypeProvider, SphinxContent, SphinxMapper,
-                       augment_glossary_terms, get_reference, make_label)
+from specitems import (COL_SPAN, ContentContext, EmptyItem, EmptyItemCache,
+                       Item, ItemCache, ItemMapper, LicenseAggregate,
+                       LicenseProvider, ROW_SPAN, SpecTypeProvider,
+                       SphinxContent, SphinxMapper, augment_glossary_terms,
+                       get_reference, make_label)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
 
 def test_sphinx_link():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     assert content.link("name", "target") == "`name <target>`__"
 
 
 def test_sphinx_reference():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     assert content.reference("label") == ":ref:`label`"
     assert content.reference("label", "name") == ":ref:`name <label>`"
 
 
 def test_special():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     assert content.code("text") == "``text``"
     assert content.emphasize("text") == "*text*"
     assert content.strong("text") == "**text**"
@@ -63,7 +65,7 @@ def test_special():
 
 
 def test_add_label():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_label("x")
     assert str(content) == """.. _x:
 
@@ -71,7 +73,7 @@ def test_add_label():
 
 
 def test_label_scope():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.label_scope("x"):
         with content.section("y"):
             pass
@@ -89,7 +91,7 @@ z
 
 
 def test_directive():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.directive("x"):
         content.add("y")
     assert str(content) == """.. x::
@@ -112,7 +114,7 @@ def test_directive():
 
 
 def test_add_header():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_header("x")
     assert str(content) == """x
 #
@@ -129,7 +131,7 @@ yz
 
 
 def test_add_rubric():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_rubric("x")
     assert str(content) == """.. rubric:: x
 
@@ -146,7 +148,7 @@ def test_make_label():
 
 
 def test_section():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     assert content.get_sections() == []
     with content.section("ab cd") as label:
         assert content.get_sections() == ["ab cd"]
@@ -184,7 +186,7 @@ AbCdEfGhmn
 
 
 def test_empty_sections():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     assert content.get_sections() == []
     with content.section("x"):
         with content.section("y"):
@@ -214,7 +216,7 @@ def test_empty_sections():
 
 
 def test_wrap():
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap("")
     assert str(content) == ""
     content.wrap("a")
@@ -234,16 +236,16 @@ a
 
 b c
 """
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap("\n")
     assert str(content) == ""
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap(["a", "", "  b"])
     assert str(content) == """a
 
   b
 """
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap([
         "a", "", "* b",
         "cccccccccccc ddddddddddddddddd eeeeeeeeeeeeeeeeeeee ffffffffffffffff",
@@ -256,7 +258,7 @@ b c
   ggggggggggggggggg hhhhhhhhhhhhhhhhhhhhhhhhh iiiiiiiiiiiiiiii
   jjjjjjjjjjjjjjjjjjj
 """
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap([
         "a", "", "- b",
         "cccccccccccc ddddddddddddddddd eeeeeeeeeeeeeeeeeeee ffffffffffffffff",
@@ -269,7 +271,7 @@ b c
   ggggggggggggggggg hhhhhhhhhhhhhhhhhhhhhhhhh iiiiiiiiiiiiiiii
   jjjjjjjjjjjjjjjjjjj
 """
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap(
         """- one two three four five six seven eight nine ten one two three four five six seven eight nine ten
 
@@ -293,7 +295,7 @@ b c
   1. one two three four five six seven eight nine ten one two three four five
      six seven eight nine ten
 """
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap("""```foobar
 one two three four five six seven eight nine ten one two three four five six seven eight nine ten
 ```
@@ -307,12 +309,12 @@ one two three four five six seven eight nine ten one two three four five six sev
 one two three four five six seven eight nine ten one two three four five six
 seven eight nine ten
 """
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap("""```not closed""")
     assert str(content) == """.. code-block:: not closed
 
 """
-    content = SphinxContent("BSD-2-Clause")
+    content = SphinxContent(context="BSD-2-Clause")
     content.wrap("""`code`
 _emphasize_
 *strong*
@@ -353,7 +355,7 @@ yellow <green blue>`__
 
 
 def test_list_item():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.list_item("ab cd"):
         content.paste("ef gh")
         with content.list_item("ij kl"):
@@ -377,7 +379,7 @@ def test_list_item():
 
 
 def test_add_list():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_list([], "a")
     assert str(content) == ""
     content.add_list(["b", "c"], "a", "d")
@@ -389,7 +391,7 @@ def test_add_list():
 
 d
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_list(["b", "c"])
     assert str(content) == """- b
 
@@ -398,7 +400,7 @@ d
 
 
 def test_append():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.append("x")
     assert str(content) == """x
 """
@@ -415,7 +417,7 @@ def test_append():
 
 
 def test_add_image():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_image("abc")
     assert str(content) == """.. image:: abc
     :align: center
@@ -433,7 +435,7 @@ def test_add_image():
 
 
 def test_latex_environment():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.latex_environment("env", use=False):
         content.add("abc")
     assert str(content) == "abc\n"
@@ -454,7 +456,7 @@ def
 
 
 def test_latex_font_size():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.latex_font_size():
         pass
     with content.latex_font_size():
@@ -472,7 +474,7 @@ abc
 
 
 def test_latex_font_size_int():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.latex_font_size(-1):
         pass
     with content.latex_font_size(-1):
@@ -490,7 +492,7 @@ abc
 
 
 def test_add_index_entries():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_index_entries(["x", "y"])
     assert str(content) == """.. index:: x
 .. index:: y
@@ -504,12 +506,12 @@ def test_add_index_entries():
 
 
 def test_add_definition_item():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_definition_item("x", ["y", "z"])
     assert str(content) == """x
     y z
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_definition_item("a", "\n b\n")
     assert str(content) == """a
     b
@@ -517,7 +519,7 @@ def test_add_definition_item():
 
 
 def test_definition_item_with_directive():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add("term")
     with content.indent():
         with content.directive("code-block", "c"):
@@ -530,12 +532,12 @@ def test_definition_item_with_directive():
 
 
 def test_add_glossary_term():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_glossary_term("x", ["y", "z"])
     assert str(content) == """x
     y z
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_glossary_term("a", "\n b\n")
     assert str(content) == """a
     b
@@ -543,30 +545,39 @@ def test_add_glossary_term():
 
 
 def test_license():
-    content = SphinxContent(the_license={"a", "b"})
-    match = r"no overlap of \['a', 'b'\] and \['x'\]"
+    content = SphinxContent(
+        context=ContentContext(LicenseAggregate("MIT", ["BSD-2-Clause"])))
+    match = "permits neither the primary license MIT"
     with pytest.raises(ValueError, match=match):
-        content.register_license("x")
+        content.register_license("Apache-2.0")
     item = EmptyItem()
-    item["SPDX-License-Identifier"] = "x"
-    match = r"for item : no overlap of \['a', 'b'\] and \['x'\]"
+    item["SPDX-License-Identifier"] = "Apache-2.0"
+    item["copyrights"] = []
     with pytest.raises(ValueError, match=match):
         content.register_license_and_copyrights_of_item(item)
-    item["SPDX-License-Identifier"] = "a"
+    item["SPDX-License-Identifier"] = "MIT"
     item["copyrights"] = ["Copyright (C) A"]
-    match = r"for item : Copyright \(C\) A"
-    with pytest.raises(ValueError, match=match):
+    with pytest.raises(ValueError, match=r"Copyright \(C\) A"):
         content.register_license_and_copyrights_of_item(item)
-    content.register_license("a")
+    assert content.register_license("MIT OR BSD-2-Clause") == "MIT"
+    assert content.register_license("BSD-2-Clause") == "BSD-2-Clause"
+    bare = SphinxContent(context="MIT")
+    bare.add_licence_and_copyrights()
+    assert str(bare) == """.. SPDX-License-Identifier: MIT
+
+"""
+    content.register_copyright("Copyright (C) 2020 ACME")
     assert str(content) == ""
     content.add_licence_and_copyrights()
-    assert str(content) == """.. SPDX-License-Identifier: a OR b
+    assert str(content) == """.. SPDX-License-Identifier: MIT
+
+.. Copyright (C) 2020 ACME
 
 """
 
 
 def test_license_and_copyrights():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with pytest.raises(ValueError):
         content.register_license("x")
     content.register_copyright("Copyright (C) 123 A")
@@ -580,7 +591,7 @@ def test_license_and_copyrights():
 
 
 def test_comment():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.comment_block():
         content.add(["abc", "", "def"])
     assert str(content) == """.. abc
@@ -590,7 +601,7 @@ def test_comment():
 
 
 def test_simple_table():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_simple_table([])
     assert str(content) == ""
     content.add_simple_table([["a", "b"], ["cc", "ddd"]])
@@ -606,7 +617,7 @@ def test_simple_table():
 
 
 def test_simple_table_widths():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_simple_table([["a", "b"], ["cc", "ddd"]], [10, 90])
     assert str(content) == """.. table::
     :class: longtable
@@ -621,7 +632,7 @@ def test_simple_table_widths():
 
 
 def test_simple_table_font_size():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_simple_table([["a", "b"], ["cc", "ddd"]], font_size=1)
     assert str(content) == """.. raw:: latex
 
@@ -643,7 +654,7 @@ def test_simple_table_font_size():
 
 
 def test_grid_table():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_grid_table([], [])
     assert str(content) == ""
     content.add_grid_table([["a", "b"], ["cc", "ddd"]], widths=[50, 50])
@@ -684,7 +695,7 @@ def test_grid_table():
 
 def test_grid_table_multiline_cells():
     # Multi-line cell: width = longest line, not total length.
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_grid_table(
         [["Parameter", "Description"], ["value", "A single-line description."],
          ["items", "First line of a two-line\ndescription that wraps."]])
@@ -702,7 +713,7 @@ def test_grid_table_multiline_cells():
 """
     # Span must merge every line, not just the first; two tables since
     # combining needs an unsupported L-shaped merge.
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_grid_table([["1", "2", "3"], ["multi\nline", "x", COL_SPAN]],
                            widths=[30, 30, 40])
     assert str(content) == """.. table::
@@ -716,7 +727,7 @@ def test_grid_table_multiline_cells():
     | line  |       |
     +-------+---+---+
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_grid_table(
         [["1", "2", "3"], ["a", "b", "c"], ["multi\nline", ROW_SPAN, "y"]],
         widths=[30, 30, 40])
@@ -741,7 +752,7 @@ def test_substitute(tmpdir):
                            type_provider=SpecTypeProvider(
                                get_other_type_data_by_uid()))
     augment_glossary_terms(item_cache["/g"], [])
-    mapper = SphinxMapper(item_cache["/x"])
+    mapper = SphinxMapper(item_cache["/x"], "CC-BY-SA-4.0")
     match = (r"substitution in text of an unnamed item \(mapper spec:/x\) "
              r"using prefix '' failed in line 1 "
              r"of '\${x:/y}': KeyError: 'y'\n"
@@ -757,10 +768,29 @@ def test_substitute(tmpdir):
     assert mapper.substitute("${z:/plural}") == ":term:`zs <z>`"
     mapper.add_get_value("other:/name", lambda ctx: ctx.value[ctx.key])
     assert mapper.substitute("${y:/name}") == "foobar"
+    context = ContentContext(LicenseAggregate("BSD-2-Clause"))
+    mapper = SphinxMapper(item_cache["/x"], context)
+    mapper.substitute("${x:/term}")
+    assert context.licenses.copyrights_of("BSD-2-Clause").get_statements()
+    context = ContentContext(LicenseAggregate("MIT"))
+    mapper = SphinxMapper(item_cache["/x"], context)
+    with pytest.raises(ValueError, match="permits neither"):
+        mapper.substitute("${x:/term}")
+    context = ContentContext(LicenseAggregate("BSD-2-Clause"))
+    work = context.for_work("/w")
+    mapper = SphinxMapper(item_cache["/x"], context)
+    with mapper.work(work):
+        mapper.substitute("${x:/term}")
+    assert work.licenses.copyrights_of("BSD-2-Clause").get_statements()
+    assert not context.licenses
+    mapper.substitute("${x:/term}")
+    assert context.licenses
+    with ItemMapper(item_cache["/x"]).work(work):
+        pass
 
 
 def test_add_code_block():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_code_block([])
     assert str(content) == ""
     content.add_code_block([""])
@@ -812,10 +842,10 @@ def test_add_code_block():
 
 
 def test_add_program_output():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_program_output([], [])
     assert str(content) == ""
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_program_output(["€"], [], "label")
     assert str(content) == """.. raw:: latex
 
@@ -833,7 +863,7 @@ def test_add_program_output():
 
     \\end{tiny}
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_program_output(["x", "y"], [(0, 1)], "label")
     assert str(content) == """.. raw:: latex
 
@@ -857,7 +887,7 @@ def test_add_program_output():
 
     \\end{tiny}
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_program_output(["x", "y"], [(0, 1)])
     assert str(content) == """.. raw:: latex
 
@@ -879,7 +909,7 @@ def test_add_program_output():
 
     \\end{tiny}
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_program_output(
         list(str(i) for i in range(150)) + ["x"], [(0, 150)], "label")
     assert str(content) == """.. raw:: latex
@@ -906,7 +936,7 @@ def test_add_program_output():
 
     \\end{tiny}
 """
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     content.add_program_output([
         "01234567890123456789012345678901234567890123456789"
         "01234567890123456789012345678901234567890123456789"
@@ -970,7 +1000,7 @@ def test_add_program_output():
 
 
 def test_topic_as_rubric():
-    content = SphinxContent()
+    content = SphinxContent(context="CC-BY-SA-4.0")
     with content.topic("Parameters"):
         content.add("param")
     assert str(content) == """.. rubric:: PARAMETERS:
@@ -980,7 +1010,7 @@ param
 
 
 def test_topic_as_definition():
-    content = SphinxContent(topic_as_definition=True)
+    content = SphinxContent(context="CC-BY-SA-4.0", topic_as_definition=True)
     with content.topic("Parameters"):
         with content.directive("code-block", "c"):
             content.add("int x;")
@@ -1012,7 +1042,7 @@ def test_context_balance_on_exception():
         lambda c: c.latex_environment("small"),
     )
     for open_context in contexts:
-        content = SphinxContent()
+        content = SphinxContent(context="CC-BY-SA-4.0")
         with pytest.raises(RuntimeError):
             with open_context(content):
                 raise RuntimeError("boom")
@@ -1027,3 +1057,60 @@ def test_context_balance_on_exception():
 
 body
 """)
+
+
+def test_fragment():
+    content = SphinxContent(2, context=ContentContext("MIT", ["x"]))
+    fragment = content.fragment()
+    assert isinstance(fragment, SphinxContent)
+    assert fragment.context is content.context
+    assert not str(fragment)
+    fragment.register_copyright("Copyright (C) 2020 ACME")
+    assert content.context.licenses.copyrights_of().get_statements() == [
+        "Copyright (C) 2020 ACME"
+    ]
+
+
+def test_for_work():
+    context = ContentContext(LicenseAggregate("MIT", ["BSD-2-Clause"], "task"),
+                             "Do not edit.")
+    work = context.for_work("/f/a")
+    assert work.licenses.name == "/f/a"
+    assert work.licenses.primary == "MIT"
+    assert work.licenses.accepted == ["BSD-2-Clause"]
+    assert work.automatically_generated_warning == "Do not edit."
+    assert work.licenses is not context.licenses
+    other = context.for_work("/f/b", "BSD-2-Clause")
+    assert other.licenses.primary == "BSD-2-Clause"
+
+
+def test_license_text():
+    context = ContentContext(LicenseAggregate("MIT"))
+    with pytest.raises(ValueError, match="states no license presentation"):
+        context.license_text()
+    provider = LicenseProvider([])
+    with pytest.raises(ValueError, match="no item states the license MIT"):
+        ContentContext(LicenseAggregate("MIT"), None, provider).license_text()
+
+
+def test_check_license_items():
+    context = ContentContext(LicenseAggregate("MIT", ["BSD-2-Clause"], "/w"))
+    with pytest.raises(ValueError) as err:
+        context.check_license_items()
+    assert str(err.value) == "the work /w states no license presentation"
+    item = Item(
+        EmptyItemCache(), "/l/mit", {
+            "identifier": "MIT",
+            "name": "The MIT License",
+            "reproduce-text": False,
+            "text": None,
+            "uri": None,
+        })
+    item.type = "license"
+    context = ContentContext(context.licenses, None, LicenseProvider([item]))
+    with pytest.raises(ValueError) as err:
+        context.check_license_items()
+    assert str(err.value) == ("no item states a license which the work /w "
+                              "may take: BSD-2-Clause")
+    ContentContext(LicenseAggregate("MIT"), None,
+                   LicenseProvider([item])).check_license_items()

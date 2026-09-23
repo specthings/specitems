@@ -112,7 +112,7 @@ def _generate_glossary_content(
         terms: _ItemMap, header: str, target: str, mapper: ItemMapper,
         create_content: Callable[[], TextContent]) -> None:
     content = create_content()
-    with content.section(header):
+    with mapper.work(content.context), content.section(header):
         with content.directive("glossary"):
             for item in sorted(terms.values(),
                                key=lambda x: x.view["term"].lower()):

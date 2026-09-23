@@ -38,8 +38,9 @@ from .util import create_item_cache_config
 
 
 def test_empty_glossary():
-    generate_glossary(GlossaryConfig(), [], EmptyItemCache(),
-                      functools.partial(SphinxContent, 1))
+    generate_glossary(
+        GlossaryConfig(), [], EmptyItemCache(),
+        functools.partial(SphinxContent, 1, context="CC-BY-SA-4.0"))
 
 
 def test_glossary(tmpdir):
@@ -59,18 +60,21 @@ def test_glossary(tmpdir):
     glossary_config.project_target = project_glossary
     document_glossary = os.path.join(tmpdir, "document", "glossary.rst")
     doc.target = document_glossary
-    mapper = SphinxMapper(glossary_item)
+    mapper = SphinxMapper(glossary_item, "CC-BY-SA-4.0")
     mapper.add_get_value("glossary/term:/foobar", lambda x: "foobar")
-    generate_glossary(glossary_config, item_cache, mapper,
-                      functools.partial(SphinxContent, 1))
+    generate_glossary(
+        glossary_config, item_cache, mapper,
+        functools.partial(SphinxContent, 1, context="CC-BY-SA-4.0"))
 
     md_project_glossary = os.path.join(tmpdir, "project", "glossary.md")
     glossary_config.project_target = md_project_glossary
     md_document_glossary = os.path.join(tmpdir, "document", "glossary.md")
     doc.target = md_document_glossary
-    md_mapper = MarkdownMapper(glossary_item)
+    md_mapper = MarkdownMapper(glossary_item, "CC-BY-SA-4.0")
     md_mapper.add_get_value("glossary/term:/foobar", lambda x: "foobar")
-    generate_glossary(glossary_config, item_cache, md_mapper, MarkdownContent)
+    generate_glossary(
+        glossary_config, item_cache, md_mapper,
+        functools.partial(MarkdownContent, context="CC-BY-SA-4.0"))
 
     with open(project_glossary, "r") as src:
         content = """.. SPDX-License-Identifier: CC-BY-SA-4.0
@@ -231,7 +235,7 @@ def test_glossary_term_added_after_augment(tmpdir):
     other = _add_late_term(item_cache, "/other/late", "g", "Other")
     assert other.view["term"] == "Other"
 
-    mapper = SphinxMapper(glossary_item)
+    mapper = SphinxMapper(glossary_item, "CC-BY-SA-4.0")
     assert mapper.substitute(
         "${/glossary/sub/late:/term}",
         glossary_item) == (":term:`SubLate <Not so General - SubLate>`")
@@ -248,8 +252,9 @@ def test_glossary_term_added_after_augment(tmpdir):
                                                   "glossary.rst")
     doc.target = os.path.join(tmpdir, "document", "glossary.rst")
     mapper.add_get_value("glossary/term:/foobar", lambda x: "foobar")
-    generate_glossary(glossary_config, item_cache, mapper,
-                      functools.partial(SphinxContent, 1))
+    generate_glossary(
+        glossary_config, item_cache, mapper,
+        functools.partial(SphinxContent, 1, context="CC-BY-SA-4.0"))
 
     with open(glossary_config.project_target, "r") as src:
         content = src.read()

@@ -29,7 +29,8 @@ import contextlib
 import re
 from typing import Iterable, Iterator, Optional, Sequence
 
-from .content import Content, GenericContent, get_value_plural, to_camel_case
+from .content import (Content, ContentContext, GenericContent,
+                      get_value_plural, to_camel_case)
 from .items import Item
 from .itemmapper import ItemGetValueContext, ItemMapper
 
@@ -92,9 +93,10 @@ class TextContent(Content):
 
     def __init__(self,
                  section_level: int = 0,
-                 the_license: str | set[str] | None = None,
+                 *,
+                 context: str | ContentContext,
                  topic_as_definition: bool = False) -> None:
-        super().__init__(the_license)
+        super().__init__(context)
         self._section_level = section_level
         self._label_stack = [""]
         self._section_stack: list[str] = []
@@ -102,16 +104,19 @@ class TextContent(Content):
 
     def add_licence_and_copyrights(self) -> None:
         """
-        Add a licence and copyright block according to the registered licenses
-        and copyrights.
+        Add a licence and copyright block.
+
+        The block states the primary license of the work and the copyrights
+        of every part.  The license text of a foreign part is listed by the
+        package document.
         """
-        statements = self.copyrights.get_statements()
+        statements = self.context.licenses.copyrights().get_statements()
         if statements:
             self.prepend("")
             self.prepend(
                 [f"{self._comment_prefix} {stm}" for stm in statements])
         self.prepend([
-            f"{self._comment_prefix} SPDX-License-Identifier: {self.licenses}",
+            f"{self._comment_prefix} SPDX-License-Identifier: {self.license}",
             ""
         ])
 
@@ -436,16 +441,70 @@ class TextContent(Content):
 class TextMapper(ItemMapper):
     """ Provides an item mapper for text. """
 
-    def __init__(self, item: Item):
+    def __init__(self, item: Item, context: str | ContentContext):
+        """
+        Initialize the mapper.
+
+        Args:
+            item: The item which the mapper maps.
+            context: What every content of the work shares.  A string is the
+                primary license of the work.
+        """
         super().__init__(item)
+        self._context = context
+        self._works: list[str | ContentContext] = []
         self.add_get_value("glossary/term:/term", self._get_glossary_term)
         self.add_get_value("glossary/term:/plural", self._get_glossary_plural)
 
+    @contextlib.contextmanager
+    def work(self, context: str | ContentContext) -> Iterator[None]:
+        """
+        Open a scope in which the mapped items are parts of the work of the
+        context.
+
+        A generator produces one work after the other with one mapper.  The
+        header of each produced file names the parts which its text maps.
+
+        Args:
+            context: The context of the work which the scope produces.
+        """
+        self._works.append(context)
+        try:
+            yield
+        finally:
+            self._works.pop()
+
+    def register_part(self, item: Item) -> None:
+        """
+        Register the item as a part of the work of the mapper.
+
+        The work is the one of the innermost work scope, otherwise the work of
+        the mapper.  A work which states a bare license registers nothing.
+
+        Args:
+            item: The item which the mapper maps.
+
+        Raises:
+            ValueError: The license expression of the item permits neither the
+                primary license of the work nor an accepted license.
+        """
+        context = self._works[-1] if self._works else self.context
+        if isinstance(context, ContentContext):
+            context.licenses.register(item["SPDX-License-Identifier"],
+                                      item["copyrights"], item.uid)
+
+    @property
+    def context(self) -> str | ContentContext:
+        """
+        Is what every content of the work shares.
+
+        A subclass may override the property to derive the context from
+        elsewhere.
+        """
+        return self._context
+
     @abc.abstractmethod
-    def create_content(
-            self,
-            section_level: int = 0,
-            the_license: str | set[str] | None = None) -> TextContent:
+    def create_content(self, section_level: int = 0) -> TextContent:
         """ Create a content object for text production. """
 
     def _get_glossary_term(self, ctx: ItemGetValueContext) -> str:

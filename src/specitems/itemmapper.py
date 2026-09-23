@@ -440,8 +440,6 @@ def _normalize_key_path(key_path: str, prefix: str) -> str:
 class ItemMapper(abc.ABC):
     """ Maps identifiers to items and attribute values. """
 
-    _copyrights_by_license: dict[str, set[str]] = {}
-
     def __init__(self, item: Item) -> None:
         self.item = item
         self._default_get_value_map: ItemGetValueMap = {}
@@ -449,10 +447,30 @@ class ItemMapper(abc.ABC):
         self._value_providers: list["ItemValueProvider"] = []
         self._transformers: dict[str, Callable] = {}
 
-    @property
-    def copyrights_by_license(self) -> dict[str, set[str]]:
-        """ The item copyrights by license. """
-        return ItemMapper._copyrights_by_license
+    def register_part(self, item: Item) -> None:
+        """
+        Register the item as a part of the work which the mapper produces.
+
+        A mapper which substitutes a value of an item takes that item into its
+        work.  This mapper produces no work, so it registers nothing.
+
+        Args:
+            item: The item which the mapper maps.
+        """
+
+    @contextlib.contextmanager
+    def work(self, context: Any) -> Iterator[None]:
+        """
+        Open a scope in which the mapped items are parts of another work.
+
+        A generator produces one work after the other with one mapper.  This
+        mapper produces no work, so the scope changes nothing.
+
+        Args:
+            context: The context of the work which the scope produces.
+        """
+        # pylint: disable=unused-argument
+        yield
 
     def get_value_default(self, ctx: ItemGetValueContext) -> Any:
         """ Get the value by default. """
@@ -601,8 +619,7 @@ class ItemMapper(abc.ABC):
             get_value, ctx.get_value_map = ctx.get_value_map.get(
                 parts[0], (self.get_value_default, {}))
             ctx.value = get_value(ctx)
-        self.copyrights_by_license.setdefault(item["SPDX-License-Identifier"],
-                                              set()).update(item["copyrights"])
+        self.register_part(item)
         return ctx
 
     def map(self,

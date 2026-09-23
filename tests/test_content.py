@@ -27,8 +27,9 @@
 import os
 import pytest
 
-from specitems.content import (Content, get_value_plural, make_lines,
-                               to_camel_case, list_terms)
+from specitems.content import (Content, ContentContext, get_value_plural,
+                               make_lines, to_camel_case, list_terms)
+from specitems.contentmarkdown import MarkdownContent
 from specitems.items import EmptyItemCache
 from specitems.itemmapper import ItemGetValueContext, ItemMapper
 
@@ -536,3 +537,14 @@ def test_get_value():
     assert get_value_plural(ctx) == "ties"
     value["plural"] = "p"
     assert get_value_plural(ctx) == "p"
+
+
+def test_automatically_generated_warning():
+    for warning, expected in (("", "a\n\nb\n"),
+                              ("Line 1.\n\nLine 2.\n",
+                               "a\n\n% Line 1.\n%\n% Line 2.\n\nb\n")):
+        content = MarkdownContent(context=ContentContext("MIT", warning))
+        content.add("a")
+        content.add_automatically_generated_warning()
+        content.add("b")
+        assert str(content) == expected

@@ -28,6 +28,7 @@ from .cite import BibTeXCitationProvider
 from .clangformat import ClangFormatter
 from .cliutil import (
     LoggingStatus,
+    add_license_arguments,
     create_config,
     get_arguments,
     get_item_cache_arguments,
@@ -37,7 +38,8 @@ from .cliutil import (
 )
 from .content import (
     Content,
-    ContentAddContext,
+    ContentAddScope,
+    ContentContext,
     GenericContent,
     GenericContentIterable,
     MARKDOWN_ROLES,
@@ -139,6 +141,7 @@ from .itemmapper import (
     unpack_arg,
     unpack_args,
 )
+from .licenseinfo import (LicenseAggregate, LicenseEntry, LicenseProvider)
 from .spdx import (get_license_list_version, parse_license_expression,
                    parse_license_identifier, permits)
 from .specdoc import (SpecDocumentConfig, add_specification_documentation,
@@ -160,7 +163,8 @@ __all__ = [
     "CommonMarkContent",
     "CommonMarkMapper",
     "Content",
-    "ContentAddContext",
+    "ContentAddScope",
+    "ContentContext",
     "Copyright",
     "Copyrights",
     "DocumentGlossaryConfig",
@@ -186,6 +190,9 @@ __all__ = [
     "ItemType",
     "ItemTypeProvider",
     "ItemValueProvider",
+    "LicenseAggregate",
+    "LicenseEntry",
+    "LicenseProvider",
     "ItemView",
     "ItemViewGetMissing",
     "JSONItemCache",
@@ -204,6 +211,7 @@ __all__ = [
     "SubstitutionError",
     "TextContent",
     "TextMapper",
+    "add_license_arguments",
     "add_specification_documentation",
     "atomic_dump_to_file",
     "augment_glossary_terms",

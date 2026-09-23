@@ -24,6 +24,8 @@ The specification item types have the following hierarchy:
 
     - :ref:`SpecTypeGlossaryTermItemType`
 
+  - :ref:`SpecTypeLicenseItemType`
+
   - :ref:`SpecTypeProxyItemType`
 
   - :ref:`SpecTypeReference`
@@ -108,6 +110,8 @@ This type is refined by the following types:
 
 - :ref:`SpecTypeGlossaryItemType`
 
+- :ref:`SpecTypeLicenseItemType`
+
 - :ref:`SpecTypeProxyItemType`
 
 - :ref:`SpecTypeReference`
@@ -168,6 +172,51 @@ term
 text
     The attribute value shall be a :ref:`SpecTypeTextInMySTFormat`. It shall be
     the definition of the glossary term.
+
+.. _SpecTypeLicenseItemType:
+
+License Item Type
+=================
+
+This type refines the :ref:`SpecTypeRootItemType` through the ``type``
+attribute if the value is ``license``. This set of attributes specifies a
+license which a work may take.  The tooling uses the item to present the
+license of a work.  It also uses the item to list the license of a foreign
+part. The following explicit attributes are mandatory:
+
+- ``identifier``
+
+- ``name``
+
+- ``reproduce-text``
+
+- ``text``
+
+- ``uri``
+
+The explicit attributes for this type are:
+
+identifier
+    The attribute value shall be a :ref:`SpecTypeSPDXLicenseIdentifier`. It
+    shall be the SPDX license identifier of the license.
+
+name
+    The attribute value shall be a string. It shall be the full name of the
+    license.
+
+reproduce-text
+    The attribute value shall be a boolean. It shall be true, if a work under
+    this license shall reproduce the license text, otherwise it shall be false.
+    A work which reproduces no text states the identifier and the optional uri.
+
+text
+    The attribute value shall be an optional string. If the value is present,
+    then it shall be the license text.  The value shall be present, if
+    reproduce-text is true.
+
+uri
+    The attribute value shall be an optional string. If the value is present,
+    then it shall be the uniform resource identifier of the license.
 
 .. _SpecTypeProxyItemType:
 
@@ -1201,6 +1250,19 @@ an expression of ``A AND B`` permits no work.
 This type is used by the following types:
 
 - :ref:`SpecTypeRootItemType`
+
+.. _SpecTypeSPDXLicenseIdentifier:
+
+SPDX License Identifier
+=======================
+
+The value shall be a string. It shall be a single SPDX license identifier.  The
+identifier shall be on the SPDX License List or it shall be a license reference
+such as ``LicenseRef-ECSS``.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeLicenseItemType`
 
 .. _SpecTypeSpecificationAttributeSet:
 
