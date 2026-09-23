@@ -11,7 +11,7 @@ spec-info:
       SPDX-License-Identifier:
         description: |
           It shall be the license of the item.
-        spec-type: spdx-license-identifier
+        spec-type: spdx-license-expression
       copyrights:
         description: |
           It shall be the list of copyright statements of the item.

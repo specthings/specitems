@@ -1,0 +1,22 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  str:
+    assert: []
+    description: |
+      It shall be an SPDX license expression as defined by SPDX 2.3, section
+      "SPDX license expressions".  Every identifier shall be on the SPDX
+      License List or it shall be a license reference such as
+      ``LicenseRef-ECSS``.  Every identifier shall be in its canonical form,
+      so a deprecated form such as ``GPL-2.0+`` is invalid.  A work takes one
+      license, so an expression of ``A AND B`` permits no work.
+spec-name: SPDX License Expression
+spec-type: spdx-license-expression
+type: spec

@@ -11,7 +11,7 @@ spec-info:
       SPDX-License-Identifier:
         description: |
           This mandatory attribute defines the license of this item.
-        spec-type: spdx-license-identifier
+        spec-type: spdx-license-expression
       copyrights:
         description: |
           This mandatory attribute defines the copyright holders and copyright

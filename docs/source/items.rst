@@ -80,7 +80,7 @@ format. All explicit attributes shall be specified. The explicit attributes for
 this type are:
 
 SPDX-License-Identifier
-    The attribute value shall be a :ref:`SpecTypeSPDXLicenseIdentifier`. It
+    The attribute value shall be a :ref:`SpecTypeSPDXLicenseExpression`. It
     shall be the license of the item.
 
 copyrights
@@ -1186,36 +1186,17 @@ location
     The attribute value shall be a string. It shall be the location of the used
     parts within the referenced work.  An example is a section number.
 
-.. _SpecTypeSPDXLicenseIdentifier:
+.. _SpecTypeSPDXLicenseExpression:
 
-SPDX License Identifier
+SPDX License Expression
 =======================
 
-The value shall be a string. It defines the license of the item expressed
-though an SPDX License Identifier. The value
-
-- shall be equal to "``Apache-2.0``",
-
-- or, shall be equal to "``CC-BY-SA-4.0``",
-
-- or, shall be equal to "``CC-BY-SA-4.0 OR BSD-2-Clause``",
-
-- or, shall be equal to "``CC-BY-SA-4.0 OR BSD-2-Clause OR MIT``",
-
-- or, shall be equal to "``CC-BY-SA-4.0 OR BSD-2-Clause OR Apache-2.0 OR
-  GPL-2.0-or-later``",
-
-- or, shall be equal to "``CC-BY-SA-4.0 OR MIT``",
-
-- or, shall be equal to "``BSD-2-Clause``",
-
-- or, shall be equal to "``BSD-2-Clause OR MIT``",
-
-- or, shall be equal to "``ECSS``",
-
-- or, shall be equal to "``ESA UNCLASSIFIED - For Official Use``",
-
-- or, shall be equal to "``MIT``".
+The value shall be a string. It shall be an SPDX license expression as defined
+by SPDX 2.3, section "SPDX license expressions".  Every identifier shall be on
+the SPDX License List or it shall be a license reference such as
+``LicenseRef-ECSS``.  Every identifier shall be in its canonical form, so a
+deprecated form such as ``GPL-2.0+`` is invalid.  A work takes one license, so
+an expression of ``A AND B`` permits no work.
 
 This type is used by the following types:
 

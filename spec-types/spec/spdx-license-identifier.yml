@@ -9,21 +9,11 @@ spec-description: null
 spec-example: null
 spec-info:
   str:
-    assert:
-    - eq: Apache-2.0
-    - eq: CC-BY-SA-4.0
-    - eq: CC-BY-SA-4.0 OR BSD-2-Clause
-    - eq: CC-BY-SA-4.0 OR BSD-2-Clause OR MIT
-    - eq: CC-BY-SA-4.0 OR BSD-2-Clause OR Apache-2.0 OR GPL-2.0-or-later
-    - eq: CC-BY-SA-4.0 OR MIT
-    - eq: BSD-2-Clause
-    - eq: BSD-2-Clause OR MIT
-    - eq: ECSS
-    - eq: ESA UNCLASSIFIED - For Official Use
-    - eq: MIT
+    assert: []
     description: |
-      It defines the license of the item expressed though an SPDX License
-      Identifier.
+      It shall be a single SPDX license identifier.  The identifier shall be
+      on the SPDX License List or it shall be a license reference such as
+      ``LicenseRef-ECSS``.
 spec-name: SPDX License Identifier
 spec-type: spdx-license-identifier
 type: spec

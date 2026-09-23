@@ -139,6 +139,8 @@ from .itemmapper import (
     unpack_arg,
     unpack_args,
 )
+from .spdx import (get_license_list_version, parse_license_expression,
+                   parse_license_identifier, permits)
 from .specdoc import (SpecDocumentConfig, add_specification_documentation,
                       generate_specification_documentation)
 from .specformatter import SpecYAMLFormatter
@@ -217,6 +219,7 @@ __all__ = [
     "generate_specification_documentation",
     "get_arguments",
     "get_item_cache_arguments",
+    "get_license_list_version",
     "get_reference",
     "get_value_default",
     "get_value_plural",
@@ -243,6 +246,9 @@ __all__ = [
     "make_subprocess_environment",
     "make_text",
     "monitor_logging",
+    "parse_license_expression",
+    "parse_license_identifier",
+    "permits",
     "pickle_load_data_by_uid",
     "run_subprocess_action",
     "save_data",

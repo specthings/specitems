@@ -1,0 +1,43 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links: []
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      SPDX-License-Identifier:
+        description: |
+          It shall be the license of the item.
+        spec-type: spdx-license-expression
+      copyrights:
+        description: null
+        spec-type: any
+      enabled-by:
+        description: null
+        spec-type: any
+      links:
+        description: null
+        spec-type: any
+      document-licenses:
+        description: |
+          It shall be the licenses of the document.
+        spec-type: license-list
+      type:
+        description: |
+          It shall be the item type.
+        spec-type: name
+    description: |
+      This is the root specification item type.
+    generic-attributes:
+      description: null
+      key-spec-type: name
+      value-spec-type: any
+    mandatory-attributes:
+    - SPDX-License-Identifier
+    - type
+spec-name: Root Item Type
+spec-type: root
+type: spec
