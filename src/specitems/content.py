@@ -35,6 +35,7 @@ import textwrap
 from typing import (Callable, ContextManager, Deque, Iterable, Iterator,
                     Optional, Sequence, Union)
 
+from .copyrights import Copyrights
 from .items import Item
 from .itemmapper import ItemGetValueContext
 
@@ -44,44 +45,6 @@ GenericContentIterable = Union[Iterable[str], Iterable[list[str]],
                                Iterable[GenericContent]]
 
 MARKDOWN_ROLES = re.compile(r"\{([^}]+)\}`([^`]+)`", flags=re.DOTALL)
-
-
-def split_copyright_statement(statement: str) -> tuple[str, set[int]]:
-    """ Split the copyright statement into the holder and year set. """
-    match = re.search(
-        r"^\s*Copyright\s+\(C\)\s+([0-9]+),\s*([0-9]+)\s+(.+)\s*$",
-        statement,
-        flags=re.I,
-    )
-    if match:
-        return match.group(3), set((int(match.group(1)), int(match.group(2))))
-    match = re.search(
-        r"^\s*Copyright\s+\(C\)\s+([0-9]+)\s*-\s*([0-9]+)\s+(.+)\s*$",
-        statement,
-        flags=re.I,
-    )
-    if match:
-        return match.group(3), set((int(match.group(1)), int(match.group(2))))
-    match = re.search(
-        r"^\s*Copyright\s+\(C\)\s+([0-9]+)\s+(.+)\s*$",
-        statement,
-        flags=re.I,
-    )
-    if match:
-        return match.group(2), set((int(match.group(1)), ))
-    raise ValueError(statement)
-
-
-def make_copyright_statement(holder: str,
-                             years: set[int],
-                             line: str = "Copyright (C)") -> str:
-    """ Make the copyright statement from the holder and year set. """
-    year_count = len(years)
-    line += f" {min(years)}"
-    if year_count > 1:
-        line += f", {max(years)}"
-    line += f" {holder}"
-    return line
 
 
 def list_terms(terms: Sequence[str], conjunction: str = "and") -> str:
@@ -98,61 +61,6 @@ def list_terms(terms: Sequence[str], conjunction: str = "and") -> str:
     if count == 2:
         return f"{terms[0]} {conjunction} {terms[1]}"
     return f"{', '.join(terms[:-1])}, {conjunction} {terms[-1]}"
-
-
-class Copyright:
-    """
-    Represents a copyright holder with its years of substantial contributions.
-    """
-
-    @classmethod
-    def from_statement(cls, statement: str) -> "Copyright":
-        """ Make a copyright from the statement. """
-        holder, years = split_copyright_statement(statement)
-        return Copyright(holder, years)
-
-    def __init__(self, holder: str, years: Optional[set[int]] = None):
-        self.holder = holder
-        self.years = years if years is not None else set()
-
-    def add_year(self, year: int):
-        """
-        Add the year to the set of substantial contributions of this copyright
-        holder.
-        """
-        self.years.add(year)
-
-    def get_statement(self, line: str = "Copyright (C)") -> str:
-        """ Return the associated copyright statement. """
-        return make_copyright_statement(self.holder, self.years, line)
-
-    def __lt__(self, other: "Copyright") -> bool:
-        return (min(self.years), max(self.years),
-                other.holder) < (min(other.years), max(other.years),
-                                 self.holder)
-
-
-def _copyright_key(holder_years):
-    return (-min(holder_years[1]), -max(holder_years[1]), holder_years[0])
-
-
-class Copyrights(dict):
-    """ Represents a set of copyright holders. """
-
-    def register(self, statements: Union[str, Iterable[str]]) -> None:
-        """ Register the copyright statement. """
-        if isinstance(statements, str):
-            statements = [statements]
-        for statement in statements:
-            holder, years = split_copyright_statement(statement)
-            self.setdefault(holder, set()).update(years)
-
-    def get_statements(self, line: str = "Copyright (C)") -> list[str]:
-        """ Return all registered copyright statements as a sorted list. """
-        return [
-            make_copyright_statement(holder, years, line)
-            for holder, years in sorted(self.items(), key=_copyright_key)
-        ]
 
 
 def make_lines(content: Optional[GenericContent]) -> list[str]:

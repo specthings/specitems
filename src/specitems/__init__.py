@@ -38,18 +38,20 @@ from .cliutil import (
 from .content import (
     Content,
     ContentAddContext,
-    Copyright,
-    Copyrights,
     GenericContent,
     GenericContentIterable,
     MARKDOWN_ROLES,
     get_value_plural,
     list_terms,
-    make_copyright_statement,
     make_lines,
     make_text,
-    split_copyright_statement,
     to_camel_case,
+)
+from .copyrights import (
+    Copyright,
+    Copyrights,
+    make_copyright_statement,
+    split_copyright_statement,
 )
 from .contenttext import (
     COL_SPAN,

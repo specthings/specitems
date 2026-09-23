@@ -26,7 +26,7 @@
 
 import pytest
 
-from specitems.content import Copyright, Copyrights
+from specitems.copyrights import Copyright, Copyrights
 
 
 def test_copyright_from_statement():
