@@ -38,6 +38,8 @@ from typing import Any, NamedTuple, Optional
 
 from .cliutil import LoggingStatus, monitor_logging
 from .items import Item, ItemCache
+from .spdx import (get_license_list_version, parse_license_expression,
+                   parse_license_identifier)
 from .specformatter import SpecFormatter
 
 _VerifierMap = dict[str, "_Verifier"]
@@ -305,6 +307,50 @@ class _UIDVerifier(_Verifier):
             except KeyError:
                 logging.log(self.log_level, "%s cannot resolve UID: %s",
                             _prefix(path), value)
+        return set()
+
+
+class _SPDXLicenseExpressionVerifier(_Verifier):
+
+    def verify(self, path: _Path, value: Any) -> set[str]:
+        """Verify that the value is an SPDX license expression.
+
+        Args:
+            path: Path context.
+            value: The value expected to be an SPDX license expression.
+
+        Returns:
+            Empty set. Logs an error if the value is no valid expression.
+        """
+        self.verify_info(path)
+        if not _assert_type(path, value, "str"):
+            return set()
+        try:
+            parse_license_expression(value)
+        except ValueError as err:
+            logging.error("%s %s", _prefix(path), err)
+        return set()
+
+
+class _SPDXLicenseIdentifierVerifier(_Verifier):
+
+    def verify(self, path: _Path, value: Any) -> set[str]:
+        """Verify that the value is a single SPDX license identifier.
+
+        Args:
+            path: Path context.
+            value: The value expected to be an SPDX license identifier.
+
+        Returns:
+            Empty set. Logs an error if the value is no valid identifier.
+        """
+        self.verify_info(path)
+        if not _assert_type(path, value, "str"):
+            return set()
+        try:
+            parse_license_identifier(value)
+        except ValueError as err:
+            logging.error("%s %s", _prefix(path), err)
         return set()
 
 
@@ -653,7 +699,10 @@ def _create_verifier(item: Item, verifier_map: _VerifierMap,
     spec_type = item["spec-type"]
     if spec_type in verifier_map:
         verifier = verifier_map[spec_type]
-        assert isinstance(verifier, (_NameVerifier, _UIDVerifier))
+        assert isinstance(
+            verifier,
+            (_NameVerifier, _UIDVerifier, _SPDXLicenseExpressionVerifier,
+             _SPDXLicenseIdentifierVerifier))
         return verifier
     spec_info = item["spec-info"]
     assert isinstance(spec_info, dict)
@@ -700,6 +749,8 @@ class SpecVerifier:
         _AnyVerifier("any", verifier_map)
         _NameVerifier("name", verifier_map)
         _UIDVerifier("uid", verifier_map, uid_log_level)
+        _SPDXLicenseExpressionVerifier("spdx-license-expression", verifier_map)
+        _SPDXLicenseIdentifierVerifier("spdx-license-identifier", verifier_map)
         _Verifier("bool", verifier_map)
         _Verifier("float", verifier_map)
         _Verifier("int", verifier_map)
@@ -723,6 +774,8 @@ class SpecVerifier:
         Args:
             item_cache: The cache containing items to verify.
         """
+        logging.info("SPDX License List provided by license-expression %s",
+                     get_license_list_version())
         if self._root_verifier is None:
             logging.error("root type item does not exist in item cache")
         else:
