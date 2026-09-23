@@ -26,11 +26,18 @@
 
 import os
 
+import pytest
+
 from specitems.clispecdoc import clispecdocitems
 
 
 def test_clispecdocitems(tmpdir):
     target = os.path.join(tmpdir, "items.rst")
     assert not os.path.exists(target)
-    clispecdocitems(["x", os.path.join(tmpdir, "items.rst")])
+    clispecdocitems(
+        ["x", "--license", "CC-BY-SA-4.0",
+         os.path.join(tmpdir, "items.rst")])
     assert os.path.exists(target)
+    with pytest.raises(SystemExit) as err:
+        clispecdocitems(["x", "--license", "ECSS", target])
+    assert err.value.code == 2

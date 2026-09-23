@@ -34,6 +34,8 @@ from typing import (Any, Callable, Iterable, Iterator, NamedTuple, Optional,
 
 import yaml
 
+from .licenseinfo import LicenseAggregate
+
 _Config = TypeVar("_Config")
 
 
@@ -85,6 +87,56 @@ def get_arguments(
     for post_process in post_process_arguments:
         post_process(args)
     return args
+
+
+def add_license_arguments(parser: argparse.ArgumentParser,
+                          required: bool = False) -> None:
+    """
+    Add the license arguments to the argument parser.
+
+    Args:
+        parser: The argument parser.
+        required: Demand the primary license.
+    """
+    parser.add_argument("--license",
+                        default=None,
+                        required=required,
+                        metavar="LICENSE",
+                        help="the primary SPDX license identifier of the "
+                        "work; every part of the work takes this license "
+                        "unless the work accepts the license of the part")
+    parser.add_argument(
+        "--accepted-license",
+        action="append",
+        default=[],
+        metavar="LICENSE",
+        help="an SPDX license identifier which the work accepts for a part "
+        "whose license expression permits not the primary license; the "
+        "copyrights of such a part are listed separately; this option can be "
+        "given multiple times and the order gives the preference")
+
+
+def create_licenses(args: argparse.Namespace) -> Optional[LicenseAggregate]:
+    """
+    Create the license aggregate which the license arguments state.
+
+    Args:
+        args: The parsed arguments of :func:`add_license_arguments`.
+
+    Returns:
+        The license aggregate, or None where the arguments state no primary
+        license.
+
+    Raises:
+        ValueError: A license is invalid, or the arguments state an accepted
+            license and no primary license.
+    """
+    if args.license is None:
+        if args.accepted_license:
+            raise ValueError("an accepted license needs a primary license, "
+                             "use --license")
+        return None
+    return LicenseAggregate(args.license, args.accepted_license)
 
 
 def _add_item_cache_arguments(parser: argparse.ArgumentParser) -> None:

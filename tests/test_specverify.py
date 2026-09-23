@@ -33,6 +33,7 @@ from specitems import (EmptyItemCache, ItemCache, ItemTypeProvider,
                        monitor_logging, verify_specification_format)
 from specitems.cliverify import cliverify
 
+from specitems.licenseinfo import LicenseAggregate
 from specitems.spdx import get_license_list_version
 
 from .util import (create_item_cache_config, get_and_clear_log,
@@ -2138,7 +2139,8 @@ def test_cliverify(tmp_path, monkeypatch):
     def _entry_points(group):
         return [_EP()]
 
-    monkeypatch.setattr("importlib.metadata.entry_points", _entry_points)
+    monkeypatch.setattr(specitems.cliverify.importlib.metadata, "entry_points",
+                        _entry_points)
 
     spec_dir = Path(__file__).parent / "spec-refs"
     status = cliverify(["x", str(spec_dir)])
@@ -2156,6 +2158,17 @@ def test_cliverify(tmp_path, monkeypatch):
         str(spec_dir / "ref" / "manual.yml")
     ])
     assert status == 1
+    status = cliverify([
+        "x", "--license=CC-BY-SA-4.0", "--accepted-license=BSD-2-Clause",
+        str(spec_dir)
+    ])
+    assert status == 0
+    status = cliverify(["x", "--license=MIT", str(spec_dir)])
+    assert status == 1
+    status = cliverify(["x", "--license=ECSS", str(spec_dir)])
+    assert status == 1
+    status = cliverify(["x", "--accepted-license=BSD-2-Clause", str(spec_dir)])
+    assert status == 1
 
 
 def test_verify_spdx(caplog, tmpdir):
@@ -2170,3 +2183,23 @@ SPDX license identifier
 ERROR /bad:/document-licenses[1]: expected type 'str', actual type 'int'
 ERROR /notastring:/SPDX-License-Identifier: expected type 'str', actual type \
 'int'"""
+
+
+def test_verify_spdx_with_licenses(caplog, tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-spdx")
+    item_cache = ItemCache(config)
+    caplog.set_level(logging.INFO)
+    verifier = SpecVerifier(item_cache,
+                            "/spec/root",
+                            licenses=LicenseAggregate("BSD-2-Clause"))
+    get_and_clear_log(caplog)
+    verifier.verify(item_cache["/good"])
+    assert "take 'CC-BY-SA-4.0 OR BSD-2-Clause' under 'BSD-2-Clause'" \
+        in get_and_clear_log(caplog)
+    caplog.set_level(logging.ERROR)
+    verifier.verify(item_cache["/bad"])
+    assert get_and_clear_log(caplog) == """ERROR /bad:/SPDX-License-Identifier\
+: SPDX license expression 'ECSS' uses unknown identifiers: ECSS
+ERROR /bad:/document-licenses[0]: 'CC-BY-SA-4.0 OR BSD-2-Clause' is no single \
+SPDX license identifier
+ERROR /bad:/document-licenses[1]: expected type 'str', actual type 'int'"""

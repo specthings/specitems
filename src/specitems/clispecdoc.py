@@ -30,16 +30,16 @@ documentation.
 import argparse
 import sys
 
-from .contentmarkdown import MarkdownContent, MarkdownMapper
-from .contentsphinx import SphinxContent, SphinxMapper
+from .cliutil import add_license_arguments, create_licenses
+from .content import ContentContext
+from .licenseinfo import LicenseProvider
+from .contentmarkdown import MarkdownMapper
+from .contentsphinx import SphinxMapper
 from .items import (ItemCache, ItemCacheConfig, ItemTypeProvider,
                     SpecTypeProvider)
 from .specdoc import SpecDocumentConfig, generate_specification_documentation
 
-_DOC_FORMAT = {
-    "markdown": (MarkdownContent, MarkdownMapper),
-    "rest": (SphinxContent, SphinxMapper)
-}
+_DOC_FORMAT = {"markdown": MarkdownMapper, "rest": SphinxMapper}
 
 
 def clispecdoc(argv: list[str], type_provider: ItemTypeProvider) -> None:
@@ -80,6 +80,7 @@ def clispecdoc(argv: list[str], type_provider: ItemTypeProvider) -> None:
     parser.add_argument("--value-types-subsection-name",
                         default="Specification attribute sets and value types",
                         help="the value and types subsection name")
+    add_license_arguments(parser, required=True)
     parser.add_argument("target",
                         metavar="TARGET",
                         nargs=1,
@@ -99,9 +100,16 @@ def clispecdoc(argv: list[str], type_provider: ItemTypeProvider) -> None:
         hierarchy_subsection_name=args.hierarchy_subsection_name,
         item_types_subsection_name=args.item_types_subsection_name,
         value_types_subsection_name=args.value_types_subsection_name)
-    create_content, create_mapper = _DOC_FORMAT[args.format]
-    content = create_content()
-    mapper = create_mapper(next(iter(item_cache.values())))
+    try:
+        licenses = create_licenses(args)
+    except ValueError as err:
+        parser.error(str(err))
+    assert licenses is not None
+    mapper = _DOC_FORMAT[args.format](next(iter(item_cache.values())),
+                                      ContentContext(licenses,
+                                                     provider=LicenseProvider(
+                                                         item_cache.values())))
+    content = mapper.create_content()
     spec_doc_config.add_get_spec_name(mapper, content)
     generate_specification_documentation(content, spec_doc_config, mapper)
 

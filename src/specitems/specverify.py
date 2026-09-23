@@ -38,6 +38,7 @@ from typing import Any, NamedTuple, Optional
 
 from .cliutil import LoggingStatus, monitor_logging
 from .items import Item, ItemCache
+from .licenseinfo import LicenseAggregate
 from .spdx import (get_license_list_version, parse_license_expression,
                    parse_license_identifier)
 from .specformatter import SpecFormatter
@@ -312,21 +313,35 @@ class _UIDVerifier(_Verifier):
 
 class _SPDXLicenseExpressionVerifier(_Verifier):
 
+    def __init__(self, name: str, verifier_map: _VerifierMap,
+                 licenses: Optional[LicenseAggregate]) -> None:
+        super().__init__(name, verifier_map)
+        self.licenses = licenses
+
     def verify(self, path: _Path, value: Any) -> set[str]:
         """Verify that the value is an SPDX license expression.
+
+        Where a license selection is present, select the license under which
+        that selection takes the item.
 
         Args:
             path: Path context.
             value: The value expected to be an SPDX license expression.
 
         Returns:
-            Empty set. Logs an error if the value is no valid expression.
+            Empty set. Logs an error if the value is no valid expression or if
+            the selection permits it not.
         """
         self.verify_info(path)
         if not _assert_type(path, value, "str"):
             return set()
         try:
-            parse_license_expression(value)
+            if self.licenses is None:
+                parse_license_expression(value)
+            else:
+                the_license = self.licenses.select(value, path.item.uid)
+                logging.info("%s take '%s' under '%s'", _prefix(path), value,
+                             the_license)
         except ValueError as err:
             logging.error("%s %s", _prefix(path), err)
         return set()
@@ -731,7 +746,8 @@ class SpecVerifier:
                  item_cache: ItemCache,
                  root_uid: str,
                  uid_log_level: int = logging.ERROR,
-                 formatter: Optional[SpecFormatter] = None) -> None:
+                 formatter: Optional[SpecFormatter] = None,
+                 licenses: Optional[LicenseAggregate] = None) -> None:
         """Initialize and build verifier map.
 
         Args:
@@ -743,13 +759,18 @@ class SpecVerifier:
                 will report an error.
             uid_log_level: The log level to indicate that an UID cannot be
                 resolved.
+            formatter: The optional specification item value formatter.
+            licenses: The license selection.  Where it is present, the
+                verification selects the license under which that selection
+                takes every item.
         """
         self._formatter = formatter
         verifier_map: _VerifierMap = {}
         _AnyVerifier("any", verifier_map)
         _NameVerifier("name", verifier_map)
         _UIDVerifier("uid", verifier_map, uid_log_level)
-        _SPDXLicenseExpressionVerifier("spdx-license-expression", verifier_map)
+        _SPDXLicenseExpressionVerifier("spdx-license-expression", verifier_map,
+                                       licenses)
         _SPDXLicenseIdentifierVerifier("spdx-license-identifier", verifier_map)
         _Verifier("bool", verifier_map)
         _Verifier("float", verifier_map)
@@ -810,7 +831,8 @@ class SpecVerifier:
 def verify_specification_format(
         item_cache: ItemCache,
         uid_log_level: int = logging.ERROR,
-        formatter: Optional[SpecFormatter] = None) -> LoggingStatus:
+        formatter: Optional[SpecFormatter] = None,
+        licenses: Optional[LicenseAggregate] = None) -> LoggingStatus:
     """Verify all items using the specification root type from the item cache.
 
     Emits an error if the item cache has no specification root type.
@@ -820,6 +842,9 @@ def verify_specification_format(
         uid_log_level: The log level to indicate that an UID cannot be
             resolved.
         formatter: The optional specification item value formatter.
+        licenses: The license selection.  Where it is present, the
+            verification selects the license under which that selection takes
+            every item.
 
     Returns:
         The status summarizing the verification run.
@@ -830,6 +855,6 @@ def verify_specification_format(
             logging.error("item cache has no root type")
         else:
             verifier = SpecVerifier(item_cache, root_type_uid, uid_log_level,
-                                    formatter)
+                                    formatter, licenses)
             verifier.verify_all(item_cache)
         return monitor.get_status()

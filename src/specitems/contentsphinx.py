@@ -28,7 +28,7 @@ from contextlib import contextmanager
 import re
 from typing import Iterable, Iterator, Match, Optional, Sequence
 
-from .content import Content, GenericContent, MARKDOWN_ROLES
+from .content import Content, ContentContext, GenericContent, MARKDOWN_ROLES
 from .contenttext import COL_SPAN, ROW_SPAN, TextContent, TextMapper
 
 _MD_CODE = re.compile(r"(^|\s)`([^`]+)`(\s|$)", flags=re.DOTALL)
@@ -119,9 +119,12 @@ class SphinxContent(TextContent):
     # pylint: disable=too-many-public-methods
     def __init__(self,
                  section_level: int = 0,
-                 the_license: str | set[str] | None = None,
+                 *,
+                 context: str | ContentContext,
                  topic_as_definition: bool = False):
-        super().__init__(section_level, the_license, topic_as_definition)
+        super().__init__(section_level,
+                         context=context,
+                         topic_as_definition=topic_as_definition)
         self.set_pop_indent_gap(True)
         self.set_comment_prefix("..")
         self._tab = "    "
@@ -321,8 +324,5 @@ class SphinxContent(TextContent):
 class SphinxMapper(TextMapper):
     """ Provides an item mapper for reST formatted text production. """
 
-    def create_content(
-            self,
-            section_level: int = 0,
-            the_license: str | set[str] | None = None) -> TextContent:
-        return SphinxContent(section_level, the_license)
+    def create_content(self, section_level: int = 0) -> TextContent:
+        return SphinxContent(section_level, context=self.context)

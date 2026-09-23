@@ -200,7 +200,7 @@ def test_cite(tmpdir):
     assert info.warning == 0
     assert info.info >= 0
     assert info.debug == 0
-    mapper = SphinxMapper(cache["/ref/article"])
+    mapper = SphinxMapper(cache["/ref/article"], "CC-BY-SA-4.0")
     provider = _Provider(mapper)
     assert mapper.substitute("${/ref/other:/cite-group}") == ""
     assert mapper.substitute("${/ref/other:/cite-group:the-citation-group-key}"

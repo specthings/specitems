@@ -30,8 +30,9 @@ import importlib.metadata
 import logging
 from pathlib import Path
 import sys
+from typing import Optional
 
-from .cliutil import get_arguments
+from .cliutil import add_license_arguments, create_licenses, get_arguments
 from .items import (ItemCache, ItemCacheConfig, ItemDataByUID,
                     ItemTypeProvider, SpecTypeProvider)
 from .specformatter import SpecYAMLFormatter
@@ -44,13 +45,28 @@ from .specverify import verify_specification_format
 #
 # [project.entry-points."specitems_type_provider.plugins"]
 # mypackage = "mypackage.mymodule:load_mypackage_types"
-def _create_type_provider() -> ItemTypeProvider:
+def create_type_provider() -> ItemTypeProvider:
+    """ Create the type provider of the installed packages. """
     data_by_uid: ItemDataByUID = {}
-    for ep in importlib.metadata.entry_points(
+    for entry_point in importlib.metadata.entry_points(
             group="specitems_type_provider.plugins"):
-        load_types = ep.load()
-        data_by_uid.update(load_types())
+        data_by_uid.update(entry_point.load()())
     return SpecTypeProvider(data_by_uid)
+
+
+def _create_formatter(args) -> Optional[SpecYAMLFormatter]:
+    clang_format_style: dict[str, str] = {}
+    for style_file in args.clang_format_style:
+        style, sep, file = style_file.partition(":")
+        if not sep or not style or not file:
+            raise ValueError(f"the --clang-format-style option value "
+                             f"'{style_file}' is not in <name>:<path> format")
+        clang_format_style[style] = file
+    if not args.format_items:
+        return None
+    return SpecYAMLFormatter(clang_format_path=args.clang_format_path,
+                             clang_format_style=clang_format_style,
+                             indent_lists=not args.do_not_indent_lists)
 
 
 def cliverify(argv: list[str] = sys.argv) -> int:
@@ -76,6 +92,7 @@ def cliverify(argv: list[str] = sys.argv) -> int:
             "file (example: file-scope:.clang-format); "
             "the style name is not related to the built-in styles "
             "of clang-format; this option can be given multiple times")
+        add_license_arguments(parser)
         parser.add_argument("--do-not-indent-lists",
                             action="store_true",
                             help="do not indent lists in the YAML output")
@@ -98,25 +115,16 @@ def cliverify(argv: list[str] = sys.argv) -> int:
         else:
             spec_dirs.append(path)
     config = ItemCacheConfig(paths=spec_dirs)
-    item_cache = ItemCache(config, type_provider=_create_type_provider())
+    item_cache = ItemCache(config, type_provider=create_type_provider())
     for path in item_files:
         item_cache.add_item_from_file(path, path, initialize_links=False)
-    clang_format_style: dict[str, str] = {}
-    for style_file in args.clang_format_style:
-        style, sep, file = style_file.partition(":")
-        if not sep or not style or not file:
-            logging.error(
-                "the --clang-format-style option value '%s' "
-                "is not in <name>:<path> format", style_file)
-            return 1
-        clang_format_style[style] = file
-    if args.format_items:
-        formatter = SpecYAMLFormatter(
-            clang_format_path=args.clang_format_path,
-            clang_format_style=clang_format_style,
-            indent_lists=not args.do_not_indent_lists)
-    else:
-        formatter = None
+    try:
+        formatter = _create_formatter(args)
+        licenses = create_licenses(args)
+    except ValueError as err:
+        logging.error("%s", err)
+        return 1
     return verify_specification_format(item_cache,
                                        uid_log_level=uid_log_level,
-                                       formatter=formatter).exit_code()
+                                       formatter=formatter,
+                                       licenses=licenses).exit_code()

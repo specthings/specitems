@@ -29,7 +29,7 @@ from typing import Iterable, Match, Optional, Sequence
 
 import mdformat
 
-from .content import GenericContent, make_lines
+from .content import ContentContext, GenericContent, make_lines
 from .contenttext import TextContent, TextMapper
 from .contentsphinx import SphinxContent
 
@@ -66,9 +66,12 @@ class MarkdownContent(TextContent):
     # pylint: disable=too-many-public-methods
     def __init__(self,
                  section_level: int = 0,
-                 the_license: str | set[str] | None = None,
+                 *,
+                 context: str | ContentContext,
                  topic_as_definition: bool = False):
-        super().__init__(section_level, the_license, topic_as_definition)
+        super().__init__(section_level,
+                         context=context,
+                         topic_as_definition=topic_as_definition)
         self.set_pop_indent_gap(True)
         self.set_comment_prefix("%")
 
@@ -169,7 +172,7 @@ class MarkdownContent(TextContent):
             self.add(lines)
         else:
             with self.directive("eval-rst"):
-                table = SphinxContent()
+                table = SphinxContent(context=self.context)
                 table.add_simple_table(rows, widths, font_size)
                 self.add(table)
 
@@ -181,7 +184,7 @@ class MarkdownContent(TextContent):
         if not rows:
             return
         with self.directive("eval-rst"):
-            table = SphinxContent()
+            table = SphinxContent(context=self.context)
             table.add_grid_table(rows, widths, header_rows, font_size)
             self.add(table)
 
@@ -222,8 +225,5 @@ class MarkdownContent(TextContent):
 class MarkdownMapper(TextMapper):
     """ Provides an item mapper for Markdown formatted text production. """
 
-    def create_content(
-            self,
-            section_level: int = 0,
-            the_license: str | set[str] | None = None) -> TextContent:
-        return MarkdownContent(section_level, the_license)
+    def create_content(self, section_level: int = 0) -> TextContent:
+        return MarkdownContent(section_level, context=self.context)

@@ -46,15 +46,15 @@ def test_document(tmpdir):
                                 ignore="^f$",
                                 section_label_prefix="SL")
     doc_target = os.path.join(tmpdir, "items.rst")
-    content = SphinxContent()
-    mapper = SphinxMapper(other)
+    content = SphinxContent(context="CC-BY-SA-4.0")
+    mapper = SphinxMapper(other, "CC-BY-SA-4.0")
     config.target = doc_target
     config.add_get_spec_name(mapper, content)
     generate_specification_documentation(content, config, mapper)
 
     md_doc_target = os.path.join(tmpdir, "items.md")
-    md_content = MarkdownContent()
-    md_mapper = MarkdownMapper(other)
+    md_content = MarkdownContent(context="CC-BY-SA-4.0")
+    md_mapper = MarkdownMapper(other, "CC-BY-SA-4.0")
     config.target = md_doc_target
     config.add_get_spec_name(md_mapper, md_content)
     generate_specification_documentation(md_content, config, md_mapper)

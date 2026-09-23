@@ -82,7 +82,7 @@ def test_getvaluesubprocess(monkeypatch, tmpdir):
         },
         set_types=False)
     item.type = "foobar"
-    mapper = SphinxMapper(item)
+    mapper = SphinxMapper(item, "CC-BY-SA-4.0")
     mapper.add_get_value(
         "foobar:/subprocess",
         functools.partial(get_value_subprocess, mapper.substitute,

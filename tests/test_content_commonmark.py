@@ -33,18 +33,18 @@ from .util import create_item_cache_config, get_other_type_data_by_uid
 
 
 def test_commonmark_link():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     assert content.link("name", "target") == "[name](target)"
 
 
 def test_commonmark_reference():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     assert content.reference("label") == "[label](#label)"
     assert content.reference("label", "name") == "[name](#label)"
 
 
 def test_commonmark_special():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     assert content.code("text") == "`text`"
     assert content.emphasize("text") == "_text_"
     assert content.strong("text") == "*text*"
@@ -62,7 +62,7 @@ def test_commonmark_special():
 
 
 def test_commonmark_header():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_header("header")
     content.add_header("header", level=5, label="label")
     assert str(content) == """# header
@@ -75,7 +75,7 @@ def test_commonmark_header():
 
 
 def test_commonmark_add_image():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_image("abc")
     assert str(content) == """![](abc)
 """
@@ -87,7 +87,7 @@ def test_commonmark_add_image():
 
 
 def test_commonmark_latex_environment():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     with content.latex_environment("env", use=False):
         content.add("abc")
     assert str(content) == "abc\n"
@@ -108,7 +108,7 @@ def
 
 
 def test_commonmark_latex_font_size():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     with content.latex_font_size():
         pass
     with content.latex_font_size():
@@ -126,7 +126,7 @@ abc
 
 
 def test_latex_font_size_int():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     with content.latex_font_size(-1):
         pass
     with content.latex_font_size(-1):
@@ -144,7 +144,7 @@ abc
 
 
 def test_mark_index_entries():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_index_entries([])
     content.add_index_entries(["foo", "bar"])
     content.add_index_entries(["blub"])
@@ -152,7 +152,7 @@ def test_mark_index_entries():
 
 
 def test_commonmark_section():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     assert content.get_sections() == []
     with content.section("ab cd") as label:
         assert content.get_sections() == ["ab cd"]
@@ -187,7 +187,7 @@ AbCdEfGhmn
 
 
 def test_commonmark_empty_sections():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     assert content.get_sections() == []
     with content.section("x"):
         with content.section("y"):
@@ -217,7 +217,7 @@ def test_commonmark_empty_sections():
 
 
 def test_commonmark_rubric():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_rubric("name")
     assert str(content) == """*name*
 
@@ -225,7 +225,7 @@ def test_commonmark_rubric():
 
 
 def test_commonmark_directive():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     with content.directive("directive", options=["option"]):
         content.add("text")
     with content.directive("foo", "bar"):
@@ -241,7 +241,7 @@ line
 
 
 def test_commonmark_definition_list():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_definition_item("item", [
         "def 0", "def 1",
         "0123456789012345678901234567890123456789012345678901234567890123456789",
@@ -256,7 +256,7 @@ def 1
 
 
 def test_commonmark_glossary_term():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_glossary_term("term", "def 0\ndef 1")
     assert str(content) == """*term*:
 def 0
@@ -265,7 +265,7 @@ def 1
 
 
 def test_commonmark_simple_table():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_simple_table([])
     assert str(content) == ""
     content.add_simple_table([["a", "b"], ["cc", "d|dd"]])
@@ -285,7 +285,7 @@ def test_commonmark_simple_table():
 
 
 def test_commonmark_grid_table():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_grid_table([], [])
     assert str(content) == ""
     content.add_grid_table([["a", "b"], ["cc", "ddd"]], widths=[50, 50])
@@ -314,7 +314,7 @@ def test_substitute(tmpdir):
     item_cache = ItemCache(config,
                            type_provider=SpecTypeProvider(
                                get_other_type_data_by_uid()))
-    mapper = CommonMarkMapper(item_cache["/x"])
+    mapper = CommonMarkMapper(item_cache["/x"], "CC-BY-SA-4.0")
     match = (r"substitution in text of an unnamed item \(mapper spec:/x\) "
              r"using prefix '' failed in line 1 "
              r"of '\${x:/y}': KeyError: 'y'\n"
@@ -331,7 +331,7 @@ def test_substitute(tmpdir):
 
 
 def test_add_code_block():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     content.add_code_block([])
     assert str(content) == """```none
 ```
@@ -360,14 +360,15 @@ c
 
 
 def test_topic():
-    content = CommonMarkContent()
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
     with content.topic("Parameters"):
         content.add("param")
     assert str(content) == """*PARAMETERS:*
 
 param
 """
-    content = CommonMarkContent(topic_as_definition=True)
+    content = CommonMarkContent(context="CC-BY-SA-4.0",
+                                topic_as_definition=True)
     with content.topic("Parameters"):
         content.add("param")
     assert str(content) == """Parameters
