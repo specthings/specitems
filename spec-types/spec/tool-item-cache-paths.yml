@@ -1,0 +1,28 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes: {}
+    description: |
+      A dictionary maps a specification item directory to the UID prefix of
+      the items which it holds.
+    generic-attributes:
+      description: null
+      key-spec-type: str
+      value-spec-type: str
+    mandatory-attributes: none
+  list:
+    description: |
+      A list gives the specification item directories.  The items of a
+      directory take the UID prefix which their path gives.
+    spec-type: str
+spec-name: Tool Item Cache Paths
+spec-type: tool-item-cache-paths
+type: spec

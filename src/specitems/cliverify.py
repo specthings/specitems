@@ -26,32 +26,16 @@ Provides a command line interface to verify the specification item format.
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import importlib.metadata
 import logging
 from pathlib import Path
 import sys
 from typing import Optional
 
 from .cliutil import add_license_arguments, create_licenses, get_arguments
-from .items import (ItemCache, ItemCacheConfig, ItemDataByUID,
-                    ItemTypeProvider, SpecTypeProvider)
+from .items import ItemCache, ItemCacheConfig
+from .specconfig import create_type_provider
 from .specformatter import SpecYAMLFormatter
 from .specverify import verify_specification_format
-
-
-# Packages using specitems can register their types through the following
-# plugin mechanism.  They have to add something like this to their
-# `pyproject.toml` file:
-#
-# [project.entry-points."specitems_type_provider.plugins"]
-# mypackage = "mypackage.mymodule:load_mypackage_types"
-def create_type_provider() -> ItemTypeProvider:
-    """ Create the type provider of the installed packages. """
-    data_by_uid: ItemDataByUID = {}
-    for entry_point in importlib.metadata.entry_points(
-            group="specitems_type_provider.plugins"):
-        data_by_uid.update(entry_point.load()())
-    return SpecTypeProvider(data_by_uid)
 
 
 def _create_formatter(args) -> Optional[SpecYAMLFormatter]:

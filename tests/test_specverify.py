@@ -2139,8 +2139,7 @@ def test_cliverify(tmp_path, monkeypatch):
     def _entry_points(group):
         return [_EP()]
 
-    monkeypatch.setattr(specitems.cliverify.importlib.metadata, "entry_points",
-                        _entry_points)
+    monkeypatch.setattr("importlib.metadata.entry_points", _entry_points)
 
     spec_dir = Path(__file__).parent / "spec-refs"
     status = cliverify(["x", str(spec_dir)])

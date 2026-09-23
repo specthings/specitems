@@ -1,0 +1,37 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      header:
+        description: |
+          It shall be the header of the document glossary.
+        spec-type: str
+      md-source-paths:
+        description: |
+          It shall be the paths of the Markdown sources which the glossary
+          covers.
+        spec-type: list-str
+      rest-source-paths:
+        description: |
+          It shall be the paths of the reST sources which the glossary
+          covers.
+        spec-type: list-str
+      target:
+        description: |
+          It shall be the target file of the document glossary.
+        spec-type: str
+    description: |
+      This set of attributes specifies the glossary of one document.
+    mandatory-attributes:
+    - target
+spec-name: Tool Glossary Document
+spec-type: tool-task-glossary-document
+type: spec

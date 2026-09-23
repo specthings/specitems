@@ -1,0 +1,17 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  list:
+    description: |
+      It shall be the list of document glossaries.
+    spec-type: tool-task-glossary-document
+spec-name: Tool Glossary Document List
+spec-type: tool-task-glossary-document-list
+type: spec

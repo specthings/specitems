@@ -144,6 +144,9 @@ from .itemmapper import (
 from .licenseinfo import (LicenseAggregate, LicenseEntry, LicenseProvider)
 from .spdx import (get_license_list_version, parse_license_expression,
                    parse_license_identifier, permits)
+from .specconfig import (CONFIG_FILE, CONFIG_UID, check_license_items,
+                         create_content_context, create_type_provider,
+                         find_config_file, load_config_item, yield_tasks)
 from .specdoc import (SpecDocumentConfig, add_specification_documentation,
                       generate_specification_documentation)
 from .specformatter import SpecYAMLFormatter
@@ -158,6 +161,8 @@ from .subprocessaction import (
 
 __all__ = [
     "BibTeXCitationProvider",
+    "CONFIG_FILE",
+    "CONFIG_UID",
     "COL_SPAN",
     "ClangFormatter",
     "CommonMarkContent",
@@ -218,9 +223,13 @@ __all__ = [
     "base64_to_hex",
     "base64_to_hex_text",
     "create_config",
+    "check_license_items",
+    "create_content_context",
+    "create_type_provider",
     "create_unique_link",
     "data_digest",
     "escape_code_line",
+    "find_config_file",
     "format_markdown_text",
     "from_clang_variables",
     "generate_glossary",
@@ -246,6 +255,7 @@ __all__ = [
     "link_is_enabled",
     "list_terms",
     "load_config",
+    "load_config_item",
     "load_data",
     "load_data_by_uid",
     "make_copyright_statement",
@@ -270,4 +280,5 @@ __all__ = [
     "unpack_arg",
     "unpack_args",
     "verify_specification_format",
+    "yield_tasks",
 ]

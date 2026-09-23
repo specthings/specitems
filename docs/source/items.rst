@@ -54,6 +54,8 @@ The specification item types have the following hierarchy:
 
   - :ref:`SpecTypeSpecificationItemType`
 
+  - :ref:`SpecTypeToolConfigurationItemType`
+
 .. _SpecificationItemTypes:
 
 Specification item types
@@ -117,6 +119,8 @@ This type is refined by the following types:
 - :ref:`SpecTypeReference`
 
 - :ref:`SpecTypeSpecificationItemType`
+
+- :ref:`SpecTypeToolConfigurationItemType`
 
 .. _SpecTypeGlossaryItemType:
 
@@ -903,6 +907,26 @@ Please have a look at the following example:
     spec-type: spec
     type: spec
 
+.. _SpecTypeToolConfigurationItemType:
+
+Tool Configuration Item Type
+============================
+
+This type refines the :ref:`SpecTypeRootItemType` through the ``type``
+attribute if the value is ``tool-config``. This set of attributes specifies the
+configuration of the tools.  The file specitems.yml of a tree holds one such
+item.  A tool reads the item cache and performs every task of its own type. All
+explicit attributes shall be specified. The explicit attributes for this type
+are:
+
+item-cache
+    The attribute value shall be a :ref:`SpecTypeToolItemCache`. It shall be
+    the item cache of the configuration.
+
+tasks
+    The attribute value shall be a list. Each list element shall be a
+    :ref:`SpecTypeToolTask`. It shall be the tasks of the configuration.
+
 .. _SpecificationAttributeSetsAndValueTypes:
 
 Specification attribute sets and value types
@@ -1187,6 +1211,8 @@ This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationRefinementLinkRole`
 
+- :ref:`SpecTypeToolTask`
+
 .. _SpecTypeOptionalSHA256Digest:
 
 Optional SHA256 Digest
@@ -1263,6 +1289,10 @@ such as ``LicenseRef-ECSS``.
 This type is used by the following types:
 
 - :ref:`SpecTypeLicenseItemType`
+
+- :ref:`SpecTypeToolGlossaryTask`
+
+- :ref:`SpecTypeToolSpecificationDocumentationTask`
 
 .. _SpecTypeSpecificationAttributeSet:
 
@@ -2054,6 +2084,265 @@ This type is used by the following types:
 
 - :ref:`SpecTypeGlossaryTermItemType`
 
+.. _SpecTypeToolGlossaryDocument:
+
+Tool Glossary Document
+======================
+
+This set of attributes specifies the glossary of one document. Only the
+``target`` attribute is mandatory. The explicit attributes for this type are:
+
+header
+    The attribute value shall be a string. It shall be the header of the
+    document glossary.
+
+md-source-paths
+    The attribute value shall be a list of strings. It shall be the paths of
+    the Markdown sources which the glossary covers.
+
+rest-source-paths
+    The attribute value shall be a list of strings. It shall be the paths of
+    the reST sources which the glossary covers.
+
+target
+    The attribute value shall be a string. It shall be the target file of the
+    document glossary.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeToolGlossaryTask`
+
+.. _SpecTypeToolGlossaryTask:
+
+Tool Glossary Task
+==================
+
+This type refines the :ref:`SpecTypeToolTask` through the ``task-type``
+attribute if the value is ``glossary``. This set of attributes specifies a
+glossary task. The following explicit attributes are mandatory:
+
+- ``license``
+
+- ``project-groups``
+
+The explicit attributes for this type are:
+
+accepted-licenses
+    The attribute value shall be a list of strings. It shall be the licenses
+    which the produced files accept for a part whose license expression permits
+    not the license.
+
+automatically-generated-warning
+    The attribute value shall be a string. It shall be the warning which every
+    produced file carries. An empty warning adds no comment block to a file.
+
+documents
+    The attribute value shall be a list. Each list element shall be a
+    :ref:`SpecTypeToolGlossaryDocument`. It shall be the document glossaries.
+
+license
+    The attribute value shall be a :ref:`SpecTypeSPDXLicenseIdentifier`. It
+    shall be the license of the produced files.
+
+project-groups
+    The attribute value shall be a list. Each list element shall be an
+    :ref:`SpecTypeUID`. It shall be the UIDs of the glossary group items of the
+    project.
+
+project-header
+    The attribute value shall be a string. It shall be the header of the
+    project glossary.
+
+project-target
+    The attribute value shall be an optional string. If the value is present,
+    then it shall be the target file of the project glossary.
+
+.. _SpecTypeToolItemCache:
+
+Tool Item Cache
+===============
+
+This set of attributes specifies the item cache of a configuration.  A
+configuration which states no path states an empty item cache. None of the
+explicit attributes is mandatory, they are all optional. The explicit
+attributes for this type are:
+
+cache-directory
+    The attribute value shall be a string. It shall be the directory of the
+    item cache.
+
+enabled-set
+    The attribute value shall be a list of strings. It shall be the enabled set
+    of the item cache.
+
+initialize-links
+    The attribute value shall be a boolean. It shall be true, if the item cache
+    initializes the links of the items, otherwise it shall be false.
+
+paths
+    The attribute value shall be a :ref:`SpecTypeToolItemCachePaths`. It shall
+    be the specification item directories.  A dictionary maps a directory to
+    the UID prefix of the items which it holds.
+
+permissive-type-errors
+    The attribute value shall be a boolean. It shall be true, if a type error
+    is a warning, otherwise it shall be false.
+
+resolve-proxies
+    The attribute value shall be a boolean. It shall be true, if the item cache
+    resolves the proxy items, otherwise it shall be false.
+
+spec-type-root-uid
+    The attribute value shall be an optional string. If the value is present,
+    then it shall be the UID of the root specification type item.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeToolConfigurationItemType`
+
+.. _SpecTypeToolItemCachePaths:
+
+Tool Item Cache Paths
+=====================
+
+A value of this type shall be of one of the following variants:
+
+- The value may be a set of attributes. A dictionary maps a specification item
+  directory to the UID prefix of the items which it holds. Generic attributes
+  may be specified. Each generic attribute key shall be a string. Each generic
+  attribute value shall be a string.
+
+- The value may be a list. Each list element shall be a string. A list gives
+  the specification item directories.  The items of a directory take the UID
+  prefix which their path gives.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeToolItemCache`
+
+.. _SpecTypeToolSpecificationDocumentationTask:
+
+Tool Specification Documentation Task
+=====================================
+
+This type refines the :ref:`SpecTypeToolTask` through the ``task-type``
+attribute if the value is ``spec-documentation``. This set of attributes
+specifies a specification documentation task. The following explicit attributes
+are mandatory:
+
+- ``license``
+
+- ``target``
+
+The explicit attributes for this type are:
+
+accepted-licenses
+    The attribute value shall be a list of strings. It shall be the licenses
+    which the produced file accepts for a part whose license expression permits
+    not the license.
+
+automatically-generated-warning
+    The attribute value shall be a string. It shall be the warning which the
+    produced file carries. An empty warning adds no comment block to a file.
+
+hierarchy-subsection-name
+    The attribute value shall be a string. It shall be the name of the
+    hierarchy subsection.
+
+hierarchy-text
+    The attribute value shall be a string. It shall be the text which
+    introduces the hierarchy.
+
+ignore
+    The attribute value shall be a string. It shall be a regular expression.
+    The documentation leaves out a type whose name it matches.
+
+item-types-subsection-name
+    The attribute value shall be a string. It shall be the name of the item
+    types subsection.
+
+label-prefix
+    The attribute value shall be a string. It shall be the prefix of the labels
+    of the documented types.
+
+license
+    The attribute value shall be a :ref:`SpecTypeSPDXLicenseIdentifier`. It
+    shall be the license of the produced file.
+
+root-type-uid
+    The attribute value shall be a string. It shall be the UID of the root
+    specification type item.
+
+section-label-prefix
+    The attribute value shall be a string. It shall be the prefix of the labels
+    of the sections.
+
+section-name
+    The attribute value shall be a string. It shall be the name of the section.
+
+target
+    The attribute value shall be a string. It shall be the target file of the
+    documentation.
+
+value-types-subsection-name
+    The attribute value shall be a string. It shall be the name of the value
+    types subsection.
+
+.. _SpecTypeToolSpecificationVerificationTask:
+
+Tool Specification Verification Task
+====================================
+
+This type refines the :ref:`SpecTypeToolTask` through the ``task-type``
+attribute if the value is ``spec-verification``. This set of attributes
+specifies a specification verification task. All explicit attributes shall be
+specified. The explicit attributes for this type are:
+
+root-type
+    The attribute value shall be a string. It shall be the UID of the root
+    specification type item.
+
+.. _SpecTypeToolTask:
+
+Tool Task
+=========
+
+This set of attributes specifies a task of a tool.  The configuration carries a
+list of tasks.  A tool performs every task of its type. The following explicit
+attributes are mandatory:
+
+- ``task-name``
+
+- ``task-type``
+
+The explicit attributes for this type are:
+
+params
+    The attribute value may have any type. If the value is present, then it
+    shall be the parameters of the task.  A task uses them as substitution
+    variables.
+
+task-name
+    The attribute value shall be a :ref:`SpecTypeName`. It shall be the name of
+    the task.  The name shall be unique within the configuration.  The messages
+    of a tool use it to name the task.
+
+task-type
+    The attribute value shall be a :ref:`SpecTypeName`. It shall be the type of
+    the task.  This attribute is used for type refinements.
+
+This type is refined by the following types:
+
+- :ref:`SpecTypeToolGlossaryTask`
+
+- :ref:`SpecTypeToolSpecificationDocumentationTask`
+
+- :ref:`SpecTypeToolSpecificationVerificationTask`
+
+This type is used by the following types:
+
+- :ref:`SpecTypeToolConfigurationItemType`
+
 .. _SpecTypeUID:
 
 UID
@@ -2064,3 +2353,5 @@ The value shall be a string. It shall be a valid absolute or relative item UID.
 This type is used by the following types:
 
 - :ref:`SpecTypeLink`
+
+- :ref:`SpecTypeToolGlossaryTask`
