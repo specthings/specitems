@@ -26,7 +26,10 @@
 
 import os
 
-from specitems.cite import BibTeXCitationProvider
+import pytest
+
+from specitems.cite import (BibTeXCitationProvider, get_reference_target,
+                            get_reference_work, make_anchor, ReferenceTarget)
 from specitems.contentsphinx import SphinxMapper
 from specitems.items import Item, ItemCache, ItemCacheConfig, SpecTypeProvider
 from specitems.specverify import verify_specification_format
@@ -221,3 +224,55 @@ def test_cite(tmpdir):
     assert str(content) == _EXPECTED_BIBTEX_ENTRIES
     mapper.add_get_value("reference:/bibtex", provider.get_bibtex_entries)
     assert mapper.substitute("${.:/bibtex}") == _EXPECTED_BIBTEX_ENTRIES[:-1]
+
+
+def test_reference_location(tmpdir):
+    config = ItemCacheConfig(
+        paths=[os.path.join(os.path.dirname(__file__), "spec-refs")],
+        spec_type_root_uid="/spec/root",
+        cache_directory=os.path.join(tmpdir, "cache"))
+    cache = ItemCache(config, type_provider=SpecTypeProvider({}))
+    assert make_anchor("SchedulerEDF") == "scheduleredf"
+    assert make_anchor("internal_errors") == "internal-errors"
+    assert make_anchor("_A  b_") == "a-b"
+    web = cache["/ref/web"]
+    area = cache["/ref/web/area"]
+    user = cache["/ref/web/user"]
+    assert get_reference_work(web) == web
+    assert get_reference_work(area) == web
+    with pytest.raises(ValueError, match="exactly one link"):
+        get_reference_work(cache["/ref/web/orphan"])
+    target = get_reference_target(web)
+    assert target == ReferenceTarget(web, None, None, None, "",
+                                     "https://foobar.org/doc")
+    target = get_reference_target(area)
+    assert target == ReferenceTarget(
+        web, "Area", "Area_Label", "1.2", "/area.html",
+        "https://foobar.org/doc/area.html#area-label")
+    links = list(user.links_to_parents("reference"))
+    target = get_reference_target(links[0].item, links[0])
+    assert target == ReferenceTarget(
+        web, "Area", "Sub Label", "1.2.3", "/area.html/sub",
+        "https://foobar.org/doc/area.html/sub#sub-label")
+    target = get_reference_target(links[1].item, links[1])
+    assert target == ReferenceTarget(web, None, None, None, "/page.html",
+                                     "https://foobar.org/doc/page.html")
+    nothing = cache["/ref/web/nothing"]
+    target = get_reference_target(nothing, links[2])
+    assert target == ReferenceTarget(cache["/ref/misc"], None, None, None, "",
+                                     None)
+    mapper = SphinxMapper(user, "CC-BY-SA-4.0")
+    provider = BibTeXCitationProvider(mapper)
+    assert mapper.substitute("${area:/cite}") == ":cite:`RefWeb`"
+    assert mapper.substitute(
+        "${area:/cite-long}") == "*Web*, Area :cite:`RefWeb`"
+    assert mapper.substitute(
+        "${nothing:/cite-long}") == "*Misc* :cite:`RefMisc`"
+    assert mapper.substitute("${../web:/cite-long}") == (
+        "*Web* :cite:`RefWeb`")
+    content = mapper.create_content()
+    provider.add_bibtex_entries(content)
+    text = str(content)
+    assert "@misc{RefWeb," in text
+    assert "@misc{RefMisc," in text
+    assert "Area" not in text

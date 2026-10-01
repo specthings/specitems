@@ -24,9 +24,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Callable
+import dataclasses
+import re
+from typing import Callable, Optional
 
-from .items import Item
+from .items import Item, Link
 from .itemmapper import ItemGetValueContext, ItemType, ItemValueProvider
 from .content import list_terms
 from .contenttext import TextContent, TextMapper, latex_escape
@@ -50,6 +52,79 @@ _DOUBLE_QUOTE = {
 
 _PERSONS = {"author", "editor"}
 
+_NOT_ID_CHARS = re.compile(r"[^a-z0-9]+")
+
+
+def make_anchor(label: str) -> str:
+    """
+    Make the anchor of the label in the way Sphinx makes the identifier of a
+    label target.
+    """
+    return _NOT_ID_CHARS.sub("-", label.lower()).strip("-")
+
+
+@dataclasses.dataclass
+class ReferenceTarget:
+    """ Represents the target of a reference link. """
+
+    # pylint: disable=too-many-instance-attributes
+
+    #: The referenced work.
+    work: Item
+
+    #: The name of the area within the work.
+    name: Optional[str]
+
+    #: The label of the area within the work.
+    label: Optional[str]
+
+    #: The location of the area within the work.
+    location: Optional[str]
+
+    #: The path of the area relative to the base URL of the work.
+    path: str
+
+    #: The URL of the area.  The caller substitutes it in the context of the
+    #: work.
+    url: Optional[str]
+
+
+def get_reference_work(item: Item) -> Item:
+    """
+    Get the referenced work of the reference or reference location item.
+    """
+    if item.type == "reference-location":
+        works = list(item.parents("reference-location"))
+        if len(works) != 1:
+            raise ValueError(f"{item.uid}: a reference location shall have "
+                             "exactly one link to the referenced work")
+        return works[0]
+    return item
+
+
+def get_reference_target(item: Item,
+                         link: Optional[Link] = None) -> ReferenceTarget:
+    """
+    Get the target of the reference or reference location item.
+
+    The attributes of the optional reference link take precedence over the
+    attributes of the reference location.  The paths of the reference location
+    and the reference link are concatenated.
+    """
+    work = get_reference_work(item)
+    link_data = {} if link is None else link.data
+    area = item.data if item is not work else {}
+    name = area.get("name")
+    label = link_data.get("label", area.get("label"))
+    location = link_data.get("location", area.get("location"))
+    path = f"{area.get('path', '')}{link_data.get('path', '')}"
+    base = work.get("work-base-url")
+    url: Optional[str] = None
+    if base is not None:
+        anchor = "" if label is None else f"#{make_anchor(label)}"
+        url = f"{base}{path}{anchor}"
+    return ReferenceTarget(work, name, label, location, path, url)
+
 
 def _get_fields(item: Item) -> tuple[str, _Fields]:
     _, _, publication_type = item.type.partition("/")
@@ -70,6 +145,10 @@ class BibTeXCitationProvider(ItemValueProvider):
         self._get_fields: dict[str, _GetFields] = {}
         mapper.add_get_value("reference:/cite", self._get_cite)
         mapper.add_get_value("reference:/cite-long", self._get_cite_long)
+        mapper.add_get_value("reference-location:/cite",
+                             self._get_cite_location)
+        mapper.add_get_value("reference-location:/cite-long",
+                             self._get_cite_long_location)
 
     def reset(self) -> None:
         self._citations.clear()
@@ -135,18 +214,37 @@ class BibTeXCitationProvider(ItemValueProvider):
                 content.append(f"  {field} = {{{value}}},")
             content.append("}")
 
-    def _get_cite(self, ctx: ItemGetValueContext) -> str:
-        self._citations.add(ctx.item)
+    def _cite(self, work: Item) -> str:
+        self._citations.add(work)
         assert isinstance(self.mapper, TextMapper)
         content = self.mapper.create_content()
-        return content.cite(ctx.item.ident)
+        return content.cite(work.ident)
 
-    def _get_cite_long(self, ctx: ItemGetValueContext) -> str:
-        self._citations.add(ctx.item)
-        _, fields = self.get_fields(ctx.item)
+    def _cite_long(self, ctx: ItemGetValueContext, work: Item,
+                   name: Optional[str]) -> str:
+        _, fields = self.get_fields(work)
         assert isinstance(self.mapper, TextMapper)
         content = self.mapper.create_content()
         title = fields["title"]
         assert isinstance(title, str)
-        title = content.emphasize(ctx.substitute_and_transform(title))
-        return f"{title} {content.cite(ctx.item.ident)}"
+        if work is ctx.item:
+            title = ctx.substitute(title)
+        else:
+            title = self.mapper.substitute_data(title, work)
+        title = content.emphasize(ctx.transform(title))
+        if name is not None:
+            title = f"{title}, {ctx.substitute_and_transform(name)}"
+        return f"{title} {self._cite(work)}"
+
+    def _get_cite(self, ctx: ItemGetValueContext) -> str:
+        return self._cite(ctx.item)
+
+    def _get_cite_long(self, ctx: ItemGetValueContext) -> str:
+        return self._cite_long(ctx, ctx.item, None)
+
+    def _get_cite_location(self, ctx: ItemGetValueContext) -> str:
+        return self._cite(get_reference_work(ctx.item))
+
+    def _get_cite_long_location(self, ctx: ItemGetValueContext) -> str:
+        return self._cite_long(ctx, get_reference_work(ctx.item),
+                               ctx.item.get("name"))

@@ -1,0 +1,12 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+label: Area_Label
+links:
+- role: reference-location
+  uid: ../web
+location: '1.2'
+name: Area
+path: /area.html
+type: reference-location

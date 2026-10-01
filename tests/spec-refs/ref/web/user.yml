@@ -1,0 +1,20 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+glossary-type: group
+links:
+- label: Sub Label
+  location: '1.2.3'
+  path: /sub
+  role: reference
+  uid: area
+- path: /page.html
+  role: reference
+  uid: ../web
+- role: reference
+  uid: nothing
+name: User
+text: |
+  Text.
+type: glossary

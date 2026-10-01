@@ -24,7 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from .cite import BibTeXCitationProvider
+from .cite import (BibTeXCitationProvider, get_reference_target,
+                   get_reference_work, make_anchor, ReferenceTarget)
 from .clangformat import ClangFormatter
 from .cliutil import (
     LoggingStatus,
@@ -207,6 +208,7 @@ __all__ = [
     "MarkdownContent",
     "MarkdownMapper",
     "ROW_SPAN",
+    "ReferenceTarget",
     "SpecDocumentConfig",
     "SpecTypeProvider",
     "SpecVerifier",
@@ -238,6 +240,8 @@ __all__ = [
     "get_item_cache_arguments",
     "get_license_list_version",
     "get_reference",
+    "get_reference_target",
+    "get_reference_work",
     "get_value_default",
     "get_value_plural",
     "get_value_subprocess",
@@ -258,6 +262,7 @@ __all__ = [
     "load_config_item",
     "load_data",
     "load_data_by_uid",
+    "make_anchor",
     "make_copyright_statement",
     "make_label",
     "make_lines",
