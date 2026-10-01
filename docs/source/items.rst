@@ -24,6 +24,8 @@ The specification item types have the following hierarchy:
 
     - :ref:`SpecTypeGlossaryTermItemType`
 
+  - :ref:`SpecTypeInlineItemType`
+
   - :ref:`SpecTypeLicenseItemType`
 
   - :ref:`SpecTypeProxyItemType`
@@ -114,6 +116,8 @@ This type is refined by the following types:
 
 - :ref:`SpecTypeGlossaryItemType`
 
+- :ref:`SpecTypeInlineItemType`
+
 - :ref:`SpecTypeLicenseItemType`
 
 - :ref:`SpecTypeProxyItemType`
@@ -180,6 +184,17 @@ term
 text
     The attribute value shall be a :ref:`SpecTypeTextInMySTFormat`. It shall be
     the definition of the glossary term.
+
+.. _SpecTypeInlineItemType:
+
+Inline Item Type
+================
+
+This type refines the :ref:`SpecTypeRootItemType` through the ``type``
+attribute if the value is ``inline``. This set of attributes specifies an
+inline item of a tool configuration. Generic attributes may be specified. Each
+generic attribute key shall be a :ref:`SpecTypeName`. The attribute value may
+have any type. The generic attributes are the attributes of the inline item.
 
 .. _SpecTypeLicenseItemType:
 
@@ -957,9 +972,19 @@ Tool Configuration Item Type
 This type refines the :ref:`SpecTypeRootItemType` through the ``type``
 attribute if the value is ``tool-config``. This set of attributes specifies the
 configuration of the tools.  The file specitems.yml of a tree holds one such
-item.  A tool reads the item cache and performs every task of its own type. All
-explicit attributes shall be specified. The explicit attributes for this type
-are:
+item.  A tool reads the item cache and performs every task of its own type. The
+following explicit attributes are mandatory:
+
+- ``item-cache``
+
+- ``tasks``
+
+The explicit attributes for this type are:
+
+inline-items
+    The attribute value shall be a list. Each list element shall be a
+    :ref:`SpecTypeToolInlineItem`. It shall be the items which the
+    configuration adds to the item cache.
 
 item-cache
     The attribute value shall be a :ref:`SpecTypeToolItemCache`. It shall be
@@ -973,6 +998,18 @@ tasks
 
 Specification attribute sets and value types
 ********************************************
+
+.. _SpecTypeAbsoluteUID:
+
+Absolute UID
+============
+
+The value shall be a string. It shall be a valid absolute item UID. The value
+shall match with the regular expression "``^/[a-zA-Z0-9._/-]*$``".
+
+This type is used by the following types:
+
+- :ref:`SpecTypeToolInlineItem`
 
 .. _SpecTypeCitationGroupMemberLinkRole:
 
@@ -1239,6 +1276,8 @@ This type is used by the following types:
 
 - :ref:`SpecTypeGlossaryItemType`
 
+- :ref:`SpecTypeInlineItemType`
+
 - :ref:`SpecTypeLink`
 
 - :ref:`SpecTypeRootItemType`
@@ -1254,6 +1293,8 @@ This type is used by the following types:
 - :ref:`SpecTypeSpecificationList`
 
 - :ref:`SpecTypeSpecificationRefinementLinkRole`
+
+- :ref:`SpecTypeToolInlineItemData`
 
 - :ref:`SpecTypeToolTask`
 
@@ -2221,6 +2262,42 @@ project-header
 project-target
     The attribute value shall be an optional string. If the value is present,
     then it shall be the target file of the project glossary.
+
+.. _SpecTypeToolInlineItem:
+
+Tool Inline Item
+================
+
+This set of attributes specifies an item which the configuration adds to the
+item cache.  An example is a package item which a tree refers to and which only
+a package build provides. All explicit attributes shall be specified. The
+explicit attributes for this type are:
+
+data
+    The attribute value shall be a :ref:`SpecTypeToolInlineItemData`. It shall
+    be the attributes of the item.
+
+uid
+    The attribute value shall be an :ref:`SpecTypeAbsoluteUID`. It shall be the
+    UID of the item.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeToolConfigurationItemType`
+
+.. _SpecTypeToolInlineItemData:
+
+Tool Inline Item Data
+=====================
+
+This set of attributes specifies the attributes of an inline item. Generic
+attributes may be specified. Each generic attribute key shall be a
+:ref:`SpecTypeName`. The attribute value may have any type. The generic
+attributes are the attributes of the inline item.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeToolInlineItem`
 
 .. _SpecTypeToolItemCache:
 

@@ -32,10 +32,10 @@ import pytest
 
 from specitems import (ContentContext, EmptyItemCache, Item, LicenseProvider,
                        SpecTypeProvider)
-from specitems.specconfig import (CONFIG_FILE, check_license_items,
-                                  create_content_context, create_type_provider,
-                                  find_config_file, load_config_item,
-                                  yield_tasks)
+from specitems.specconfig import (CONFIG_FILE, add_inline_items,
+                                  check_license_items, create_content_context,
+                                  create_type_provider, find_config_file,
+                                  load_config_item, yield_tasks)
 
 _CONFIG = """SPDX-License-Identifier: CC-BY-SA-4.0
 copyrights:
@@ -223,3 +223,65 @@ def test_load_config_item_no_item(tmp_path):
     path.write_text("", encoding="utf-8")
     with pytest.raises(ValueError, match="holds no item"):
         load_config_item(str(path))
+
+
+def _write_inline_items(path, inline_items: str) -> None:
+    path.write_text(_CONFIG.replace(
+        "links: []\n", f"links: []\ninline-items:\n{inline_items}"),
+                    encoding="utf-8")
+
+
+def test_add_inline_items(tmp_path):
+    path = tmp_path / CONFIG_FILE
+    _write_inline_items(
+        path, "- uid: /pkg/a\n"
+        "  data:\n"
+        "    directory: https://a.org\n"
+        "    links:\n"
+        "    - role: r\n"
+        "      uid: b\n"
+        "- uid: /pkg/b\n"
+        "  data:\n"
+        "    links: []\n"
+        "    type: reference-location\n")
+    config = load_config_item(str(path))
+    item_cache = EmptyItemCache(type_provider=_provider())
+    add_inline_items(config, item_cache)
+    item_a = item_cache["/pkg/a"]
+    item_b = item_cache["/pkg/b"]
+    assert item_a["directory"] == "https://a.org"
+    assert list(item_a.parents("r")) == [item_b]
+    assert list(item_b.children("r")) == [item_a]
+    assert item_a["SPDX-License-Identifier"] == "CC-BY-SA-4.0"
+    assert item_a["copyrights"] == [
+        "Copyright (C) 2026 embedded brains GmbH & Co. KG"
+    ]
+    assert item_a["enabled-by"] is True
+    assert item_a.type == "inline"
+    assert item_b.type == "reference-location"
+    assert "type" not in config["inline-items"][0]["data"]
+    with pytest.raises(ValueError, match="/pkg/a exists already"):
+        add_inline_items(config, item_cache)
+    item_cache.proxies["/pkg/a"] = item_cache.pop("/pkg/a")
+    with pytest.raises(ValueError, match="/pkg/a exists already"):
+        add_inline_items(config, item_cache)
+    _write_inline_items(
+        path, "- uid: /pkg/c\n"
+        "  data: {}\n"
+        "- uid: /pkg/c\n"
+        "  data: {}\n")
+    with pytest.raises(ValueError, match="/pkg/c exists already"):
+        add_inline_items(load_config_item(str(path)), item_cache)
+    assert "/pkg/c" not in item_cache
+    path.write_text(_CONFIG, encoding="utf-8")
+    add_inline_items(load_config_item(str(path)), EmptyItemCache())
+
+
+def test_inline_item_invalid(tmp_path):
+    path = tmp_path / CONFIG_FILE
+    for inline_items in ("- uid: ../pkg/a\n  data: {}\n",
+                         "- uid: /pkg/a\n  data: []\n",
+                         "- uid: /pkg/a\n  data: a\n"):
+        _write_inline_items(path, inline_items)
+        with pytest.raises(ValueError, match="is invalid"):
+            load_config_item(str(path), _provider())

@@ -1,0 +1,28 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      data:
+        description: |
+          It shall be the attributes of the item.
+        spec-type: tool-inline-item-data
+      uid:
+        description: |
+          It shall be the UID of the item.
+        spec-type: absolute-uid
+    description: |
+      This set of attributes specifies an item which the configuration adds to
+      the item cache.  An example is a package item which a tree refers to and
+      which only a package build provides.
+    mandatory-attributes: all
+spec-name: Tool Inline Item
+spec-type: tool-inline-item
+type: spec

@@ -145,9 +145,10 @@ from .itemmapper import (
 from .licenseinfo import (LicenseAggregate, LicenseEntry, LicenseProvider)
 from .spdx import (get_license_list_version, parse_license_expression,
                    parse_license_identifier, permits)
-from .specconfig import (CONFIG_FILE, CONFIG_UID, check_license_items,
-                         create_content_context, create_type_provider,
-                         find_config_file, load_config_item, yield_tasks)
+from .specconfig import (CONFIG_FILE, CONFIG_UID, add_inline_items,
+                         check_license_items, create_content_context,
+                         create_type_provider, find_config_file,
+                         load_config_item, yield_tasks)
 from .specdoc import (SpecDocumentConfig, add_specification_documentation,
                       generate_specification_documentation)
 from .specformatter import SpecYAMLFormatter
@@ -218,6 +219,7 @@ __all__ = [
     "SubstitutionError",
     "TextContent",
     "TextMapper",
+    "add_inline_items",
     "add_license_arguments",
     "add_specification_documentation",
     "atomic_dump_to_file",

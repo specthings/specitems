@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import copy
 import logging
 from pathlib import Path
 from typing import Any, Iterator, Optional
@@ -31,8 +32,8 @@ from typing import Any, Iterator, Optional
 from .cliutil import load_config
 from .content import ContentContext
 from .licenseinfo import LicenseAggregate, LicenseProvider
-from .items import (EmptyItemCache, Item, ItemDataByUID, ItemTypeProvider,
-                    SpecTypeProvider)
+from .items import (EmptyItemCache, Item, ItemCache, ItemDataByUID,
+                    ItemTypeProvider, SpecTypeProvider)
 from .specverify import SpecVerifier
 
 #: The name of the configuration file of a tree.
@@ -202,6 +203,41 @@ def check_license_items(config: Item, provider: LicenseProvider) -> None:
                 errors.append(str(err))
     if errors:
         raise ValueError("\n".join(errors))
+
+
+def add_inline_items(config: Item, item_cache: ItemCache) -> None:
+    """
+    Add the inline items of the configuration to the item cache.
+
+    An inline item is part of the configuration file.  It takes the license
+    and the copyrights of the configuration item, unless it states its own.
+    An inline item without links gets an empty list of links.  An inline item
+    without an enabled-by attribute is enabled.  An inline item without a type
+    has the inline type.  An inline item may link to another inline item.
+
+    Args:
+        config: The configuration item.
+        item_cache: The item cache of the tree.
+
+    Raises:
+        ValueError: An inline item exists already in the item cache or in the
+            configuration.
+    """
+    data_by_uid: ItemDataByUID = {}
+    for entry in config.get("inline-items", []):
+        uid = entry["uid"]
+        if (uid in item_cache or uid in item_cache.proxies
+                or uid in data_by_uid):
+            raise ValueError(f"the inline item {uid} exists already")
+        data = copy.deepcopy(entry["data"])
+        for key, value in (("SPDX-License-Identifier",
+                            config["SPDX-License-Identifier"]),
+                           ("copyrights", config["copyrights"]),
+                           ("enabled-by", True), ("links", []), ("type",
+                                                                 "inline")):
+            data.setdefault(key, copy.deepcopy(value))
+        data_by_uid[uid] = data
+    item_cache.add_items(data_by_uid)
 
 
 def yield_tasks(config: Item, task_type: str) -> Iterator[dict]:

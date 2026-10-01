@@ -1,0 +1,27 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: inline
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes: {}
+    description: |
+      This set of attributes specifies an inline item of a tool configuration.
+    generic-attributes:
+      description: |
+        The generic attributes are the attributes of the inline item.
+      key-spec-type: name
+      value-spec-type: any
+    mandatory-attributes: all
+spec-name: Inline Item Type
+spec-type: inline
+type: spec
