@@ -243,24 +243,34 @@ def test_reference_location(tmpdir):
     with pytest.raises(ValueError, match="exactly one link"):
         get_reference_work(cache["/ref/web/orphan"])
     target = get_reference_target(web)
-    assert target == ReferenceTarget(web, None, None, None, "",
+    assert target == ReferenceTarget(web, None, None, None, "", None,
                                      "https://foobar.org/doc")
     target = get_reference_target(area)
     assert target == ReferenceTarget(
-        web, "Area", "Area_Label", "1.2", "/area.html",
+        web, "Area", "Area_Label", "1.2", "/area.html", "area-label",
         "https://foobar.org/doc/area.html#area-label")
     links = list(user.links_to_parents("reference"))
     target = get_reference_target(links[0].item, links[0])
     assert target == ReferenceTarget(
-        web, "Area", "Sub Label", "1.2.3", "/area.html/sub",
+        web, "Area", "Sub Label", "1.2.3", "/area.html/sub", "sub-label",
         "https://foobar.org/doc/area.html/sub#sub-label")
     target = get_reference_target(links[1].item, links[1])
-    assert target == ReferenceTarget(web, None, None, None, "/page.html",
+    assert target == ReferenceTarget(web, None, None, None, "/page.html", None,
                                      "https://foobar.org/doc/page.html")
     nothing = cache["/ref/web/nothing"]
     target = get_reference_target(nothing, links[2])
     assert target == ReferenceTarget(cache["/ref/misc"], None, None, None, "",
-                                     None)
+                                     None, None)
+    target = get_reference_target(links[3].item, links[3])
+    assert target == ReferenceTarget(
+        web, "Heading", "Heading_Label", None, "/heading.html", "the-heading",
+        "https://foobar.org/doc/heading.html#the-heading")
+    target = get_reference_target(links[4].item, links[4])
+    assert target.label == "Area_Label"
+    assert target.url == "https://foobar.org/doc/area.html#x-y"
+    target = get_reference_target(links[5].item, links[5])
+    assert target.label == "Other"
+    assert target.url == "https://foobar.org/doc/heading.html#other"
     mapper = SphinxMapper(user, "CC-BY-SA-4.0")
     provider = BibTeXCitationProvider(mapper)
     assert mapper.substitute("${area:/cite}") == ":cite:`RefWeb`"

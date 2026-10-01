@@ -14,6 +14,13 @@ spec-example: null
 spec-info:
   dict:
     attributes:
+      anchor:
+        description: |
+          It shall be the anchor of the used parts within the page of the
+          referenced work.  The anchor is the fragment of the URL without the
+          number sign.  An example is the identifier of a section heading.
+          The anchor replaces the anchor which the label yields.
+        spec-type: str
       label:
         description: |
           It shall be the label to the used parts within the referenced work.
@@ -36,8 +43,8 @@ spec-info:
       Items may link to a reference or to a reference location using this
       role.  The link states that the referenced work is the authority for the
       content of the item.  The optional location attribute locates the parts
-      of the work the item uses.  The optional label and path attributes
-      identify the used parts within the work.
+      of the work the item uses.  The optional label, path, and anchor
+      attributes identify the used parts within the work.
     mandatory-attributes: none
 spec-name: Reference Link Role
 spec-type: reference-role

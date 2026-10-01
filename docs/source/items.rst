@@ -880,6 +880,12 @@ to a reference location with the reference role. None of the explicit
 attributes is mandatory, they are all optional. The explicit attributes for
 this type are:
 
+anchor
+    The attribute value shall be a string. It shall be the anchor of the area
+    within the page of the referenced work.  The anchor is the fragment of the
+    URL without the number sign.  An example is the identifier of a section
+    heading.  The anchor replaces the anchor which the label yields.
+
 label
     The attribute value shall be a string. It shall be the label to the area
     within the referenced work.  The label format is specific to the referenced
@@ -1339,9 +1345,16 @@ This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``reference``. Items may link to a reference or to a reference
 location using this role.  The link states that the referenced work is the
 authority for the content of the item.  The optional location attribute locates
-the parts of the work the item uses.  The optional label and path attributes
-identify the used parts within the work. None of the explicit attributes is
-mandatory, they are all optional. The explicit attributes for this type are:
+the parts of the work the item uses.  The optional label, path, and anchor
+attributes identify the used parts within the work. None of the explicit
+attributes is mandatory, they are all optional. The explicit attributes for
+this type are:
+
+anchor
+    The attribute value shall be a string. It shall be the anchor of the used
+    parts within the page of the referenced work.  The anchor is the fragment
+    of the URL without the number sign.  An example is the identifier of a
+    section heading. The anchor replaces the anchor which the label yields.
 
 label
     The attribute value shall be a string. It shall be the label to the used

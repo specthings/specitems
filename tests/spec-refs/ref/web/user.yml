@@ -14,6 +14,14 @@ links:
   uid: ../web
 - role: reference
   uid: nothing
+- role: reference
+  uid: heading
+- anchor: x-y
+  role: reference
+  uid: area
+- label: Other
+  role: reference
+  uid: heading
 name: User
 text: |
   Text.

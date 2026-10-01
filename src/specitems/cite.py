@@ -84,6 +84,9 @@ class ReferenceTarget:
     #: The path of the area relative to the base URL of the work.
     path: str
 
+    #: The anchor of the area within the page of the work.
+    anchor: Optional[str]
+
     #: The URL of the area.  The caller substitutes it in the context of the
     #: work.
     url: Optional[str]
@@ -109,7 +112,10 @@ def get_reference_target(item: Item,
 
     The attributes of the optional reference link take precedence over the
     attributes of the reference location.  The paths of the reference location
-    and the reference link are concatenated.
+    and the reference link are concatenated.  The anchor comes from the first
+    of the reference link and the reference location which has an anchor or a
+    label.  An anchor attribute gives the anchor, otherwise the label yields
+    it.
     """
     work = get_reference_work(item)
     link_data = {} if link is None else link.data
@@ -118,12 +124,20 @@ def get_reference_target(item: Item,
     label = link_data.get("label", area.get("label"))
     location = link_data.get("location", area.get("location"))
     path = f"{area.get('path', '')}{link_data.get('path', '')}"
+    anchor: Optional[str] = None
+    for data in (link_data, area):
+        if "anchor" in data:
+            anchor = data["anchor"]
+            break
+        if "label" in data:
+            anchor = make_anchor(data["label"])
+            break
     base = work.get("work-base-url")
     url: Optional[str] = None
     if base is not None:
-        anchor = "" if label is None else f"#{make_anchor(label)}"
-        url = f"{base}{path}{anchor}"
-    return ReferenceTarget(work, name, label, location, path, url)
+        fragment = "" if anchor is None else f"#{anchor}"
+        url = f"{base}{path}{fragment}"
+    return ReferenceTarget(work, name, label, location, path, anchor, url)
 
 
 def _get_fields(item: Item) -> tuple[str, _Fields]:
