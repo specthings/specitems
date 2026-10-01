@@ -28,6 +28,11 @@ spec-info:
         description: |
           It shall be the title of the work.
         spec-type: str
+      work-base-url:
+        description: |
+          It shall be the base URL of the referenced work.  A path of a
+          reference location or of a reference link is relative to this URL.
+        spec-type: str
       work-url:
         description: |
           If the value is present, then it shall be the URL to the referenced

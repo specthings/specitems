@@ -52,6 +52,8 @@ The specification item types have the following hierarchy:
 
     - :ref:`SpecTypeTechnicalReportReference`
 
+  - :ref:`SpecTypeReferenceLocation`
+
   - :ref:`SpecTypeSpecificationItemType`
 
   - :ref:`SpecTypeToolConfigurationItemType`
@@ -117,6 +119,8 @@ This type is refined by the following types:
 - :ref:`SpecTypeProxyItemType`
 
 - :ref:`SpecTypeReference`
+
+- :ref:`SpecTypeReferenceLocation`
 
 - :ref:`SpecTypeSpecificationItemType`
 
@@ -266,6 +270,11 @@ reference-type
 
 title
     The attribute value shall be a string. It shall be the title of the work.
+
+work-base-url
+    The attribute value shall be a string. It shall be the base URL of the
+    referenced work.  A path of a reference location or of a reference link is
+    relative to this URL.
 
 work-hash
     The attribute value shall be an :ref:`SpecTypeOptionalSHA256Digest`. If the
@@ -843,6 +852,39 @@ publication-type
 year
     The attribute value shall be a string. It shall be the year of publication.
 
+.. _SpecTypeReferenceLocation:
+
+Reference Location
+==================
+
+This type refines the :ref:`SpecTypeRootItemType` through the ``type``
+attribute if the value is ``reference-location``. This set of attributes
+specifies an area within a referenced work.  The item shall have exactly one
+link with the reference-location role to the referenced work.  Items may link
+to a reference location with the reference role. None of the explicit
+attributes is mandatory, they are all optional. The explicit attributes for
+this type are:
+
+label
+    The attribute value shall be a string. It shall be the label to the area
+    within the referenced work.  The label format is specific to the referenced
+    work.  An example is a label to a document location.
+
+location
+    The attribute value shall be a string. It shall be the location of the area
+    within the referenced work.  An example is a section number.
+
+name
+    The attribute value shall be a string. It shall be the name of the area
+    within the referenced work.  An example is the name of a chapter or a
+    section.
+
+path
+    The attribute value shall be a string. It shall be the path to the
+    component of the area within the referenced work.  The path format is
+    specific to the referenced work.  An example is the path to a page or a
+    part of resource locator.
+
 .. _SpecTypeSpecificationItemType:
 
 Specification Item Type
@@ -1118,6 +1160,8 @@ This type is refined by the following types:
 
 - :ref:`SpecTypeReferenceLinkRole`
 
+- :ref:`SpecTypeReferenceLocationLinkRole`
+
 - :ref:`SpecTypeSpecificationMemberLinkRole`
 
 - :ref:`SpecTypeSpecificationRefinementLinkRole`
@@ -1251,15 +1295,36 @@ Reference Link Role
 ===================
 
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
-value is ``reference``. Items may link to a reference using this role.  The
-link states that the referenced work is the authority for the content of the
-item.  The optional location attribute locates the parts of the work the item
-uses. None of the explicit attributes is mandatory, they are all optional. The
-explicit attributes for this type are:
+value is ``reference``. Items may link to a reference or to a reference
+location using this role.  The link states that the referenced work is the
+authority for the content of the item.  The optional location attribute locates
+the parts of the work the item uses.  The optional label and path attributes
+identify the used parts within the work. None of the explicit attributes is
+mandatory, they are all optional. The explicit attributes for this type are:
+
+label
+    The attribute value shall be a string. It shall be the label to the used
+    parts within the referenced work. The label format is specific to the
+    referenced work.  An example is a label to a document location.
 
 location
     The attribute value shall be a string. It shall be the location of the used
     parts within the referenced work.  An example is a section number.
+
+path
+    The attribute value shall be a string. It shall be the path to the
+    component of the used parts within the referenced work.  The path format is
+    specific to the referenced work.  An example is the path to a page or a
+    part of resource locator.
+
+.. _SpecTypeReferenceLocationLinkRole:
+
+Reference Location Link Role
+============================
+
+This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
+value is ``reference-location``. A reference location links to the referenced
+work using this role.
 
 .. _SpecTypeSPDXLicenseExpression:
 

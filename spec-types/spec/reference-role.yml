@@ -14,15 +14,30 @@ spec-example: null
 spec-info:
   dict:
     attributes:
+      label:
+        description: |
+          It shall be the label to the used parts within the referenced work.
+          The label format is specific to the referenced work.  An example is
+          a label to a document location.
+        spec-type: str
       location:
         description: |
           It shall be the location of the used parts within the referenced
           work.  An example is a section number.
         spec-type: str
+      path:
+        description: |
+          It shall be the path to the component of the used parts within the
+          referenced work.  The path format is specific to the referenced
+          work.  An example is the path to a page or a part of resource
+          locator.
+        spec-type: str
     description: |
-      Items may link to a reference using this role.  The link states that the
-      referenced work is the authority for the content of the item.  The
-      optional location attribute locates the parts of the work the item uses.
+      Items may link to a reference or to a reference location using this
+      role.  The link states that the referenced work is the authority for the
+      content of the item.  The optional location attribute locates the parts
+      of the work the item uses.  The optional label and path attributes
+      identify the used parts within the work.
     mandatory-attributes: none
 spec-name: Reference Link Role
 spec-type: reference-role

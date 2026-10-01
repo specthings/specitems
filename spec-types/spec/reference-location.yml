@@ -1,0 +1,48 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: reference-location
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      label:
+        description: |
+          It shall be the label to the area within the referenced work.  The
+          label format is specific to the referenced work.  An example is a
+          label to a document location.
+        spec-type: str
+      location:
+        description: |
+          It shall be the location of the area within the referenced work.  An
+          example is a section number.
+        spec-type: str
+      name:
+        description: |
+          It shall be the name of the area within the referenced work.  An
+          example is the name of a chapter or a section.
+        spec-type: str
+      path:
+        description: |
+          It shall be the path to the component of the area within the
+          referenced work.  The path format is specific to the referenced
+          work.  An example is the path to a page or a part of resource
+          locator.
+        spec-type: str
+    description: |
+      This set of attributes specifies an area within a referenced work.  The
+      item shall have exactly one link with the reference-location role to the
+      referenced work.  Items may link to a reference location with the
+      reference role.
+    mandatory-attributes: none
+spec-name: Reference Location
+spec-type: reference-location
+type: spec
