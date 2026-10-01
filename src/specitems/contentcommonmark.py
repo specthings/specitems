@@ -108,6 +108,9 @@ class CommonMarkContent(MarkdownContent):
                 elif cell == COL_SPAN:
                     col_span += 1
                 else:
+                    # The cell is the first column of a covered cell.  It ends
+                    # the column span.
+                    col_span = 1
                     row_span[col_index] += 1
             lines.appendleft(f"  <tr>{line}")
         lines.appendleft("<table>")

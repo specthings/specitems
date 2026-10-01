@@ -309,6 +309,22 @@ def test_commonmark_grid_table():
 """
 
 
+def test_commonmark_grid_table_covered_span():
+    content = CommonMarkContent(context="CC-BY-SA-4.0")
+    content.add_grid_table([["1", "2", "3", "4"], ["a", "b", "c", COL_SPAN],
+                            ["d", "e", ROW_SPAN, ROW_SPAN | COL_SPAN],
+                            ["f", "g", ROW_SPAN, ROW_SPAN | COL_SPAN],
+                            ["h", "i", "j", "k"]])
+    assert str(content) == """<table>
+  <tr><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+  <tr><td>a</td><td>b</td><td rowspan="3" colspan="2">c</td></tr>
+  <tr><td>d</td><td>e</td></tr>
+  <tr><td>f</td><td>g</td></tr>
+  <tr><td>h</td><td>i</td><td>j</td><td>k</td></tr>
+</table>
+"""
+
+
 def test_substitute(tmpdir):
     config = create_item_cache_config(tmpdir, "spec-sphinx")
     item_cache = ItemCache(config,
