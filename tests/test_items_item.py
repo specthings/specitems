@@ -29,7 +29,8 @@ import os
 from pathlib import Path
 import pickle
 import pytest
-import tempfile
+import secrets
+import stat
 import yaml
 
 from specitems import (EmptyItemCache, IS_ENABLED_OPS, Item, ItemCacheConfig,
@@ -435,7 +436,7 @@ def test_atomic_write_does_nothing_if_temp_file_create_fails(
     def _raise_os_error(*_args, **_kwargs):
         raise OSError("simulated create error")
 
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", _raise_os_error)
+    monkeypatch.setattr(os, "open", _raise_os_error)
     item["k"] = "changed"
     with pytest.raises(OSError):
         item.save()
@@ -471,6 +472,41 @@ def test_atomic_write_binary(tmp_path):
     with open(pickle_file, "rb") as src:
         assert pickle.load(src) == {"k": "v"}
     assert list(tmp_path.iterdir()) == [pickle_file]
+
+
+@pytest.mark.parametrize("umask", [0o002, 0o022, 0o077])
+def test_atomic_write_new_file_mode_follows_umask(tmp_path, umask):
+    pickle_file = tmp_path / "i.pickle"
+    previous = os.umask(umask)
+    try:
+        atomic_dump_to_file(str(pickle_file), {"k": "v"}, pickle.dumps)
+    finally:
+        os.umask(previous)
+
+    assert stat.S_IMODE(pickle_file.stat().st_mode) == 0o666 & ~umask
+
+
+def test_atomic_write_temporary_file_name_collision(tmp_path, monkeypatch):
+    pickle_file = tmp_path / "i.pickle"
+    taken = tmp_path / ".tmp-0i.pickle"
+    taken.write_text("x", encoding="utf-8")
+    names = iter(["0", "1"])
+    monkeypatch.setattr(secrets, "token_hex", lambda _count: next(names))
+    atomic_dump_to_file(str(pickle_file), {"k": "v"}, pickle.dumps)
+
+    assert taken.read_text(encoding="utf-8") == "x"
+    assert sorted(tmp_path.iterdir()) == [taken, pickle_file]
+
+
+def test_atomic_write_existing_file_keeps_mode(tmp_path):
+    pickle_file = tmp_path / "i.pickle"
+    atomic_dump_to_file(str(pickle_file), {"k": "v"}, pickle.dumps)
+    pickle_file.chmod(0o640)
+    atomic_dump_to_file(str(pickle_file), {"k": "w"}, pickle.dumps)
+
+    assert stat.S_IMODE(pickle_file.stat().st_mode) == 0o640
+    with open(pickle_file, "rb") as src:
+        assert pickle.load(src) == {"k": "w"}
 
 
 def test_item_get_value_arg():

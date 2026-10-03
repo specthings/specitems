@@ -37,8 +37,8 @@ import logging
 import os
 import pickle
 import re
+import secrets
 import stat
-import tempfile
 from typing import (Any, Callable, Collection, Iterable, Iterator, Match,
                     Optional, Union)
 import json
@@ -753,6 +753,18 @@ def _json_load_data_by_uid(data_by_uid: ItemDataByUID, _cache_dir: str,
                                    path_2)
 
 
+def _create_temporary_file(directory: str, suffix: str) -> tuple[int, str]:
+    while True:
+        path = os.path.join(directory, f".tmp-{secrets.token_hex(8)}{suffix}")
+        try:
+            # The umask applies to this mode, as for a file which open()
+            # creates.
+            return os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                           0o666), path
+        except FileExistsError:
+            continue
+
+
 def atomic_dump_to_file(path: str, data: Any,
                         dumper: Callable[[Any], str | bytes]) -> None:
     """
@@ -765,6 +777,9 @@ def atomic_dump_to_file(path: str, data: Any,
     as the path.  The temporary file is then renamed to the path.  This way, a
     failure while producing the content cannot truncate or corrupt an already
     existing file at the path.
+
+    A file which exists keeps its permissions.  A new file gets the
+    permissions which the umask leaves of 0o666.
     """
     dumped = dumper(data)
     encoding: Optional[str] = None
@@ -776,13 +791,9 @@ def atomic_dump_to_file(path: str, data: Any,
     directory = os.path.dirname(os.path.abspath(path))
     tmp_path: Optional[str] = None
     try:
-        with tempfile.NamedTemporaryFile(mode=mode,
-                                         encoding=encoding,
-                                         dir=directory,
-                                         prefix=".tmp-",
-                                         suffix=os.path.basename(path),
-                                         delete=False) as out:
-            tmp_path = out.name
+        fd, tmp_path = _create_temporary_file(directory,
+                                              os.path.basename(path))
+        with os.fdopen(fd, mode, encoding=encoding) as out:
             with suppress(OSError):
                 os.chmod(tmp_path, stat.S_IMODE(os.stat(path).st_mode))
             out.write(dumped)
