@@ -284,6 +284,8 @@ def unpack_arg(arg: str) -> str:
                     arg_2.append("\b")
                 case "c":
                     arg_2.append(",")
+                case "e":
+                    arg_2.append("=")
                 case "f":
                     arg_2.append("\f")
                 case "g":

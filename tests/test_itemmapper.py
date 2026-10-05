@@ -582,6 +582,7 @@ def test_item_get_value_context():
 def test_unpack_arg():
     arg = unpack_arg("\\0\\a\\b\\c\\f\\g\\n\\r\\s\\t\\v\\%\\(\\)\\\\\\?%()\\x")
     assert arg == "\0\a\b,\f`\n\r \t\v%()\\?${}x"
+    assert unpack_arg("a\\eb") == "a=b"
 
 
 def test_get_bool_arg():
@@ -606,5 +607,9 @@ def test_unpack_args():
     args, kwargs = unpack_args("a,b=c,d", _substitute)
     assert args == ["<a>", "<d>"]
     assert kwargs == {"b": "<c>"}
+
+    args, kwargs = unpack_args("a\\cb\\ec,d=e\\ef", _substitute)
+    assert args == ["<a,b=c>"]
+    assert kwargs == {"d": "<e=f>"}
 
     assert unpack_args(None, _substitute) == ([], {})
