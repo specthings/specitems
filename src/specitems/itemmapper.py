@@ -344,6 +344,24 @@ def unpack_args(
     return args, kwargs
 
 
+def get_bool_arg(kwargs: dict[str, str],
+                 name: str,
+                 default: bool = False) -> bool:
+    """
+    Get the boolean value of the keyword argument by name.
+
+    The value of the argument shall be "0" or "1".  If the argument is not
+    present, then return the default value.
+    """
+    value = kwargs.get(name)
+    if value is None:
+        return default
+    if value not in ("0", "1"):
+        raise ValueError(f"argument '{name}' has the value '{value}', "
+                         "expected '0' or '1'")
+    return value == "1"
+
+
 def _identity(value: str) -> str:
     return value
 
@@ -371,6 +389,11 @@ class ItemGetValueContext:
         if value is None:
             return kwargs[name]
         return kwargs.get(name, value)
+
+    def arg_bool(self, name: str, default: bool = False) -> bool:
+        """ Get the boolean argument value by name. """
+        _, kwargs = self.unpack_args_dict()
+        return get_bool_arg(kwargs, name, default)
 
     def unpack_args_list(self) -> list[str]:
         """ Unpack the context arguments to a list. """

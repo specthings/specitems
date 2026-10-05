@@ -29,8 +29,8 @@ import pytest
 
 from specitems import (EmptyItem, ItemCache, ItemGetValueContext, ItemMapper,
                        ItemValueProvider, SpecTypeProvider, SubstitutionError,
-                       from_clang_variables, is_enabled, get_value_default,
-                       to_at_variables, to_clang_variables,
+                       from_clang_variables, is_enabled, get_bool_arg,
+                       get_value_default, to_at_variables, to_clang_variables,
                        to_dollar_variables, unpack_arg, unpack_args)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
@@ -540,6 +540,14 @@ def test_item_get_value_context():
     assert ctx.index == -1
     assert ctx.arg("a") == "b"
     assert ctx.arg("x", "y") == "y"
+    ctx_bool = ItemGetValueContext(item, remaining_path, "a=1,b=0,c=2", value,
+                                   mapper, {})
+    assert ctx_bool.arg_bool("a")
+    assert not ctx_bool.arg_bool("b")
+    assert not ctx_bool.arg_bool("x")
+    assert ctx_bool.arg_bool("x", True)
+    with pytest.raises(ValueError, match="argument 'c'"):
+        ctx_bool.arg_bool("c")
     assert ctx.unpack_args_list() == ["A", "a=b", "B", "c=d", "e==$", "C"]
     assert ctx.unpack_args_dict() == (["A", "B", "C"], {
         "a": "b",
@@ -574,6 +582,20 @@ def test_item_get_value_context():
 def test_unpack_arg():
     arg = unpack_arg("\\0\\a\\b\\c\\f\\g\\n\\r\\s\\t\\v\\%\\(\\)\\\\\\?%()\\x")
     assert arg == "\0\a\b,\f`\n\r \t\v%()\\?${}x"
+
+
+def test_get_bool_arg():
+    kwargs = {"a": "1", "b": "0", "c": "yes", "d": ""}
+    assert get_bool_arg(kwargs, "a")
+    assert not get_bool_arg(kwargs, "b")
+    assert not get_bool_arg(kwargs, "x")
+    assert get_bool_arg(kwargs, "x", True)
+    with pytest.raises(ValueError,
+                       match="argument 'c' has the value 'yes', "
+                       "expected '0' or '1'"):
+        get_bool_arg(kwargs, "c")
+    with pytest.raises(ValueError, match="argument 'd'"):
+        get_bool_arg(kwargs, "d")
 
 
 def test_unpack_args():
