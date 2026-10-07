@@ -257,6 +257,17 @@ class _ItemMapperContext:
         return token[len(token) // 2:]
 
 
+class _ReferenceGetValue:
+    """ Gets a value which refers to the item and takes no content of it. """
+
+    # pylint: disable=too-few-public-methods
+    def __init__(self, get_value: ItemGetValue) -> None:
+        self._get_value = get_value
+
+    def __call__(self, ctx: "ItemGetValueContext") -> Any:
+        return self._get_value(ctx)
+
+
 class _GetValueDictionary(dict):
 
     def __init__(self, get_value: ItemGetValue) -> None:
@@ -548,11 +559,22 @@ class ItemMapper(abc.ABC):
             assert key not in get_value_map
             get_value_map[key] = (get_value, {})
 
-    def add_get_value(self, type_path_key: str,
-                      get_value: ItemGetValue) -> None:
+    def add_get_value(self,
+                      type_path_key: str,
+                      get_value: ItemGetValue,
+                      reference: bool = False) -> None:
         """
         Associate the get value method with the type/key path.
+
+        Args:
+            type_path_key: The type path and the key path of the value.
+            get_value: The method which gets the value.
+            reference: If true, the value refers to the item and takes no
+                content of it.  A mapped value of a reference does not
+                register the item as a part of the work.
         """
+        if reference:
+            get_value = _ReferenceGetValue(get_value)
         self._add_get_value_map(type_path_key, (get_value, {}))
 
     def add_get_value_dictionary(self, type_path_key: str,
@@ -625,6 +647,7 @@ class ItemMapper(abc.ABC):
         """
         ctx = ItemGetValueContext(item, normalized_key_path.strip("/"), args,
                                   item.data, self, self.get_value_map(item))
+        get_value: ItemGetValue = self.get_value_default
         while ctx.remaining_path:
             key_end = ctx.remaining_path.find("/")
             if key_end >= 0:
@@ -644,7 +667,8 @@ class ItemMapper(abc.ABC):
             get_value, ctx.get_value_map = ctx.get_value_map.get(
                 parts[0], (self.get_value_default, {}))
             ctx.value = get_value(ctx)
-        self.register_part(item)
+        if not isinstance(get_value, _ReferenceGetValue):
+            self.register_part(item)
         return ctx
 
     def map(self,

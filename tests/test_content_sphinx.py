@@ -24,13 +24,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import dataclasses
+
 import pytest
 
 from specitems import (COL_SPAN, ContentContext, EmptyItem, EmptyItemCache,
-                       Item, ItemCache, ItemMapper, LicenseAggregate,
-                       LicenseProvider, ROW_SPAN, SpecTypeProvider,
-                       SphinxContent, SphinxMapper, augment_glossary_terms,
-                       get_reference, make_label)
+                       Item, ItemCache, ItemGetValueContext, ItemMapper,
+                       LicenseAggregate, LicenseProvider, ROW_SPAN,
+                       SpecTypeProvider, SphinxContent, SphinxMapper,
+                       augment_glossary_terms, get_reference, make_label)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
@@ -746,6 +748,14 @@ def test_grid_table_multiline_cells():
 """
 
 
+@dataclasses.dataclass
+class _GetName:
+    key: str = "name"
+
+    def __call__(self, ctx: ItemGetValueContext) -> str:
+        return ctx.value[self.key]
+
+
 def test_substitute(tmpdir):
     config = create_item_cache_config(tmpdir, "spec-sphinx")
     item_cache = ItemCache(config,
@@ -776,6 +786,17 @@ def test_substitute(tmpdir):
     mapper = SphinxMapper(item_cache["/x"], context)
     with pytest.raises(ValueError, match="permits neither"):
         mapper.substitute("${x:/term}")
+    with pytest.raises(ValueError, match="permits neither"):
+        mapper.substitute("${y:/name}")
+    get_name = _GetName()
+    with pytest.raises(TypeError):
+        hash(get_name)
+    mapper.add_get_value("other:/name", get_name, reference=True)
+    mapper.add_get_value("other:/alias", get_name)
+    assert mapper.substitute("${y:/name}") == "foobar"
+    assert not context.licenses
+    with pytest.raises(ValueError, match="permits neither"):
+        mapper.substitute("${y:/alias}")
     context = ContentContext(LicenseAggregate("BSD-2-Clause"))
     work = context.for_work("/w")
     mapper = SphinxMapper(item_cache["/x"], context)
