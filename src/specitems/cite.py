@@ -190,9 +190,9 @@ class BibTeXCitationProvider(ItemValueProvider):
                                      get_fields: _GetFields) -> None:
         if spec_type.refinements:
             for key, refinement in spec_type.refinements.items():
-                self._add_get_fields_for_subtypes(refinement,
-                                                  f"{type_path}/{key}",
-                                                  get_fields)
+                self._add_get_fields_for_subtypes(
+                    refinement, f"{type_path}/{key}" if type_path else key,
+                    get_fields)
         else:
             self._get_fields[type_path] = get_fields
 
@@ -201,12 +201,17 @@ class BibTeXCitationProvider(ItemValueProvider):
         return self._get_fields.get(item.type, _get_fields)(item)
 
     def add_get_fields(self, item_type: str, get_fields: _GetFields) -> None:
-        """ Add the get fields method for the item type. """
+        """
+        Add the get fields method for the item type.
+
+        The method applies to the type and to all of its subtypes.  An empty
+        type denotes the root type.
+        """
         self.mapper.add_get_value(f"{item_type}:/cite", self._get_cite)
         self.mapper.add_get_value(f"{item_type}:/cite-long",
                                   self._get_cite_long)
         spec_type = self.mapper.item.cache.type_provider.root_type
-        for name in item_type.split("/"):
+        for name in filter(None, item_type.split("/")):
             spec_type = spec_type.refinements[name]
         self._add_get_fields_for_subtypes(spec_type, item_type, get_fields)
 

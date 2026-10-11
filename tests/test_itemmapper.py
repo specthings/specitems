@@ -613,3 +613,22 @@ def test_unpack_args():
     assert kwargs == {"d": "<e=f>"}
 
     assert unpack_args(None, _substitute) == ([], {})
+
+
+def test_get_value_subtypes(tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-glossary")
+    item_cache = ItemCache(config, type_provider=SpecTypeProvider({}))
+    mapper = ItemMapper(item_cache["/g"])
+
+    # A method of a type applies to its subtypes
+    mapper.add_get_value("glossary:/x", lambda _ctx: "x")
+    assert mapper["/g:/x"] == "x"
+    assert mapper["/glossary/t:/x"] == "x"
+    with pytest.raises(ValueError):
+        mapper["/spec/root:/x"]
+
+    # A method of the root type applies to every type
+    mapper.add_get_value(":/y", lambda _ctx: "y")
+    assert mapper["/g:/y"] == "y"
+    assert mapper["/glossary/t:/y"] == "y"
+    assert mapper["/spec/root:/y"] == "y"

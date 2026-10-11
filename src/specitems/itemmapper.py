@@ -523,10 +523,9 @@ class ItemMapper(abc.ABC):
             new_get_value_map: tuple[ItemGetValue, dict]) -> None:
         if spec_type.refinements:
             for key, refinement in spec_type.refinements.items():
-                self._add_get_value_map_for_subtypes(refinement,
-                                                     f"{type_path}/{key}",
-                                                     path_key,
-                                                     new_get_value_map)
+                self._add_get_value_map_for_subtypes(
+                    refinement, f"{type_path}/{key}" if type_path else key,
+                    path_key, new_get_value_map)
         else:
             keys = path_key.strip("/").split("/")
             get_value_map = self._get_value_map.setdefault(
@@ -541,7 +540,7 @@ class ItemMapper(abc.ABC):
                                                                dict]) -> None:
         type_name, path_key = type_path_key.split(":")
         spec_type = self.item.cache.type_provider.root_type
-        for name in type_name.split("/"):
+        for name in filter(None, type_name.split("/")):
             spec_type = spec_type.refinements[name]
         self._add_get_value_map_for_subtypes(spec_type, type_name, path_key,
                                              new_get_value_map)
@@ -566,6 +565,10 @@ class ItemMapper(abc.ABC):
         """
         Associate the get value method with the type/key path.
 
+        The method applies to the type and to all of its subtypes.  An empty
+        type path denotes the root type, so ``:/spec`` associates the method
+        with the key ``spec`` of every type.
+
         Args:
             type_path_key: The type path and the key path of the value.
             get_value: The method which gets the value.
@@ -581,6 +584,9 @@ class ItemMapper(abc.ABC):
                                  get_value: ItemGetValue) -> None:
         """
         Associate the get value dictionary with the type/key path.
+
+        The dictionary applies to the type and to all of its subtypes like a
+        method of :py:meth:`add_get_value`.
         """
         self._add_get_value_map(
             type_path_key,
