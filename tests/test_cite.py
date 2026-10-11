@@ -226,6 +226,24 @@ def test_cite(tmpdir):
     assert mapper.substitute("${.:/bibtex}") == _EXPECTED_BIBTEX_ENTRIES[:-1]
 
 
+class _RootProvider(BibTeXCitationProvider):
+
+    def __init__(self, mapper: SphinxMapper) -> None:
+        super().__init__(mapper)
+        self.add_get_fields("", _get_fields)
+
+
+def test_cite_root_type(tmpdir):
+    config = ItemCacheConfig(
+        paths=[os.path.join(os.path.dirname(__file__), "spec-refs")],
+        spec_type_root_uid="/spec/root",
+        cache_directory=os.path.join(tmpdir, "cache"))
+    cache = ItemCache(config, type_provider=SpecTypeProvider({}))
+    mapper = SphinxMapper(cache["/ref/article"], "CC-BY-SA-4.0")
+    _RootProvider(mapper)
+    assert mapper.substitute("${/spec/root:/cite}") == ":cite:`SpecRoot`"
+
+
 def test_reference_location(tmpdir):
     config = ItemCacheConfig(
         paths=[os.path.join(os.path.dirname(__file__), "spec-refs")],
