@@ -27,7 +27,8 @@
 import pytest
 
 from specitems import EmptyItemCache, Item
-from specitems.licenseinfo import LicenseAggregate, LicenseProvider
+from specitems.licenseinfo import (LicenseAggregate, LicenseProvider,
+                                   RelicensingRule)
 
 
 def test_primary_and_accepted():
@@ -95,6 +96,108 @@ def test_register():
     assert [entry.the_license
             for entry in aggregate.foreign()] == ["Apache-2.0"]
     assert bool(aggregate)
+
+
+_EB = "embedded brains GmbH & Co. KG"
+_EB_OLD = "embedded brains GmbH"
+_PROPRIETARY = "LicenseRef-embedded-brains-proprietary"
+
+
+def _restricted(accepted=("BSD-2-Clause", )):
+    rules = [
+        RelicensingRule.from_data({
+            "license": "CC-BY-SA-4.0",
+            "holders": [_EB, _EB_OLD],
+            "to": _PROPRIETARY
+        }),
+        RelicensingRule("BSD-2-Clause", [_EB, _EB_OLD], _PROPRIETARY)
+    ]
+    return LicenseAggregate(_PROPRIETARY, list(accepted), "/doc", rules)
+
+
+def test_relicensing_rule():
+    rule = RelicensingRule("CC-BY-SA-4.0", [_EB], "MIT")
+    assert rule.the_license == "CC-BY-SA-4.0"
+    assert rule.holders == frozenset([_EB])
+    assert rule.to == "MIT"
+    with pytest.raises(ValueError, match="no single SPDX license identifier"):
+        RelicensingRule("MIT OR ISC", [_EB], "MIT")
+    aggregate = _restricted()
+    assert [rule.to
+            for rule in aggregate.relicensing] == [_PROPRIETARY, _PROPRIETARY]
+
+
+def test_relicense():
+    aggregate = _restricted()
+    assert aggregate.select("CC-BY-SA-4.0", "/a",
+                            [f"Copyright (C) 2020 {_EB}"]) == _PROPRIETARY
+    assert aggregate.select(
+        "CC-BY-SA-4.0 OR BSD-2-Clause", "/b",
+        [f"Copyright (C) 2020 {_EB}", f"Copyright (C) 2018 {_EB_OLD}"
+         ]) == _PROPRIETARY
+    assert aggregate.select("BSD-2-Clause", "/c",
+                            [f"Copyright (C) 2020 {_EB}"]) == _PROPRIETARY
+    assert aggregate.select(
+        "CC-BY-SA-4.0 OR BSD-2-Clause", "/d",
+        [f"Copyright (C) 2020 {_EB}", "Copyright (C) 2021 EDISOFT"
+         ]) == "BSD-2-Clause"
+    assert aggregate.select(_PROPRIETARY, "/e",
+                            ["Copyright (C) 2021 EDISOFT"]) == _PROPRIETARY
+    assert aggregate.register("CC-BY-SA-4.0",
+                              iter([f"Copyright (C) 2019 {_EB}"]),
+                              "/f") == _PROPRIETARY
+    assert aggregate.select("CC-BY-SA-4.0", "/g",
+                            f"Copyright (C) 2018 {_EB}") == _PROPRIETARY
+    assert aggregate.register("CC-BY-SA-4.0", f"Copyright (C) 2017 {_EB}",
+                              "/h") == _PROPRIETARY
+    assert aggregate.copyrights_of().get_statements() == [
+        f"Copyright (C) 2017, 2019 {_EB}"
+    ]
+    assert not aggregate.foreign()
+
+
+def test_relicense_chain():
+    rules = [
+        RelicensingRule("CC-BY-SA-4.0", ["A"], "BSD-2-Clause"),
+        RelicensingRule("MIT", ["A"], "ISC"),
+        RelicensingRule("BSD-2-Clause", ["A", "B"], _PROPRIETARY)
+    ]
+    aggregate = LicenseAggregate(_PROPRIETARY, ["BSD-2-Clause"], "", rules)
+    assert aggregate.select("CC-BY-SA-4.0", "",
+                            ["Copyright (C) 2020 A"]) == _PROPRIETARY
+    assert aggregate.select("CC-BY-SA-4.0 OR BSD-2-Clause", "",
+                            ["Copyright (C) 2020 B"]) == _PROPRIETARY
+    assert aggregate.select("BSD-2-Clause", "",
+                            ["Copyright (C) 2020 C"]) == "BSD-2-Clause"
+
+
+def test_relicense_rejects():
+    aggregate = _restricted()
+    with pytest.raises(ValueError) as err:
+        aggregate.select(
+            "CC-BY-SA-4.0", "/a",
+            [f"Copyright (C) 2020 {_EB}", "Copyright (C) 2020 EDISOFT"])
+    assert str(err.value) == (
+        "the license expression 'CC-BY-SA-4.0' of /a permits neither the "
+        f"primary license {_PROPRIETARY} of /doc nor an accepted license: "
+        "BSD-2-Clause")
+    with pytest.raises(ValueError) as err:
+        aggregate.select("CC-BY-SA-4.0", "/b")
+    assert str(err.value).startswith(
+        "the license expression 'CC-BY-SA-4.0' of /b permits neither")
+    with pytest.raises(ValueError) as err:
+        aggregate.register("CC-BY-SA-4.0", [], "/c")
+    assert str(err.value) == ("the part of /c with the license expression "
+                              "'CC-BY-SA-4.0' names no copyright holder")
+    with pytest.raises(ValueError) as err:
+        aggregate.select("MIT", copyrights=iter([]))
+    assert str(err.value) == ("the part with the license expression 'MIT' "
+                              "names no copyright holder")
+    with pytest.raises(ValueError) as err:
+        aggregate.select(_PROPRIETARY, "/d", ["not a copyright"])
+    assert str(err.value) == (
+        f"the part of /d with the license expression '{_PROPRIETARY}' "
+        "states the invalid copyright statement 'not a copyright'")
 
 
 def _license_item(uid, identifier, reproduce=False, text=None, uri=None):
