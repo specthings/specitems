@@ -31,8 +31,9 @@ import pytest
 from specitems import (COL_SPAN, ContentContext, EmptyItem, EmptyItemCache,
                        Item, ItemCache, ItemGetValueContext, ItemMapper,
                        LicenseAggregate, LicenseProvider, ROW_SPAN,
-                       SpecTypeProvider, SphinxContent, SphinxMapper,
-                       augment_glossary_terms, get_reference, make_label)
+                       RelicensingRule, SpecTypeProvider, SphinxContent,
+                       SphinxMapper, augment_glossary_terms, get_reference,
+                       make_label)
 
 from .util import create_item_cache_config, get_other_type_data_by_uid
 
@@ -554,7 +555,7 @@ def test_license():
         content.register_license("Apache-2.0")
     item = EmptyItem()
     item["SPDX-License-Identifier"] = "Apache-2.0"
-    item["copyrights"] = []
+    item["copyrights"] = ["Copyright (C) 2026 A"]
     with pytest.raises(ValueError, match=match):
         content.register_license_and_copyrights_of_item(item)
     item["SPDX-License-Identifier"] = "MIT"
@@ -1093,12 +1094,15 @@ def test_fragment():
 
 
 def test_for_work():
-    context = ContentContext(LicenseAggregate("MIT", ["BSD-2-Clause"], "task"),
-                             "Do not edit.")
+    rules = [RelicensingRule("ISC", ["A"], "MIT")]
+    context = ContentContext(
+        LicenseAggregate("MIT", ["BSD-2-Clause"], "task", rules),
+        "Do not edit.")
     work = context.for_work("/f/a")
     assert work.licenses.name == "/f/a"
     assert work.licenses.primary == "MIT"
     assert work.licenses.accepted == ["BSD-2-Clause"]
+    assert work.licenses.relicensing == rules
     assert work.automatically_generated_warning == "Do not edit."
     assert work.licenses is not context.licenses
     other = context.for_work("/f/b", "BSD-2-Clause")

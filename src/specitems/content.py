@@ -215,7 +215,7 @@ class ContentContext:
         """
         licenses = LicenseAggregate(
             self.licenses.primary if primary is None else primary,
-            self.licenses.accepted, name)
+            self.licenses.accepted, name, self.licenses.relicensing)
         return ContentContext(licenses, self.automatically_generated_warning,
                               self.provider)
 

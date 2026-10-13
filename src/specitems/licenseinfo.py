@@ -24,7 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Iterable, Iterator, Optional, Sequence
+from typing import (Any, Iterable, Iterator, Mapping, Optional, Sequence,
+                    Union)
 
 from .copyrights import Copyrights
 from .items import Item
@@ -48,6 +49,50 @@ class LicenseEntry:
         return self.the_license < other.the_license
 
 
+def _statement_list(
+        copyrights: Optional[Union[str,
+                                   Iterable[str]]]) -> Optional[list[str]]:
+    if copyrights is None:
+        return None
+    if isinstance(copyrights, str):
+        return [copyrights]
+    return list(copyrights)
+
+
+class RelicensingRule:
+    """
+    Represents the replacement of a license by the copyright holders of a
+    part.
+    """
+
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, the_license: str, holders: Iterable[str],
+                 to: str) -> None:
+        """
+        Initialize the rule.
+
+        Args:
+            the_license: The SPDX license identifier which the rule replaces.
+            holders: The copyright holders which may replace the license.
+            to: The SPDX license identifier which replaces the license.
+
+        Raises:
+            ValueError: An identifier is no single SPDX license identifier.
+        """
+        self.the_license = parse_license_identifier(the_license)
+        self.holders = frozenset(holders)
+        self.to = parse_license_identifier(to)
+
+    @classmethod
+    def from_data(cls, data: Mapping[str, Any]) -> "RelicensingRule":
+        """ Create the rule from the attributes license, holders and to. """
+        return cls(data["license"], data["holders"], data["to"])
+
+
+RelicensingRules = Sequence[RelicensingRule]
+
+
 class LicenseAggregate:
     """
     Holds the license and copyright information of one work.
@@ -56,12 +101,18 @@ class LicenseAggregate:
     license does not permit keeps its own license, which the work accepts
     only where the configuration names it.  The work lists the copyrights of
     such a part, and the list may sit outside the work.
+
+    The relicensing rules of the work form a chain.  A rule replaces the
+    license of a part where the license expression of the part permits the
+    license of the rule and the rule names every copyright holder of the part.
+    The license which a rule produces is the input of the next rule.
     """
 
     def __init__(self,
                  primary: str,
                  accepted: Sequence[str] = (),
-                 name: str = "") -> None:
+                 name: str = "",
+                 rules: RelicensingRules = ()) -> None:
         """
         Initialize the aggregate.
 
@@ -70,6 +121,8 @@ class LicenseAggregate:
             accepted: The SPDX license identifiers of the foreign licenses
                 which the work accepts, in the order of their preference.
             name: The name of the work, used by the error messages.
+            rules: The relicensing rules of the work in the order of the
+                chain.
 
         Raises:
             ValueError: An identifier is no single SPDX license identifier.
@@ -79,6 +132,7 @@ class LicenseAggregate:
             parse_license_identifier(the_license) for the_license in accepted
         ]
         self._name = name
+        self._relicensing = list(rules)
         self._entries: dict[str, LicenseEntry] = {}
 
     @property
@@ -92,32 +146,79 @@ class LicenseAggregate:
         return self._accepted
 
     @property
+    def relicensing(self) -> RelicensingRules:
+        """ Are the relicensing rules of the work. """
+        return self._relicensing
+
+    @property
     def name(self) -> str:
         """ Is the name of the work. """
         return self._name
 
-    def select(self, expression: str, provenance: str = "") -> str:
+    def _relicense(self, expression: str, holders: Copyrights) -> str:
+        for rule in self._relicensing:
+            applies = permits(expression, rule.the_license)
+            if applies and holders.keys() <= rule.holders:
+                expression = rule.to
+        return expression
+
+    def _holders(self, expression: str, where: str,
+                 copyrights: list[str]) -> Copyrights:
+        holders = Copyrights()
+        for statement in copyrights:
+            try:
+                holders.register(statement)
+            except ValueError as err:
+                raise ValueError(
+                    f"the part{where} with the license expression "
+                    f"'{expression}' states the invalid copyright statement "
+                    f"'{statement}'") from err
+        if not holders:
+            raise ValueError(f"the part{where} with the license expression "
+                             f"'{expression}' names no copyright holder")
+        return holders
+
+    def select(self,
+               expression: str,
+               provenance: str = "",
+               copyrights: Optional[Union[str, Iterable[str]]] = None) -> str:
         """
         Select the license under which the work takes the part.
 
         Args:
             expression: The SPDX license expression of the part.
             provenance: The origin of the part, used by the error messages.
+            copyrights: The copyright statements of the part, or one
+                statement.  None tells that the copyright statements of the
+                part are unknown, so no relicensing rule applies to it.
 
         Returns:
-            The primary license where the expression permits it, otherwise the
-            first accepted license which the expression permits.
+            The primary license where the expression permits it.  Otherwise,
+            the primary license where the relicensed expression permits it, or
+            the first accepted license which the relicensed expression
+            permits.
 
         Raises:
-            ValueError: The expression is invalid, or it permits neither the
-                primary license nor an accepted license.
+            ValueError: The expression is invalid, a copyright statement is
+                invalid, the copyright statements name no holder, or the
+                relicensed expression permits neither the primary license nor
+                an accepted license.
         """
+        where = f" of {provenance}" if provenance else ""
+        statements = _statement_list(copyrights)
+        holders = None
+        if statements is not None:
+            holders = self._holders(expression, where, statements)
         if permits(expression, self._primary):
             return self._primary
+        relicensed = expression
+        if holders is not None:
+            relicensed = self._relicense(expression, holders)
+        if permits(relicensed, self._primary):
+            return self._primary
         for the_license in self._accepted:
-            if permits(expression, the_license):
+            if permits(relicensed, the_license):
                 return the_license
-        where = f" of {provenance}" if provenance else ""
         work = f" of {self._name}" if self._name else ""
         accepted = ""
         if self._accepted:
@@ -129,14 +230,15 @@ class LicenseAggregate:
 
     def register(self,
                  expression: str,
-                 copyrights: Optional[Iterable[str]] = None,
+                 copyrights: Optional[Union[str, Iterable[str]]] = None,
                  provenance: str = "") -> str:
         """
         Register a part of the work.
 
         Args:
             expression: The SPDX license expression of the part.
-            copyrights: The copyright statements of the part.
+            copyrights: The copyright statements of the part, or one
+                statement.
             provenance: The origin of the part, used by the error messages and
                 by the traceability of an obligation.
 
@@ -147,7 +249,8 @@ class LicenseAggregate:
             ValueError: The expression is invalid, or it permits neither the
                 primary license nor an accepted license.
         """
-        the_license = self.select(expression, provenance)
+        copyrights = _statement_list(copyrights)
+        the_license = self.select(expression, provenance, copyrights)
         entry = self._entries.setdefault(the_license,
                                          LicenseEntry(the_license))
         entry.expressions.add(expression)

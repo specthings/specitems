@@ -143,7 +143,8 @@ from .itemmapper import (
     unpack_arg,
     unpack_args,
 )
-from .licenseinfo import (LicenseAggregate, LicenseEntry, LicenseProvider)
+from .licenseinfo import (LicenseAggregate, LicenseEntry, LicenseProvider,
+                          RelicensingRule, RelicensingRules)
 from .spdx import (get_license_list_version, parse_license_expression,
                    parse_license_identifier, permits)
 from .specconfig import (CONFIG_FILE, CONFIG_UID, add_inline_items,
@@ -211,6 +212,8 @@ __all__ = [
     "MarkdownMapper",
     "ROW_SPAN",
     "ReferenceTarget",
+    "RelicensingRule",
+    "RelicensingRules",
     "SpecDocumentConfig",
     "SpecTypeProvider",
     "SpecVerifier",
