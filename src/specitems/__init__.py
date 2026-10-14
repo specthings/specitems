@@ -24,6 +24,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from .attributepath import (
+    AttributePathSegment,
+    get_segment_value,
+    parse_attribute_path,
+    parse_attribute_segment,
+    resolve_attribute_path,
+)
 from .cite import (BibTeXCitationProvider, get_reference_target,
                    get_reference_work, make_anchor, ReferenceTarget)
 from .clangformat import ClangFormatter
@@ -164,6 +171,7 @@ from .subprocessaction import (
 )
 
 __all__ = [
+    "AttributePathSegment",
     "BibTeXCitationProvider",
     "CONFIG_FILE",
     "CONFIG_UID",
@@ -249,6 +257,7 @@ __all__ = [
     "get_reference",
     "get_reference_target",
     "get_reference_work",
+    "get_segment_value",
     "get_value_default",
     "get_value_plural",
     "get_value_subprocess",
@@ -276,10 +285,13 @@ __all__ = [
     "make_subprocess_environment",
     "make_text",
     "monitor_logging",
+    "parse_attribute_path",
+    "parse_attribute_segment",
     "parse_license_expression",
     "parse_license_identifier",
     "permits",
     "pickle_load_data_by_uid",
+    "resolve_attribute_path",
     "run_subprocess_action",
     "save_data",
     "split_copyright_statement",

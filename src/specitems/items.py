@@ -44,6 +44,9 @@ from typing import (Any, Callable, Collection, Iterable, Iterator, Match,
 import json
 import yaml
 
+from .attributepath import (AttributePathSegment, get_segment_value,
+                            parse_attribute_path, resolve_attribute_path)
+
 try:
     from yaml import CSafeLoader as SafeLoader
 except ImportError:  # pragma: no cover
@@ -460,52 +463,19 @@ class Item:
     def get_value(self, path: str) -> Any:
         """ Get the attribute value associated with the attribute path. """
         value = self.data
-        path = path.strip("/")
-        while path:
-            key_end = path.find("/")
-            if key_end >= 0:
-                key_index = path[:key_end]
-                path = path[key_end + 1:]
-            else:
-                key_index = path
-                path = ""
-            parts = key_index.split("[")
-            try:
-                index = int(parts[1].split("]")[0])
-            except IndexError:
-                index = -1
-            value = value[parts[0]]
-            if index >= 0:
-                value = value[index]
+        for segment in parse_attribute_path(path):
+            value = get_segment_value(value, path, segment)
         return value
 
     def set_value(self, path: str, value: Any) -> None:
         """ Set the attribute value associated with the attribute path. """
-        parent = self.data
-        path = path.strip("/")
-        while path:
-            key_end = path.find("/")
-            if key_end >= 0:
-                key_index = path[:key_end]
-                path = path[key_end + 1:]
-            else:
-                key_index = path
-                path = ""
-            parts = key_index.split("[")
-            try:
-                index = int(parts[1].split("]")[0])
-            except IndexError:
-                index = -1
-            if path:
-                parent = parent[parts[0]]
-                if index >= 0:
-                    parent = parent[index]
-            else:
-                if index >= 0:
-                    parent = parent[parts[0]]
-                    parent[index] = value
-                else:
-                    parent[parts[0]] = value
+        container, key, index = resolve_attribute_path(self.data, path)
+        if index is None:
+            container[key] = value
+        else:
+            get_segment_value(container, path,
+                              AttributePathSegment(key, index))
+            container[key][index] = value
 
     def to_abs_uid(self, abs_or_rel_uid: str) -> str:
         """
