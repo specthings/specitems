@@ -365,6 +365,8 @@ def test_item_mapper(tmpdir):
     mapper.add_get_value("other:/a/x-to-b", _get_x_to_b_value)
     assert mapper["d/c:a/x-to-b:args:0:%"] == "eargs:0:%"
     assert mapper["d/c:a/f[1]"] == 2
+    assert mapper["d/c:a/f[-4]"] == 1
+    assert mapper["d/c:a/f[-1]/g[-1]"] == 5
     assert mapper["d/c:a/../a/f[3]/g[0]"] == 4
     item_3, key_path_3, value_3 = mapper.map("/p:/v")
     assert item_3 == p
@@ -461,6 +463,12 @@ def test_item_mapper(tmpdir):
     match = r"cannot get value for 'blub/bam' of spec:/p specified by '.:bam'"
     with pytest.raises(ValueError, match=match):
         mapper.map(".:bam", p, "blub")
+    match = r"cannot get value for 'a//b' of spec:/p specified by '.:a//b'"
+    with pytest.raises(ValueError, match=match):
+        mapper.map(".:a//b", p, "blub")
+    match = r"cannot get value for 'blub/x' of spec:/p specified by '.:../x'"
+    with pytest.raises(ValueError, match=match):
+        mapper.map(".:../x", p, "blub/bam")
 
     # Remove proxy member
     item_cache.remove_item("/s")
@@ -537,7 +545,7 @@ def test_item_get_value_context():
     assert ctx.path == ""
     assert ctx.key_index == ""
     assert ctx.key == ""
-    assert ctx.index == -1
+    assert ctx.index is None
     assert ctx.arg("a") == "b"
     assert ctx.arg("x", "y") == "y"
     ctx_bool = ItemGetValueContext(item, remaining_path, "a=1,b=0,c=2", value,

@@ -32,6 +32,7 @@ import os
 import re
 from typing import Any, Callable, Iterator, Optional
 
+from .attributepath import parse_attribute_path, parse_attribute_segment
 from .items import Item, ItemType
 
 ItemGetValue = Callable[["ItemGetValueContext"], Any]
@@ -394,7 +395,7 @@ class ItemGetValueContext:
     path: str = ""
     key_index: str = ""
     key: str = ""
-    index: int = -1
+    index: Optional[int] = None
 
     def arg(self, name: str, value: Optional[str] = None) -> str:
         """ Get the argument value by name. """
@@ -511,7 +512,7 @@ class ItemMapper(abc.ABC):
     def get_value_default(self, ctx: ItemGetValueContext) -> Any:
         """ Get the value by default. """
         value = ctx.value[ctx.key]
-        if ctx.index >= 0:
+        if ctx.index is not None:
             value = value[ctx.index]
         if ctx.remaining_path:
             return value
@@ -664,14 +665,11 @@ class ItemMapper(abc.ABC):
                 ctx.remaining_path = ""
             ctx.path = f"{ctx.path}/{ctx.key_index}".replace("//", "/")
             ctx.key_index = key_index
-            parts = key_index.split("[")
-            ctx.key = parts[0]
-            try:
-                ctx.index = int(parts[1].split("]")[0])
-            except IndexError:
-                ctx.index = -1
+            segment = parse_attribute_segment(key_index)
+            ctx.key = segment.key
+            ctx.index = segment.index
             get_value, ctx.get_value_map = ctx.get_value_map.get(
-                parts[0], (self.get_value_default, {}))
+                ctx.key, (self.get_value_default, {}))
             ctx.value = get_value(ctx)
         if not isinstance(get_value, _ReferenceGetValue):
             self.register_part(item)
@@ -709,6 +707,12 @@ class ItemMapper(abc.ABC):
                     msg = (f"item '{uid}' relative to {item.spec} "
                            f"specified by '{identifier}' does not exist")
                     raise ValueError(msg) from err
+        try:
+            parse_attribute_path(key_path)
+        except ValueError as err:
+            msg = (f"cannot get value for '{key_path}' of {item.spec} "
+                   f"specified by '{identifier}'")
+            raise ValueError(msg) from err
         key_path = _normalize_key_path(key_path, prefix)
         try:
             ctx = self._get_by_normalized_key_path(item, key_path, args)

@@ -163,17 +163,30 @@ def test_get_set_value():
     assert item.get_value("/a") == "b"
     assert item.get_value("/c[0]") == "d"
     assert item.get_value("/c[2]/f/g") == "h"
+    assert item.get_value("/c[-1]/f/g") == "h"
+    assert item.get_value("/") is item.data
+    assert item.get_value("") is item.data
+    with pytest.raises(ValueError, match=r"invalid segment"):
+        item.get_value("/a//b")
+    with pytest.raises(ValueError, match=r"denotes the root"):
+        item.set_value("/", "x")
+    with pytest.raises(IndexError, match=r"segment 'c\[9\]'"):
+        item.set_value("/c[9]", "x")
+    with pytest.raises(TypeError, match=r"no mutable mapping"):
+        item.set_value("/c/x", "x")
     item.set_value("/a", "A")
     item.set_value("/c[0]", "B")
     item.set_value("/c[2]/f/g", "C")
     assert item.get_value("/a") == "A"
     assert item.get_value("/c[0]") == "B"
     assert item.get_value("/c[2]/f/g") == "C"
+    item.set_value("/c[-2]", "E")
+    assert item.get_value("/c[1]") == "E"
     assert item.data == {
         "a": "A",
         "c": [
             "B",
-            "e",
+            "E",
             {
                 "f": {
                     "g": "C",
