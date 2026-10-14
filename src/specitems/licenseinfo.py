@@ -132,7 +132,7 @@ class LicenseAggregate:
             parse_license_identifier(the_license) for the_license in accepted
         ]
         self._name = name
-        self._relicensing = list(rules)
+        self._relicensing = tuple(rules)
         self._entries: dict[str, LicenseEntry] = {}
 
     @property
