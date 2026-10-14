@@ -1102,7 +1102,7 @@ def test_for_work():
     assert work.licenses.name == "/f/a"
     assert work.licenses.primary == "MIT"
     assert work.licenses.accepted == ["BSD-2-Clause"]
-    assert work.licenses.relicensing == rules
+    assert work.licenses.relicensing == tuple(rules)
     assert work.automatically_generated_warning == "Do not edit."
     assert work.licenses is not context.licenses
     other = context.for_work("/f/b", "BSD-2-Clause")
