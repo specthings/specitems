@@ -114,7 +114,7 @@ def run_subprocess_action(uid: str, action: dict) -> None:
     if stdout is None:
         return_code = _subprocess_run(uid, cmd, env, cwd, None)
     else:
-        with open(stdout, "wb") as stdout_file:
+        with open(os.path.join(cwd, stdout), "wb") as stdout_file:
             return_code = _subprocess_run(uid, cmd, env, cwd, stdout_file)
     expected_return_code = action["expected-return-code"]
     if expected_return_code is not None:
