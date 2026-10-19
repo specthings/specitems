@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """ Tests for the subprocessaction module. """
 
-# Copyright (C) 2025 embedded brains GmbH & Co. KG
+# Copyright (C) 2025, 2026 embedded brains GmbH & Co. KG
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import dataclasses
+import os
 
 from specitems.items import ItemCache, SpecTypeProvider
 from specitems.specverify import verify_specification_format
@@ -67,7 +68,11 @@ def test_subprocessaction(tmpdir, monkeypatch):
 
     monkeypatch.setattr(specitems.subprocessaction.subprocess, "run",
                         _subprocess_run)
+    monkeypatch.chdir(tmpdir)
+    os.mkdir("w")
     uid = "/actions"
     for action in item_cache[uid]["actions"]:
         run_subprocess_action(uid, action)
     assert commands == ["env", "stdout", "file-not-found", "file-not-found"]
+    assert os.path.isfile(os.path.join("w", "stdout"))
+    assert not os.path.exists("stdout")

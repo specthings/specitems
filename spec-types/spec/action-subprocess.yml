@@ -27,7 +27,9 @@ spec-info:
         spec-type: optional-int
       stdout:
         description: |
-          It shall be the target file of the standard output stream.
+          If the value is present, then it shall be the path of the file which
+          takes the standard output stream of the subprocess.  A relative path
+          is relative to the working directory of the subprocess.
         spec-type: str
       working-directory:
         description: |
