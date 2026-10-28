@@ -349,6 +349,49 @@ def _children(item):
         (link.item.uid, link.role) for link in item.links_to_children())
 
 
+def _parent_uids(item):
+    # pylint: disable=protected-access
+    return [link.uid for link in item._links_to_parents]
+
+
+def _child_uids(item):
+    # pylint: disable=protected-access
+    return [link.uid for link in item._links_to_children]
+
+
+def test_remove_proxy_item(tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-item-cache")
+    item_cache = ItemCache(config)
+    c = item_cache["/c"]
+    r = item_cache["/r"]
+    s = item_cache["/s"]
+    proxy_member_default = item_cache["/proxy-member-default"]
+    assert _parent_uids(c) == ["/proxy2"]
+    assert _child_uids(r) == ["/d/c", "/proxy-member-default", "/s"]
+    assert _parent_uids(s) == ["/proxy2", "/r"]
+    assert _child_uids(s) == ["/c"]
+    assert _parent_uids(proxy_member_default) == ["/proxy", "/proxy2", "/r"]
+    assert _child_uids(proxy_member_default) == ["/c", "/q"]
+
+    # The members lose the links which they got through the proxy and keep
+    # the links which they got through another proxy
+    item_cache.remove_item("/proxy2")
+    assert "/proxy2" not in item_cache.proxies
+    assert _parent_uids(c) == []
+    assert _child_uids(r) == ["/d/c"]
+    assert _parent_uids(s) == []
+    assert _child_uids(s) == []
+    assert _parent_uids(proxy_member_default) == ["/proxy"]
+    assert _child_uids(proxy_member_default) == ["/q"]
+    with pytest.raises(KeyError):
+        item_cache.remove_item("/proxy2")
+
+    item_cache.remove_item("/c")
+    assert "/c" not in item_cache
+    assert _child_uids(s) == []
+    assert _child_uids(proxy_member_default) == ["/q"]
+
+
 def test_proxy(tmpdir):
     config = create_item_cache_config(tmpdir, "spec-item-cache")
     item_cache = ItemCache(config)

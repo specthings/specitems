@@ -684,6 +684,41 @@ class _ProxyItem(Item):
                 member._links_to_children.append(Link(other, data))
             member._links_to_children.sort()
 
+    def clear_links(self) -> None:
+        # A link which a member got through the proxy shares the link data of
+        # the proxy.  The data identifies the link, since links with the same
+        # UID compare equal.
+        # pylint: disable=protected-access
+        children = [
+            link.data for link in self._links_to_children
+            if not link.role.startswith("proxy-member")
+        ]
+        parents = self.data["links"]
+        for link in self._links_to_children:
+            if not link.role.startswith("proxy-member"):
+                continue
+            member = link._item
+            member._links_to_children = _links_without(
+                member._links_to_children, children)
+            for link_2 in member._links_to_parents:
+                if _has_data(link_2, parents):
+                    link_2._item._links_to_children = [
+                        link_3 for link_3 in link_2._item._links_to_children
+                        if link_3._item is not member
+                        or link_3.data is not link_2.data
+                    ]
+            member._links_to_parents = _links_without(member._links_to_parents,
+                                                      parents)
+        super().clear_links()
+
+
+def _has_data(link: Link, data_list: list[dict]) -> bool:
+    return any(link.data is data for data in data_list)
+
+
+def _links_without(links: list[Link], data_list: list[dict]) -> list[Link]:
+    return [link for link in links if not _has_data(link, data_list)]
+
 
 def create_unique_link(child: Item, parent: Item, data: dict) -> None:
     """
@@ -1378,7 +1413,7 @@ class ItemCache(dict):
 
         The item is not removed from the persistent cache storage.
         """
-        item = self.pop(uid)
+        item = self.proxies.pop(uid) if uid in self.proxies else self.pop(uid)
         for selection in self._selection_stack:
             selection.pop(uid, None)
         for view in self._view_stack:
