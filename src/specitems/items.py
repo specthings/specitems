@@ -591,7 +591,7 @@ class Item:
             else:
                 self._links_to_parents.append(_ProxyLink(parent, data))
             parent._links_to_children.append(Link(self, data))
-            if data["role"].startswith("proxy-member"):
+            if _is_member_link(data):
                 for data_2 in parent.data["links"]:
                     uid_2 = parent.to_abs_uid(data_2["uid"])
                     parent_2 = proxies.get(uid_2)
@@ -617,7 +617,7 @@ class Item:
         """ Return the members of this item if it is a proxy. """
         # pylint: disable=protected-access
         return tuple(link._item for link in self._links_to_children
-                     if link.role.startswith("proxy-member"))
+                     if _is_member_link(link))
 
     def clear_parents(self) -> None:
         """
@@ -639,7 +639,6 @@ class Item:
                 # If the item is a proxy member, then the parent link may
                 # actually reference the proxy item.
                 pass
-        self._links_to_parents = []
         self._links_to_children = []
 
     def add_link_to_parent(self, link: Link):
@@ -687,7 +686,7 @@ class _ProxyItem(Item):
         members: list[Item] = []
         others: list[tuple[Item, Any]] = []
         for link in self._links_to_children:
-            if link.role.startswith("proxy-member"):
+            if _is_member_link(link):
                 members.append(link.item)
             else:
                 others.append((link.item, link.data))
@@ -703,30 +702,46 @@ class _ProxyItem(Item):
         # pylint: disable=protected-access
         children = [
             link.data for link in self._links_to_children
-            if not link.role.startswith("proxy-member")
+            if not _is_member_link(link)
         ]
         parents = self.data["links"]
-        for link in self._links_to_children:
-            if not link.role.startswith("proxy-member"):
-                continue
-            member = link._item
+        for member in self.proxy_members():
             member._links_to_children = _links_without(
                 member._links_to_children, children)
-            for link_2 in member._links_to_parents:
-                if _has_data(link_2, parents):
-                    _unlink_parent(member, link_2)
+            for link in member._links_to_parents:
+                if _has_data(link, parents):
+                    _unlink_parent(member, link)
             member._links_to_parents = _links_without(member._links_to_parents,
                                                       parents)
         super().clear_links()
 
 
-def _unlink_parent(child: Item, link: Link) -> None:
+def _is_member_link(link: Link | dict) -> bool:
+    return link["role"].startswith("proxy-member")
+
+
+def _passes_to_members(link: Link) -> bool:
+    # A proxy passes the link of each child which is no member to the members.
     # It is necessary to directly use the internal "_item" member to avoid a
     # proxy resolution.
     # pylint: disable=protected-access
+    return link._item.is_proxy() and not _is_member_link(link)
+
+
+def _links_through_proxies(member: Item) -> list[Link]:
+    # pylint: disable=protected-access
+    return [
+        Link(link_2._item, link_2.data) for link in member._links_to_parents
+        if _is_member_link(link) for link_2 in link._item._links_to_children
+        if not _is_member_link(link_2)
+    ]
+
+
+def _unlink_parent(child: Item, link: Link) -> None:
+    # pylint: disable=protected-access
     parent = link._item
     _remove_link(parent, child, link.data)
-    if parent.is_proxy() and not link.role.startswith("proxy-member"):
+    if _passes_to_members(link):
         for member in parent.proxy_members():
             _remove_link(member, child, link.data)
 
@@ -1430,34 +1445,30 @@ class ItemCache(dict):
 
     def _link_item(self, item: Item, children: Iterable[Item]) -> None:
         # pylint: disable=protected-access
-        touched: dict[str, Item] = {}
-
-        def _init_parents(child: Item) -> None:
-            child.init_parents(self)
-            for link in child._links_to_parents:
-                parent = link._item
-                touched[parent.uid] = parent
-                if parent is item or not parent.is_proxy(
-                ) or link.role.startswith("proxy-member"):
-                    continue
-                for member in parent.proxy_members():
-                    member._links_to_children.append(Link(child, link.data))
-                    touched[member.uid] = member
-
-        _init_parents(item)
-        for link in item._links_to_parents:
-            if link.role.startswith("proxy-member"):
-                for link_2 in link._item._links_to_children:
-                    if not link_2.role.startswith("proxy-member"):
-                        item._links_to_children.append(
-                            Link(link_2._item, link_2.data))
-        for child in sorted({child.uid: child for child in children}.values()):
+        touched = self._link_parents(item, item)
+        item._links_to_children.extend(_links_through_proxies(item))
+        for child in sorted(set(children)):
             child.clear_parents()
-            _init_parents(child)
+            touched.extend(self._link_parents(child, item))
         item.init_children()
-        for parent in touched.values():
+        for parent in set(touched):
             if parent is not item and not parent.is_proxy():
                 parent._links_to_children.sort()
+
+    def _link_parents(self, child: Item, item: Item) -> list[Item]:
+        # The item passes its links to its members in init_children().  Return
+        # the items which got a link to the child.
+        # pylint: disable=protected-access
+        child.init_parents(self)
+        touched: list[Item] = []
+        for link in child._links_to_parents:
+            parent = link._item
+            touched.append(parent)
+            if parent is not item and _passes_to_members(link):
+                for member in parent.proxy_members():
+                    member._links_to_children.append(Link(child, link.data))
+                    touched.append(member)
+        return touched
 
     def add_item_from_file(self,
                            uid: str,
