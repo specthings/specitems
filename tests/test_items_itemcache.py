@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import itertools
 import os
 import pickle
 import pytest
@@ -82,10 +83,21 @@ def test_add_remove_item():
     with pytest.raises(IndexError):
         assert c.parent("c")
     b = item_cache.add_item("/b", b.data)
-    with pytest.raises(IndexError):
-        assert b.child("c") == c
-    item_cache.reinitialize_links()
+    assert a.child("b") == b
+    assert b.parent("b") == a
     assert b.child("c") == c
+    assert c.parent("c") == b
+    b = item_cache.replace_item("/b", {
+        "enabled-by": True,
+        "links": [],
+        "b": "b2"
+    })
+    assert b["b"] == "b2"
+    assert b in item_cache.items_by_type[b.type]
+    with pytest.raises(IndexError):
+        assert a.child("b")
+    assert b.child("c") == c
+    assert c.parent("c") == b
 
 
 def _get_missing(item):
@@ -390,6 +402,66 @@ def test_remove_proxy_item(tmpdir):
     assert "/c" not in item_cache
     assert _child_uids(s) == []
     assert _child_uids(proxy_member_default) == ["/q"]
+
+
+def _links(item_cache):
+    # pylint: disable=protected-access
+    for item in itertools.chain(item_cache.values(),
+                                item_cache.proxies.values()):
+        for link in itertools.chain(item._links_to_parents,
+                                    item._links_to_children):
+            assert link._item is item_cache.proxies.get(
+                link.uid, item_cache.get(link.uid))
+    links = {
+        item.uid: (_parent_uids(item), _child_uids(item))
+        for item in item_cache.values()
+    }
+    # The order of the children of a proxy depends on the load order
+    for item in item_cache.proxies.values():
+        links[item.uid] = (_parent_uids(item), sorted(_child_uids(item)))
+    return links
+
+
+def test_replace_item_links(tmpdir):
+    config = create_item_cache_config(tmpdir, "spec-item-cache")
+    item_cache = ItemCache(config)
+    links = _links(item_cache)
+    uids = sorted(links)
+    for uid in uids:
+        item = item_cache.proxies.get(uid, item_cache.get(uid))
+        new_item = item_cache.replace_item(uid, item.data)
+        assert new_item is not item
+        assert _links(item_cache) == links, uid
+    for uid in uids:
+        item = item_cache.proxies.get(uid, item_cache.get(uid))
+        item_cache.remove_item(uid)
+        item_cache.add_item(uid, item.data)
+        assert _links(item_cache) == links, uid
+
+
+def test_replace_item_parent_order():
+    item_cache = EmptyItemCache()
+    item_cache.add_item("/a", {"enabled-by": True, "links": []})
+    item_cache.add_item("/b", {"enabled-by": True, "links": []})
+    item_cache.add_item(
+        "/c", {
+            "enabled-by": True,
+            "links": [{
+                "role": "r",
+                "uid": "b"
+            }, {
+                "role": "r",
+                "uid": "a"
+            }]
+        })
+    c = item_cache["/c"]
+    assert [item.uid for item in c.parents()] == ["/b", "/a"]
+    item_cache.replace_item("/a", {"enabled-by": True, "links": []})
+    assert [item.uid for item in c.parents()] == ["/b", "/a"]
+    item_cache.replace_item("/b", {"enabled-by": True, "links": []})
+    assert [item.uid for item in c.parents()] == ["/b", "/a"]
+    with pytest.raises(KeyError):
+        item_cache.replace_item("/d", {"enabled-by": True, "links": []})
 
 
 def test_proxy(tmpdir):

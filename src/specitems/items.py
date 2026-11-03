@@ -613,13 +613,25 @@ class Item:
         """ Initialize the list of links to children of this item. """
         self._links_to_children.sort()
 
+    def proxy_members(self) -> tuple["Item", ...]:
+        """ Return the members of this item if it is a proxy. """
+        # pylint: disable=protected-access
+        return tuple(link._item for link in self._links_to_children
+                     if link.role.startswith("proxy-member"))
+
+    def clear_parents(self) -> None:
+        """
+        Clear the links of this item to its parents.  Remove the links to this
+        item from the parents and from the members of each proxy parent.
+        """
+        for link in self._links_to_parents:
+            _unlink_parent(self, link)
+        self._links_to_parents = []
+
     def clear_links(self) -> None:
         """ Clear the links of this item. """
         # pylint: disable=protected-access
-        for link in self._links_to_parents:
-            # It is necessary to directly use the internal "_item" member to
-            # avoid a proxy resolution.
-            link._item._links_to_children.remove(Link(self, link.data))
+        self.clear_parents()
         for link in self._links_to_children:
             try:
                 link.item._links_to_parents.remove(Link(self, link.data))
@@ -702,14 +714,29 @@ class _ProxyItem(Item):
                 member._links_to_children, children)
             for link_2 in member._links_to_parents:
                 if _has_data(link_2, parents):
-                    link_2._item._links_to_children = [
-                        link_3 for link_3 in link_2._item._links_to_children
-                        if link_3._item is not member
-                        or link_3.data is not link_2.data
-                    ]
+                    _unlink_parent(member, link_2)
             member._links_to_parents = _links_without(member._links_to_parents,
                                                       parents)
         super().clear_links()
+
+
+def _unlink_parent(child: Item, link: Link) -> None:
+    # It is necessary to directly use the internal "_item" member to avoid a
+    # proxy resolution.
+    # pylint: disable=protected-access
+    parent = link._item
+    _remove_link(parent, child, link.data)
+    if parent.is_proxy() and not link.role.startswith("proxy-member"):
+        for member in parent.proxy_members():
+            _remove_link(member, child, link.data)
+
+
+def _remove_link(parent: Item, child: Item, data: dict) -> None:
+    # pylint: disable=protected-access
+    parent._links_to_children = [
+        link for link in parent._links_to_children
+        if link.data is not data or link.uid != child.uid
+    ]
 
 
 def _has_data(link: Link, data_list: list[dict]) -> bool:
@@ -1355,15 +1382,82 @@ class ItemCache(dict):
         """
         Add an item with the UID and data to the cache and return it.
 
+        If links are initialized, then the item gets the links of its data and
+        the links of each item which links to the UID.  This visits each item
+        of the cache.  Use replace_item() to replace an item of the cache.
+
         The item is not saved to to the persistent cache storage.
         """
         item = self._make_item(uid, data)
         if initialize_links:
-            item.init_parents(self)
-            item.init_children()
+            self._link_item(item, self._items_linking_to(uid))
         if set_types:
             self.type_provider.set_type(item)
         return item
+
+    def replace_item(self, uid: str, data: dict) -> Item:
+        """
+        Replace the item associated with the UID with an item of the data and
+        return the new item.
+
+        The new item gets the links of its data.  Each item which linked to
+        the replaced item links to the new item.
+
+        The item is not saved to to the persistent cache storage.
+        """
+        # pylint: disable=protected-access
+        old = self.proxies[uid] if uid in self.proxies else self[uid]
+        children = [link._item for link in old._links_to_children]
+        self.remove_item(uid)
+        item = self._make_item(uid, data)
+        self._link_item(item, children)
+        self.type_provider.set_type(item)
+        return item
+
+    def _items_linking_to(self, uid: str) -> list[Item]:
+        items: list[Item] = []
+        for item in itertools.chain(self.values(), self.proxies.values()):
+            if not any(
+                    item.to_abs_uid(data["uid"]) == uid
+                    for data in item.data["links"]):
+                continue
+            if item.is_proxy():
+                # A member gets the links of the proxy
+                items.extend(item.proxy_members())
+            else:
+                items.append(item)
+        return items
+
+    def _link_item(self, item: Item, children: Iterable[Item]) -> None:
+        # pylint: disable=protected-access
+        touched: dict[str, Item] = {}
+
+        def _init_parents(child: Item) -> None:
+            child.init_parents(self)
+            for link in child._links_to_parents:
+                parent = link._item
+                touched[parent.uid] = parent
+                if parent is item or not parent.is_proxy(
+                ) or link.role.startswith("proxy-member"):
+                    continue
+                for member in parent.proxy_members():
+                    member._links_to_children.append(Link(child, link.data))
+                    touched[member.uid] = member
+
+        _init_parents(item)
+        for link in item._links_to_parents:
+            if link.role.startswith("proxy-member"):
+                for link_2 in link._item._links_to_children:
+                    if not link_2.role.startswith("proxy-member"):
+                        item._links_to_children.append(
+                            Link(link_2._item, link_2.data))
+        for child in sorted({child.uid: child for child in children}.values()):
+            child.clear_parents()
+            _init_parents(child)
+        item.init_children()
+        for parent in touched.values():
+            if parent is not item and not parent.is_proxy():
+                parent._links_to_children.sort()
 
     def add_item_from_file(self,
                            uid: str,
