@@ -66,11 +66,14 @@ def test_markdown_header():
     content = MarkdownContent(context="CC-BY-SA-4.0")
     content.add_header("header")
     content.add_header("header", level=5, label="label")
+    content.add_header("deep", level=6)
     assert str(content) == """# header
 
 (label)=
 
 ###### header
+
+###### deep
 
 """
     assert content.beautify() == """# header
@@ -78,6 +81,8 @@ def test_markdown_header():
 (label)=
 
 ###### header
+
+###### deep
 """
 
 

@@ -189,7 +189,8 @@ class SphinxContent(TextContent):
         if label is not None:
             self.add_label(label)
         name = name.strip()
-        self.add([name, _HEADER_LEVELS[level] * len(name), ""])
+        marker = _HEADER_LEVELS[min(level, len(_HEADER_LEVELS) - 1)]
+        self.add([name, marker * len(name), ""])
 
     def add_rubric(self, name: str) -> None:
         self.add([f".. rubric:: {name}", ""])

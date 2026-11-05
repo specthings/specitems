@@ -218,6 +218,8 @@ class TextContent(Content):
                    label: Optional[str] = None) -> None:
         """
         Add a header with the name at the level with the optional label.
+
+        A level below the deepest header of the format gets the deepest header.
         """
 
     @abc.abstractmethod
