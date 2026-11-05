@@ -60,6 +60,10 @@ def format_markdown_text(text: str) -> str:
                          extensions=_MDFORMAT_EXTENSIONS)
 
 
+# A Markdown header has at most six number signs.
+_DEEPEST_HEADER_LEVEL = 5
+
+
 class MarkdownContent(TextContent):
     """ This class builds MyST Markdown content. """
 
@@ -115,7 +119,8 @@ class MarkdownContent(TextContent):
                    label: Optional[str] = None) -> None:
         if label is not None:
             self.add_label(label)
-        self.add([f"#{level * '#'} {name.strip()}", ""])
+        self.add(
+            [f"#{min(level, _DEEPEST_HEADER_LEVEL) * '#'} {name.strip()}", ""])
 
     def add_rubric(self, name: str) -> None:
         self.add(["```{eval-rst}", f".. rubric:: {name}", "```", ""])

@@ -131,6 +131,11 @@ yz
 **
 
 """
+    content.add_header("deep", 6)
+    assert str(content).endswith("""deep
+\"\"\"\"
+
+""")
 
 
 def test_add_rubric():
