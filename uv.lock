@@ -1220,6 +1220,7 @@ dependencies = [
     { name = "mdformat-myst" },
     { name = "mdformat-tables" },
     { name = "pyyaml" },
+    { name = "ruamel-yaml" },
 ]
 
 [package.dev-dependencies]
@@ -1251,6 +1252,7 @@ requires-dist = [
     { name = "mdformat-myst", specifier = ">=0.3.0" },
     { name = "mdformat-tables", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
+    { name = "ruamel-yaml", specifier = ">=0.18" },
 ]
 
 [package.metadata.requires-dev]
