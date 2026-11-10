@@ -24,10 +24,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 
 import difflib
+import itertools
 import io
 from typing import Any, Callable
 
 from ruamel.yaml import YAML
+from ruamel.yaml.representer import RoundTripRepresenter
 from ruamel.yaml.error import YAMLError
 
 # Each entry is the mapping indent, the sequence indent and the sequence dash
@@ -39,12 +41,26 @@ class YAMLRoundTripError(ValueError):
     """ Indicates that a YAML text cannot go through a round trip. """
 
 
-def _make_yaml(indent: tuple[int, int, int], explicit_start: bool) -> YAML:
+class _ExplicitNullRepresenter(RoundTripRepresenter):
+    # pylint: disable=too-many-ancestors
+
+    def represent_none(self, data: Any) -> Any:
+        return self.represent_scalar("tag:yaml.org,2002:null", "null")
+
+
+_ExplicitNullRepresenter.add_representer(
+    type(None), _ExplicitNullRepresenter.represent_none)
+
+
+def _make_yaml(indent: tuple[int, int, int], explicit_start: bool,
+               explicit_null: bool) -> YAML:
     yaml = YAML(typ="rt")
     yaml.preserve_quotes = True
     yaml.width = 4096
     yaml.explicit_start = explicit_start
     yaml.indent(mapping=indent[0], sequence=indent[1], offset=indent[2])
+    if explicit_null:
+        yaml.Representer = _ExplicitNullRepresenter
     return yaml
 
 
@@ -61,25 +77,26 @@ def yaml_round_trip(text: str,
     Load the YAML text, call edit with the data, and dump the data with the
     comments, the key order, the quotes and the indentation of the text.
 
-    The indentation is the one whose dump of the unchanged data reproduces the
-    text byte by byte.  If no indentation reproduces the text and exact is
+    The style is the one whose dump of the unchanged data reproduces the text
+    byte by byte.  A style is an indentation together with a null value which
+    is either empty or ``null``.  If no style reproduces the text and exact is
     true, the function raises YAMLRoundTripError.  If exact is false, the dump
-    uses the indentation whose dump of the unchanged data has the most lines
-    in common with the text.
+    uses the style whose dump of the unchanged data has the most lines in
+    common with the text.
 
     Returns the dump and whether a dump of the unchanged data reproduces the
     text.
     """
     explicit_start = text.startswith("---")
     try:
-        data = _make_yaml(_INDENTS[0], explicit_start).load(text)
+        data = _make_yaml(_INDENTS[0], explicit_start, False).load(text)
     except YAMLError as err:
         raise YAMLRoundTripError(f"cannot load the YAML text: {err}") from err
     lines = text.splitlines()
     best_ratio = -1.0
     best_yaml = None
-    for indent in _INDENTS:
-        yaml = _make_yaml(indent, explicit_start)
+    for indent, explicit_null in itertools.product(_INDENTS, (False, True)):
+        yaml = _make_yaml(indent, explicit_start, explicit_null)
         dump = _dump(yaml, data)
         if dump == text:
             edit(data)
