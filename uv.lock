@@ -1209,7 +1209,7 @@ wheels = [
 
 [[package]]
 name = "specitems"
-version = "1.7.19"
+version = "1.7.20.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "license-expression" },
