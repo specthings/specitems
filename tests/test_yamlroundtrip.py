@@ -58,9 +58,10 @@ def _no_edit(_data):
     pass
 
 
-@pytest.mark.parametrize(
-    "text",
-    [_TEXT_2_2_0, _TEXT_2_4_2, _TEXT_4_4_0, _TEXT_4_4_2, "---\na: b\n"])
+@pytest.mark.parametrize("text", [
+    _TEXT_2_2_0, _TEXT_2_4_2, _TEXT_4_4_0, _TEXT_4_4_2, "---\na: b\n",
+    "a: null\nb:\n- null\n", "a:\nb:\n- c\n"
+])
 def test_yaml_round_trip_unchanged(text):
     assert yaml_round_trip(text, _no_edit) == (text, True)
 
