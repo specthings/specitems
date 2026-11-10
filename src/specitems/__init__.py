@@ -25,11 +25,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from .attributepath import (
+    AttributePathMatch,
     AttributePathSegment,
     get_segment_value,
     parse_attribute_path,
     parse_attribute_segment,
     resolve_attribute_path,
+    select_attribute_path,
 )
 from .cite import (BibTeXCitationProvider, get_reference_target,
                    get_reference_work, make_anchor, ReferenceTarget)
@@ -172,6 +174,7 @@ from .subprocessaction import (
 from .yamlroundtrip import YAMLRoundTripError, yaml_round_trip
 
 __all__ = [
+    "AttributePathMatch",
     "AttributePathSegment",
     "BibTeXCitationProvider",
     "CONFIG_FILE",
@@ -294,6 +297,7 @@ __all__ = [
     "permits",
     "pickle_load_data_by_uid",
     "resolve_attribute_path",
+    "select_attribute_path",
     "run_subprocess_action",
     "save_data",
     "split_copyright_statement",

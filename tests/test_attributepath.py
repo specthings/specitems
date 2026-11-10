@@ -26,10 +26,12 @@
 
 import pytest
 
-from specitems.attributepath import (AttributePathSegment, get_segment_value,
-                                     parse_attribute_path,
+from specitems import EmptyItemCache, Item, ItemMapper
+from specitems.attributepath import (AttributePathMatch, AttributePathSegment,
+                                     get_segment_value, parse_attribute_path,
                                      parse_attribute_segment,
-                                     resolve_attribute_path)
+                                     resolve_attribute_path,
+                                     select_attribute_path)
 
 
 def test_segment_str():
@@ -49,9 +51,10 @@ def test_parse_attribute_segment(segment, key, index):
     assert parse_attribute_segment(segment) == AttributePathSegment(key, index)
 
 
-@pytest.mark.parametrize(
-    "segment",
-    ["", "[0]", "a[", "a]", "a[]", "a[x]", "a[0]b", "a[0][1]", "a/b", "a[ 1]"])
+@pytest.mark.parametrize("segment", [
+    "", "[0]", "a[", "a]", "a[]", "a[x]", "a[0]b", "a[0][1]", "a/b", "a[ 1]",
+    "*", "**", "*[0]", "a[*]", "a[~b]", "a[b~c]"
+])
 def test_parse_attribute_segment_invalid(segment):
     with pytest.raises(ValueError, match=r"invalid attribute path segment"):
         parse_attribute_segment(segment)
@@ -136,3 +139,223 @@ def test_resolve_attribute_path_error():
                        match=r"segment 'x' of attribute path "
                        r"'/c/x': the value is no mutable mapping"):
         resolve_attribute_path(_DATA, "/c/x")
+
+
+_SELECT = {
+    "a":
+    "b",
+    "links": [{
+        "role": "x",
+        "uid": "/rtems/foo"
+    }, {
+        "role": "y",
+        "uid": "/rtems/bar"
+    }, "z"],
+    "enabled-by": ["s/a", 1, "s/b", "t"],
+    "m": {
+        "a": "c",
+        "n": {
+            "a": "d"
+        }
+    },
+}
+
+
+def _matches(path):
+    return [(id(match.container), match.key, match.index)
+            for match in select_attribute_path(_SELECT, path)]
+
+
+def _match(container, key, index=None):
+    return (id(container), key, index)
+
+
+def test_select_attribute_path_plain():
+    assert _matches("/a") == [_match(_SELECT, "a")]
+    assert _matches("/m/n/a") == [_match(_SELECT["m"]["n"], "a")]
+    assert _matches("/links[1]/uid") == [_match(_SELECT["links"][1], "uid")]
+    assert _matches("/links[-3]") == [_match(_SELECT, "links", 0)]
+    assert _matches("/links[3]") == []
+    assert _matches("/a[0]") == []
+    assert _matches("/x") == []
+    assert _matches("/a/b") == []
+
+
+def test_select_attribute_path_any_key():
+    assert _matches("/*") == [
+        _match(_SELECT, "a"),
+        _match(_SELECT, "links"),
+        _match(_SELECT, "enabled-by"),
+        _match(_SELECT, "m")
+    ]
+    assert _matches("/*/a") == [_match(_SELECT["m"], "a")]
+    assert _matches("/*[0]") == [
+        _match(_SELECT, "links", 0),
+        _match(_SELECT, "enabled-by", 0)
+    ]
+
+
+def test_select_attribute_path_any_depth():
+    assert _matches("/**/a") == [
+        _match(_SELECT, "a"),
+        _match(_SELECT["m"], "a"),
+        _match(_SELECT["m"]["n"], "a")
+    ]
+    assert _matches("/m/**") == [
+        _match(_SELECT["m"], "a"),
+        _match(_SELECT["m"], "n"),
+        _match(_SELECT["m"]["n"], "a")
+    ]
+    assert _matches("/**/uid") == [
+        _match(_SELECT["links"][0], "uid"),
+        _match(_SELECT["links"][1], "uid")
+    ]
+    assert len(_matches("/**")) == 18
+    assert select_attribute_path("x", "/**") == []
+
+
+def test_select_attribute_path_elements():
+    assert _matches("/links[*]") == [
+        _match(_SELECT, "links", 0),
+        _match(_SELECT, "links", 1),
+        _match(_SELECT, "links", 2)
+    ]
+    assert _matches("/links[*]/role") == [
+        _match(_SELECT["links"][0], "role"),
+        _match(_SELECT["links"][1], "role")
+    ]
+    assert _matches("/a[*]") == []
+
+
+def test_select_attribute_path_conditions():
+    assert _matches('/links[attr(uid)="/rtems/f.*"]') == [
+        _match(_SELECT, "links", 0)
+    ]
+    assert _matches("/links[attr(uid)='/rtems/.*']/role") == [
+        _match(_SELECT["links"][0], "role"),
+        _match(_SELECT["links"][1], "role")
+    ]
+    assert _matches('/links[attr(uid)="/rtems"]') == []
+    assert _matches('/links[attr(role)="[xy]"]') == [
+        _match(_SELECT, "links", 0),
+        _match(_SELECT, "links", 1)
+    ]
+    assert _matches(r'/links[attr(role)="\]"]') == []
+    assert _matches('/links[attr(nope)=".*"]') == []
+    assert _matches("/links[attr(role)]") == [
+        _match(_SELECT, "links", 0),
+        _match(_SELECT, "links", 1)
+    ]
+    assert _matches('/enabled-by[type(str)="s/.*"]') == [
+        _match(_SELECT, "enabled-by", 0),
+        _match(_SELECT, "enabled-by", 2)
+    ]
+    assert _matches('/enabled-by[type(int)="1"]') == [
+        _match(_SELECT, "enabled-by", 1)
+    ]
+    assert _matches("/links[type(str)]") == [_match(_SELECT, "links", 2)]
+    assert _matches("/links[type(dict)]") == [
+        _match(_SELECT, "links", 0),
+        _match(_SELECT, "links", 1)
+    ]
+
+
+_TYPED = {
+    "list":
+    [True, 1, 1.5, "x", None, [], {}, {
+        "a": True
+    }, {
+        "a": None
+    }, {
+        "a": [1]
+    }]
+}
+
+
+def _typed(selection):
+    return [
+        match.index
+        for match in select_attribute_path(_TYPED, f"/list[{selection}]")
+    ]
+
+
+@pytest.mark.parametrize("selection, indices", [
+    ("type(bool)", [0]),
+    ('type(bool)="true"', [0]),
+    ('type(bool)="True"', []),
+    ("type(int)", [1]),
+    ('type(float)="1.5"', [2]),
+    ('type(str)="x"', [3]),
+    ("type(null)", [4]),
+    ("type(list)", [5]),
+    ("type(dict)", [6, 7, 8, 9]),
+    ('attr(a)="true"', [7]),
+    ('attr(a)=".*"', [7]),
+    ("attr(a)", [7, 8, 9]),
+    ("type(int) or type(str)", [1, 3]),
+    ("type(dict) and not attr(a)", [6]),
+    ("not type(dict) and not type(list)", [0, 1, 2, 3, 4]),
+    ('type(dict) and (attr(a)="true" or not attr(a))', [6, 7]),
+    ("not not type(null)", [4]),
+    ('  type( str )  =  "x"  ', [3]),
+    (r'type(int)="\d"', [1]),
+    (r"type(str)='\''", []),
+    (r'type(str)="\\\\"', []),
+])
+def test_select_attribute_path_expressions(selection, indices):
+    assert _typed(selection) == indices
+
+
+def test_select_attribute_path_quoted_slash():
+    data = {"a": [{"b": "x/y]"}], "x/y]": 1}
+    assert select_attribute_path(data, '/a[attr(b)="x/y]"]/b') == [
+        AttributePathMatch(data["a"][0], "b")
+    ]
+    assert select_attribute_path(data, "/a[attr(b)='x/y\\']']") == []
+
+
+def test_select_attribute_path_match_value():
+    match = select_attribute_path(_SELECT, '/links[attr(uid)="/rtems/bar"]')[0]
+    assert match == AttributePathMatch(_SELECT, "links", 1)
+    assert match.value == _SELECT["links"][1]
+    assert select_attribute_path(_SELECT, "/m/a")[0].value == "c"
+
+
+@pytest.mark.parametrize("path,message", [
+    ("/", r"'/' denotes the root"),
+    ("/a//b", r"invalid attribute path segment ''"),
+    ("/a[x]", r"invalid attribute path segment 'a\[x\]'"),
+    ("/**[0]", r"invalid attribute path segment '\*\*\[0\]'"),
+    ('/a[attr(b)="("]', r"invalid regular expression in attribute path "
+     r"segment"),
+    ("/a[b]", r"expected a predicate at position 0 of the selection 'b'"),
+    ("/a[attr(b) x]", r"unexpected text at position 8"),
+    ("/a[(attr(b)]", r"expected '\)'"),
+    ("/a[attr()]", r"expected a name"),
+    ("/a[attr(b]", r"expected '\)'"),
+    ("/a[attr(b)=x]", r"expected a quoted string"),
+    ("/a[attr(b)=]", r"expected a quoted string"),
+    ("/a[attr(b)='x]", r"unterminated string"),
+    ("/a[type(x)]", r"unknown type 'x'"),
+    ("/a[type(dict)='x']", r"the type 'dict' takes no regular expression"),
+    ("/a[not]", r"expected a predicate"),
+])
+def test_select_attribute_path_invalid(path, message):
+    with pytest.raises(ValueError, match=message):
+        select_attribute_path(_SELECT, path)
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["/*", "/links[*]", '/links[attr(uid)=".*"]', '/enabled-by[type(str)]'])
+def test_map_selection_path(path):
+    item = Item(EmptyItemCache(), "/x", _SELECT)
+    mapper = ItemMapper(item)
+    with pytest.raises(ValueError, match=r"cannot get value for"):
+        mapper.map(f".:{path}")
+    with pytest.raises(ValueError, match=r"malformed substitution variable"):
+        mapper.substitute(f"${{.:{path}}}")
+
+
+def test_select_attribute_path_other_type():
+    assert select_attribute_path({"a": [(1, )]}, "/a[type(list)]") == []
