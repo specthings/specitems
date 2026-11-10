@@ -169,6 +169,7 @@ from .subprocessaction import (
     make_subprocess_environment,
     run_subprocess_action,
 )
+from .yamlroundtrip import YAMLRoundTripError, yaml_round_trip
 
 __all__ = [
     "AttributePathSegment",
@@ -231,6 +232,7 @@ __all__ = [
     "SubstitutionError",
     "TextContent",
     "TextMapper",
+    "YAMLRoundTripError",
     "add_inline_items",
     "add_license_arguments",
     "add_specification_documentation",
@@ -304,5 +306,6 @@ __all__ = [
     "unpack_arg",
     "unpack_args",
     "verify_specification_format",
+    "yaml_round_trip",
     "yield_tasks",
 ]

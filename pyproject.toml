@@ -21,6 +21,7 @@ dependencies = [
     "mdformat-myst>=0.3.0",
     "mdformat-tables>=1.0.0",
     "pyyaml>=6.0.3",
+    "ruamel.yaml>=0.18",
 ]
 keywords = [
   "certification",
