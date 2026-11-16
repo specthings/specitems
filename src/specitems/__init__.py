@@ -165,6 +165,7 @@ from .specdoc import (SpecDocumentConfig, add_specification_documentation,
 from .specformatter import SpecYAMLFormatter
 from .specverify import (
     SpecVerifier,
+    evaluate_str_assert,
     verify_specification_format,
 )
 from .subprocessaction import (
@@ -275,6 +276,7 @@ __all__ = [
     "init_logging",
     "is_enabled",
     "is_enabled_with_ops",
+    "evaluate_str_assert",
     "item_is_enabled",
     "latex_escape",
     "link_is_enabled",

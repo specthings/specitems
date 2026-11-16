@@ -34,7 +34,7 @@ represented by a :py:class:`LoggingStatus` object.
 
 import logging
 import re
-from typing import Any, NamedTuple, Optional
+from typing import Any, NamedTuple, Optional, cast
 
 from .cliutil import LoggingStatus, monitor_logging
 from .items import Item, ItemCache
@@ -181,9 +181,33 @@ _ASSERT_OPS_STR = {
     "contains": _assert_op_contains,
 }
 
+_ASSERT_OPS_STR_WITHOUT_UID = {
+    key: value
+    for key, value in _ASSERT_OPS_STR.items() if key != "uid"
+}
+
 
 def _assert_str(path: _Path, value: Any, type_info: Any) -> bool:
     return _maybe_assert(path, value, type_info, _ASSERT_OPS_STR)
+
+
+def evaluate_str_assert(value: str,
+                        expression: Any,
+                        item: Optional[Item] = None) -> bool:
+    """
+    Evaluate the expression of the type spec-assert-str for the string value.
+
+    The uid operator resolves the value relative to the item.  Without an
+    item, an expression with the uid operator raises a KeyError.
+    """
+    if item is None:
+        # The operators without the uid operator never read the item.
+        return _assert(
+            _AssertContext(_Path(cast(Item, None), ""), value, {},
+                           _ASSERT_OPS_STR_WITHOUT_UID), expression)
+    return _assert(
+        _AssertContext(_Path(item, f"{item.uid}:"), value, {},
+                       _ASSERT_OPS_STR), expression)
 
 
 def _assert_type(path: _Path, value: Any, type_expected: str) -> bool:
