@@ -1034,6 +1034,11 @@ attributes for this type are:
 citation-group-key
     The attribute value shall be a string. It shall be the citation group key.
 
+kind
+    The attribute value shall be a string. It shall be the kind of the cited
+    area.  The kind format is specific to the user of the citation group.  An
+    example is the role of a document section in a traceability chain.
+
 label
     The attribute value shall be a string. It shall be the label to the cited
     area.  The label format is specific to the cited target.  An example is a
