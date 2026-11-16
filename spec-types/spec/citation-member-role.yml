@@ -18,6 +18,12 @@ spec-info:
         description: |
           It shall be the citation group key.
         spec-type: str
+      kind:
+        description: |
+          It shall be the kind of the cited area.  The kind format is specific
+          to the user of the citation group.  An example is the role of a
+          document section in a traceability chain.
+        spec-type: str
       label:
         description: |
           It shall be the label to the cited area.  The label format is
