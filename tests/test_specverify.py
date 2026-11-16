@@ -27,6 +27,8 @@
 import logging
 from pathlib import Path
 
+import pytest
+
 import specitems
 from specitems import (EmptyItemCache, ItemCache, ItemTypeProvider,
                        SpecTypeProvider, SpecVerifier, SpecYAMLFormatter,
@@ -2202,3 +2204,21 @@ def test_verify_spdx_with_licenses(caplog, tmpdir):
 ERROR /bad:/document-licenses[0]: 'CC-BY-SA-4.0 OR BSD-2-Clause' is no single \
 SPDX license identifier
 ERROR /bad:/document-licenses[1]: expected type 'str', actual type 'int'"""
+
+
+def test_evaluate_str_assert(caplog):
+    item_cache = EmptyItemCache()
+    item = item_cache.add_item("/a", {"links": []})
+    item_cache.add_item("/b", {"links": []})
+    evaluate = specitems.evaluate_str_assert
+    assert evaluate("x/y", {"eq": "x/y"})
+    assert not evaluate("x/y/z", {"eq": "x/y"})
+    assert evaluate("b", [{"eq": "a"}, {"eq": "b"}])
+    assert evaluate("x/y", {"and": [{"re": "^x/"}, {"not": {"in": ["x/z"]}}]})
+    assert evaluate("A B", {"contains": ["b"]})
+    with pytest.raises(KeyError):
+        evaluate("/b", {"uid": None})
+    assert evaluate("/b", {"uid": None}, item)
+    assert get_and_clear_log(caplog) == ""
+    assert not evaluate("/c", {"uid": None}, item)
+    assert get_and_clear_log(caplog) == "WARNING /a: cannot resolve UID: /c"
