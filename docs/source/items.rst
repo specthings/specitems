@@ -18,6 +18,8 @@ The specification item types have the following hierarchy:
 
 - :ref:`SpecTypeRootItemType`
 
+  - :ref:`SpecTypeCitationGroupItemType`
+
   - :ref:`SpecTypeGlossaryItemType`
 
     - :ref:`SpecTypeGlossaryGroupItemType`
@@ -114,6 +116,8 @@ type
 
 This type is refined by the following types:
 
+- :ref:`SpecTypeCitationGroupItemType`
+
 - :ref:`SpecTypeGlossaryItemType`
 
 - :ref:`SpecTypeInlineItemType`
@@ -129,6 +133,58 @@ This type is refined by the following types:
 - :ref:`SpecTypeSpecificationItemType`
 
 - :ref:`SpecTypeToolConfigurationItemType`
+
+.. _SpecTypeCitationGroupItemType:
+
+Citation Group Item Type
+========================
+
+This type refines the :ref:`SpecTypeRootItemType` through the ``type``
+attribute if the value is ``citation-group``. This set of attributes specifies
+a citation group. Items link to the citation group through links with the
+:ref:`SpecTypeCitationGroupMemberLinkRole` to become members of the group.
+Items which rely on the cited areas of the members link to the citation group
+through links with the :ref:`SpecTypeCitationGroupUserLinkRole`. The following
+explicit attributes are mandatory:
+
+- ``name``
+
+- ``text``
+
+The explicit attributes for this type are:
+
+member-kinds
+    The attribute value shall be a list of strings. It shall be the ordered
+    list of the kinds which the members of the citation group may have. Each
+    member shall have a kind of the list. The members of the citation group are
+    ordered by their kind in the order of the list. If the attribute is not
+    present, then the members may have any kind or no kind at all.
+
+name
+    The attribute value shall be a string. It shall be the human readable name
+    of the citation group.
+
+text
+    The attribute value shall be a :ref:`SpecTypeTextInMySTFormat`. It shall
+    describe the purpose of the citation group.
+
+Please have a look at the following example:
+
+.. code-block:: yaml
+
+    SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+    copyrights:
+    - Copyright (C) 2026 embedded brains GmbH & Co. KG
+    enabled-by: true
+    links: []
+    member-kinds:
+    - process
+    - output
+    name: Unit test validation
+    text: |
+      The validation tests generated from the action requirements test the
+      software units.
+    type: citation-group
 
 .. _SpecTypeGlossaryItemType:
 
@@ -1023,20 +1079,27 @@ Citation Group Member Link Role
 
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``citation-group-member``. This set of attributes specifies a citation
-group membership role of links. A group citation lists citations for all group
-members with the associated group key. Citation groups may reference a specific
-area of the target documents identified by the optional ``label`` and ``path``
-attributes. The area may be named through the optional ``name`` attribute. Only
-the ``citation-group-key`` attribute is mandatory. The explicit attributes for
-this type are:
+group membership role of links. The link target is either a
+:ref:`SpecTypeCitationGroupItemType` item or an item which hosts several
+citation groups distinguished by their key. A group citation lists citations
+for all group members. Citation groups may reference a specific area of the
+target documents identified by the optional ``label`` and ``path`` attributes.
+The area may be named through the optional ``name`` attribute. None of the
+explicit attributes is mandatory, they are all optional. The explicit
+attributes for this type are:
 
 citation-group-key
-    The attribute value shall be a string. It shall be the citation group key.
+    The attribute value shall be a string. It shall be the key of the citation
+    group. The key selects a group of an item which hosts several citation
+    groups. A link to a :ref:`SpecTypeCitationGroupItemType` item shall not
+    have a key.
 
 kind
     The attribute value shall be a string. It shall be the kind of the cited
     area. The kind format is specific to the user of the citation group. An
-    example is the role of a document section in a traceability chain.
+    example is the role of a document section in a traceability chain. The
+    ``member-kinds`` attribute of a :ref:`SpecTypeCitationGroupItemType` item
+    restricts the kinds of its members.
 
 label
     The attribute value shall be a string. It shall be the label to the cited
@@ -1052,6 +1115,26 @@ path
     The attribute value shall be a string. It shall be the path to the
     component of the cited area. The path format is specific to the cited
     target. An example is the path to a page or a part of resource locator.
+
+.. _SpecTypeCitationGroupUserLinkRole:
+
+Citation Group User Link Role
+=============================
+
+This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
+value is ``citation-group-user``. This set of attributes specifies a citation
+group user role of links. The link source relies on the areas cited by the
+members of the citation group. The link states the same as a link with the
+:ref:`SpecTypeReferenceLinkRole` to each member area. The user of the citation
+group defines the meaning of the ``kind`` attribute of the members. None of the
+explicit attributes is mandatory, they are all optional. The explicit
+attributes for this type are:
+
+citation-group-key
+    The attribute value shall be a string. It shall be the key of the citation
+    group. The key selects a group of an item which hosts several citation
+    groups. A link to a :ref:`SpecTypeCitationGroupItemType` item shall not
+    have a key.
 
 .. _SpecTypeCopyright:
 
@@ -1196,6 +1279,8 @@ uid
 This type is refined by the following types:
 
 - :ref:`SpecTypeCitationGroupMemberLinkRole`
+
+- :ref:`SpecTypeCitationGroupUserLinkRole`
 
 - :ref:`SpecTypeGlossaryLinkRole`
 
@@ -2233,6 +2318,8 @@ Text in MyST Format
 The value shall be a string. It shall be a text in MyST format.
 
 This type is used by the following types:
+
+- :ref:`SpecTypeCitationGroupItemType`
 
 - :ref:`SpecTypeGlossaryGroupItemType`
 

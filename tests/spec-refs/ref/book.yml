@@ -6,7 +6,10 @@ date: '2026-09-07T14:30:00+08:00'
 edition: '1'
 editor: Editor
 enabled-by: true
-links: []
+links:
+- kind: first
+  role: citation-group-member
+  uid: group
 month: January
 note: Note
 number: '2'

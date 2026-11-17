@@ -7,7 +7,12 @@ copyrights:
 date: '2026-09-07'
 enabled-by: true
 howpublished: How published
-links: []
+links:
+- role: citation-group-user
+  uid: group
+- citation-group-key: the-citation-group-key
+  role: citation-group-user
+  uid: other
 month: January
 note: Note
 reference-type: misc

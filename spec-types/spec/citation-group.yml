@@ -1,0 +1,56 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: citation-group
+  uid: root
+spec-description: null
+spec-example: |
+  SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+  copyrights:
+  - Copyright (C) 2026 embedded brains GmbH & Co. KG
+  enabled-by: true
+  links: []
+  member-kinds:
+  - process
+  - output
+  name: Unit test validation
+  text: |
+    The validation tests generated from the action requirements test the
+    software units.
+  type: citation-group
+spec-info:
+  dict:
+    attributes:
+      member-kinds:
+        description: |
+          It shall be the ordered list of the kinds which the members of the citation
+          group may have. Each member shall have a kind of the list. The members of the
+          citation group are ordered by their kind in the order of the list. If the
+          attribute is not present, then the members may have any kind or no kind at all.
+        spec-type: list-str
+      name:
+        description: |
+          It shall be the human readable name of the citation group.
+        spec-type: str
+      text:
+        description: |
+          It shall describe the purpose of the citation group.
+        spec-type: myst
+    description: |
+      This set of attributes specifies a citation group. Items link to the citation
+      group through links with the ${citation-member-role:/spec-name} to become
+      members of the group. Items which rely on the cited areas of the members link
+      to the citation group through links with the
+      ${citation-group-user-role:/spec-name}.
+    mandatory-attributes:
+    - name
+    - text
+spec-name: Citation Group Item Type
+spec-type: citation-group
+type: spec

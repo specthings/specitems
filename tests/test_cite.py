@@ -28,8 +28,9 @@ import os
 
 import pytest
 
-from specitems.cite import (BibTeXCitationProvider, get_reference_target,
-                            get_reference_work, make_anchor, ReferenceTarget)
+from specitems.cite import (BibTeXCitationProvider, get_citation_group_members,
+                            get_reference_target, get_reference_work,
+                            make_anchor, ReferenceTarget)
 from specitems.contentsphinx import SphinxMapper
 from specitems.items import Item, ItemCache, ItemCacheConfig, SpecTypeProvider
 from specitems.specverify import verify_specification_format
@@ -208,6 +209,20 @@ def test_cite(tmpdir):
     assert mapper.substitute("${/ref/other:/cite-group}") == ""
     assert mapper.substitute("${/ref/other:/cite-group:the-citation-group-key}"
                              ) == ":cite:`RefArticle` and :cite:`RefManual`"
+    assert mapper.substitute("${/ref/group:/cite-group}"
+                             ) == ":cite:`RefBook` and :cite:`RefArticle`"
+    assert mapper.substitute(
+        "${/ref/group-any:/cite-group}") == ":cite:`RefBooklet`"
+    with pytest.raises(
+            ValueError,
+            match=(
+                "/ref/inbook: the member of citation group /ref/group-bad has "
+                "the kind 'other', expected first")):
+        mapper.substitute("${/ref/group-bad:/cite-group}")
+    assert [
+        link.item.uid for link in get_citation_group_members(
+            cache["/ref/other"], "another-citation-group-key")
+    ] == ["/ref/article"]
     assert mapper.substitute("${.:/cite}") == ":cite:`RefArticle`"
     assert mapper.substitute(
         "${.:/cite-long}") == "*Article In Book* :cite:`RefArticle`"

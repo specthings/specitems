@@ -6,7 +6,10 @@ copyrights:
 edition: '2'
 editor: Editor
 enabled-by: true
-links: []
+links:
+- kind: other
+  role: citation-group-member
+  uid: group-bad
 month: January
 note: Note
 number: '3'
