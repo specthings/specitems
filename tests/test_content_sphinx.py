@@ -349,6 +349,8 @@ strong* six
 [red
 yellow](green
 blue)
+
+(`paren`) `a` `b` "`quote`" `end`.
 """)
     assert str(content) == """``code`` *emphasize* **strong**
 
@@ -359,6 +361,8 @@ blue)
 
 one ``more code`` two three *more emphasize* four five **more strong** six `red
 yellow <green blue>`__
+
+(``paren``) ``a`` ``b`` "``quote``" ``end``.
 """
 
 

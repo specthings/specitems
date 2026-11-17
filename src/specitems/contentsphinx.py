@@ -31,7 +31,8 @@ from typing import Iterable, Iterator, Match, Optional, Sequence
 from .content import Content, ContentContext, GenericContent, MARKDOWN_ROLES
 from .contenttext import COL_SPAN, ROW_SPAN, TextContent, TextMapper
 
-_MD_CODE = re.compile(r"(^|\s)`([^`]+)`(\s|$)", flags=re.DOTALL)
+_MD_CODE = re.compile(r"(^|[\s(\[\"'])`([^`]+)`(?=[\s.,;:!?)\]\"']|$)",
+                      flags=re.DOTALL)
 _MD_EMPHASIZE = re.compile(r"(^|\s)_([^_]+)_(\s|$)", flags=re.DOTALL)
 _MD_STRONG = re.compile(r"(^|\s)\*([^*]+)\*(\s|$)", flags=re.DOTALL)
 _MD_REF = re.compile(r"\[([^\]]+)\]\(([^)]+)\)", flags=re.DOTALL)
@@ -98,7 +99,7 @@ def _role_to_rest(match: Match) -> str:
 
 
 def _code_to_rest(match: Match) -> str:
-    return f"{match.group(1)}``{match.group(2)}``{match.group(3)}"
+    return f"{match.group(1)}``{match.group(2)}``"
 
 
 def _emphasize_to_rest(match: Match) -> str:
