@@ -73,13 +73,13 @@ Root Item Type
 This is the root specification item type.
 
 Specification items consist of a defined set of key-value pairs called
-attributes.  Each attribute key name shall be a :ref:`SpecTypeName`.  Item
+attributes. Each attribute key name shall be a :ref:`SpecTypeName`. Item
 attributes may have dictionary, list, integer, floating-point number, and
-string values or a combination of them.  The format of items is defined by the
+string values or a combination of them. The format of items is defined by the
 type hierarchy rooting in this type.
 
 The ``type`` attribute allows a specialization into domain-specific type
-hierarchies.  For example, for a software specification possible type
+hierarchies. For example, for a software specification possible type
 refinements may be created to specify requirements, specializations of
 requirements, interfaces, test suites, test cases, and requirement validations.
 
@@ -106,10 +106,10 @@ links
 
 type
     The attribute value shall be a :ref:`SpecTypeName`. It shall be the item
-    type.  The selection of types and the level of detail depends on a
-    particular standard and product model.  We need enough flexibility to be in
+    type. The selection of types and the level of detail depends on a
+    particular standard and product model. We need enough flexibility to be in
     line with the European Cooperation for Space Standardization standard
-    ECSS-E-ST-10-06 and possible future applications of other standards.  This
+    ECSS-E-ST-10-06 and possible future applications of other standards. This
     attribute is used for type refinements.
 
 This type is refined by the following types:
@@ -203,9 +203,9 @@ License Item Type
 
 This type refines the :ref:`SpecTypeRootItemType` through the ``type``
 attribute if the value is ``license``. This set of attributes specifies a
-license which a work may take.  The tooling uses the item to present the
-license of a work.  It also uses the item to list the license of a foreign
-part. The following explicit attributes are mandatory:
+license which a work may take. The tooling uses the item to present the license
+of a work. It also uses the item to list the license of a foreign part. The
+following explicit attributes are mandatory:
 
 - ``identifier``
 
@@ -234,7 +234,7 @@ reproduce-text
 
 text
     The attribute value shall be an optional string. If the value is present,
-    then it shall be the license text.  The value shall be present, if
+    then it shall be the license text. The value shall be present, if
     reproduce-text is true.
 
 uri
@@ -248,10 +248,10 @@ Proxy Item Type
 
 This type refines the :ref:`SpecTypeRootItemType` through the ``type``
 attribute if the value is ``proxy``. Items of similar characteristics may link
-to a proxy item through links with the :ref:`SpecTypeProxyMemberLinkRole`.  A
-proxy item resolves to the first member item which is enabled.  Proxies may be
+to a proxy item through links with the :ref:`SpecTypeProxyMemberLinkRole`. A
+proxy item resolves to the first member item which is enabled. Proxies may be
 used to provide an interface with a common name and implementations which
-depend on configuration options.  For example, in one configuration a constant
+depend on configuration options. For example, in one configuration a constant
 could be a compile time constant and in another configuration it could be a
 read-only object.
 
@@ -277,7 +277,7 @@ The explicit attributes for this type are:
 
 date
     The attribute value shall be a :ref:`SpecTypeDate`. It shall be the date of
-    the referenced work.  A work identified by a commit needs a date, since a
+    the referenced work. A work identified by a commit needs a date, since a
     change of the version control system rewrites the commit.
 
 reference-type
@@ -288,7 +288,7 @@ title
 
 work-base-url
     The attribute value shall be a string. It shall be the base URL of the
-    referenced work.  A path of a reference location or of a reference link is
+    referenced work. A path of a reference location or of a reference link is
     relative to this URL.
 
 work-hash
@@ -874,37 +874,36 @@ Reference Location
 
 This type refines the :ref:`SpecTypeRootItemType` through the ``type``
 attribute if the value is ``reference-location``. This set of attributes
-specifies an area within a referenced work.  The item shall have exactly one
-link with the reference-location role to the referenced work.  Items may link
-to a reference location with the reference role. None of the explicit
-attributes is mandatory, they are all optional. The explicit attributes for
-this type are:
+specifies an area within a referenced work. The item shall have exactly one
+link with the reference-location role to the referenced work. Items may link to
+a reference location with the reference role. None of the explicit attributes
+is mandatory, they are all optional. The explicit attributes for this type are:
 
 anchor
     The attribute value shall be a string. It shall be the anchor of the area
-    within the page of the referenced work.  The anchor is the fragment of the
-    URL without the number sign.  An example is the identifier of a section
-    heading.  The anchor replaces the anchor which the label yields.
+    within the page of the referenced work. The anchor is the fragment of the
+    URL without the number sign. An example is the identifier of a section
+    heading. The anchor replaces the anchor which the label yields.
 
 label
     The attribute value shall be a string. It shall be the label to the area
-    within the referenced work.  The label format is specific to the referenced
-    work.  An example is a label to a document location.
+    within the referenced work. The label format is specific to the referenced
+    work. An example is a label to a document location.
 
 location
     The attribute value shall be a string. It shall be the location of the area
-    within the referenced work.  An example is a section number.
+    within the referenced work. An example is a section number.
 
 name
     The attribute value shall be a string. It shall be the name of the area
-    within the referenced work.  An example is the name of a chapter or a
+    within the referenced work. An example is the name of a chapter or a
     section.
 
 path
     The attribute value shall be a string. It shall be the path to the
-    component of the area within the referenced work.  The path format is
-    specific to the referenced work.  An example is the path to a page or a
-    part of resource locator.
+    component of the area within the referenced work. The path format is
+    specific to the referenced work. An example is the path to a page or a part
+    of resource locator.
 
 .. _SpecTypeSpecificationItemType:
 
@@ -977,8 +976,8 @@ Tool Configuration Item Type
 
 This type refines the :ref:`SpecTypeRootItemType` through the ``type``
 attribute if the value is ``tool-config``. This set of attributes specifies the
-configuration of the tools.  The file specitems.yml of a tree holds one such
-item.  A tool reads the item cache and performs every task of its own type. The
+configuration of the tools. The file specitems.yml of a tree holds one such
+item. A tool reads the item cache and performs every task of its own type. The
 following explicit attributes are mandatory:
 
 - ``item-cache``
@@ -1024,35 +1023,35 @@ Citation Group Member Link Role
 
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``citation-group-member``. This set of attributes specifies a citation
-group membership role of links.  A group citation lists citations for all group
-members with the associated group key.  Citation groups may reference a
-specific area of the target documents identified by the optional ``label`` and
-``path`` attributes.  The area may be named through the optional ``name``
-attribute. Only the ``citation-group-key`` attribute is mandatory. The explicit
-attributes for this type are:
+group membership role of links. A group citation lists citations for all group
+members with the associated group key. Citation groups may reference a specific
+area of the target documents identified by the optional ``label`` and ``path``
+attributes. The area may be named through the optional ``name`` attribute. Only
+the ``citation-group-key`` attribute is mandatory. The explicit attributes for
+this type are:
 
 citation-group-key
     The attribute value shall be a string. It shall be the citation group key.
 
 kind
     The attribute value shall be a string. It shall be the kind of the cited
-    area.  The kind format is specific to the user of the citation group.  An
+    area. The kind format is specific to the user of the citation group. An
     example is the role of a document section in a traceability chain.
 
 label
     The attribute value shall be a string. It shall be the label to the cited
-    area.  The label format is specific to the cited target.  An example is a
+    area. The label format is specific to the cited target. An example is a
     label to a document location.
 
 name
     The attribute value shall be a string. It shall be the name of the cited
-    area.  The name format is specific to the cited target.  An example is the
+    area. The name format is specific to the cited target. An example is the
     name of a chapter or a section.
 
 path
     The attribute value shall be a string. It shall be the path to the
-    component of the cited area.  The path format is specific to the cited
-    target.  An example is the path to a page or a part of resource locator.
+    component of the cited area. The path format is specific to the cited
+    target. An example is the path to a page or a part of resource locator.
 
 .. _SpecTypeCopyright:
 
@@ -1080,8 +1079,8 @@ This type is used by the following types:
 Date
 ====
 
-The value shall be a string. It shall be a date in the ISO 8601 format.  A
-capital T separates an optional time from the date.  A Z or an offset such as
+The value shall be a string. It shall be a date in the ISO 8601 format. A
+capital T separates an optional time from the date. A Z or an offset such as
 ``+08:00`` gives the time zone of the time. The value shall match with the
 regular expression
 "``^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(Z|(\+|-)([01][0-9]|2[0-3]):([0-5][0-9]))?)?\Z``".
@@ -1096,8 +1095,8 @@ Enabled-By Expression
 =====================
 
 A value of this type shall be an expression which defines under which
-conditions the specification item or parts of it are enabled.  The expression
-is evaluated with the use of an *enabled set*.  This is a set of strings which
+conditions the specification item or parts of it are enabled. The expression is
+evaluated with the use of an *enabled set*. This is a set of strings which
 indicate enabled features.
 
 A value of this type shall be of one of the following variants:
@@ -1116,8 +1115,8 @@ A value of this type shall be of one of the following variants:
 
   eq
       The attribute value shall be a list of strings. The **eq** operator
-      evaluates a list of strings with at least one element.  If all strings
-      are equal, then the evaluation result is true, otherwise false.
+      evaluates a list of strings with at least one element. If all strings are
+      equal, then the evaluation result is true, otherwise false.
 
   not
       The attribute value shall be an :ref:`SpecTypeEnabledByExpression`. The
@@ -1182,9 +1181,9 @@ Link
 ====
 
 This set of attributes specifies a link from one specification item to another
-specification item.  The links in a list are ordered.  The first link in the
-list is processed first. All explicit attributes shall be specified. The
-explicit attributes for this type are:
+specification item. The links in a list are ordered. The first link in the list
+is processed first. All explicit attributes shall be specified. The explicit
+attributes for this type are:
 
 role
     The attribute value shall be a :ref:`SpecTypeName`. It shall be the role of
@@ -1369,7 +1368,7 @@ This type refines the following types:
 - :ref:`SpecTypeLink` through the ``role`` attribute if the value is
   ``proxy-member-default``
 
-It defines the proxy member role of links.  Items may use this role to link to
+It defines the proxy member role of links. Items may use this role to link to
 :ref:`SpecTypeProxyItemType` items.
 
 .. _SpecTypeReferenceLinkRole:
@@ -1379,33 +1378,33 @@ Reference Link Role
 
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``reference``. Items may link to a reference or to a reference
-location using this role.  The link states that the referenced work is the
-authority for the content of the item.  The optional location attribute locates
-the parts of the work the item uses.  The optional label, path, and anchor
+location using this role. The link states that the referenced work is the
+authority for the content of the item. The optional location attribute locates
+the parts of the work the item uses. The optional label, path, and anchor
 attributes identify the used parts within the work. None of the explicit
 attributes is mandatory, they are all optional. The explicit attributes for
 this type are:
 
 anchor
     The attribute value shall be a string. It shall be the anchor of the used
-    parts within the page of the referenced work.  The anchor is the fragment
-    of the URL without the number sign.  An example is the identifier of a
-    section heading. The anchor replaces the anchor which the label yields.
+    parts within the page of the referenced work. The anchor is the fragment of
+    the URL without the number sign. An example is the identifier of a section
+    heading. The anchor replaces the anchor which the label yields.
 
 label
     The attribute value shall be a string. It shall be the label to the used
     parts within the referenced work. The label format is specific to the
-    referenced work.  An example is a label to a document location.
+    referenced work. An example is a label to a document location.
 
 location
     The attribute value shall be a string. It shall be the location of the used
-    parts within the referenced work.  An example is a section number.
+    parts within the referenced work. An example is a section number.
 
 path
     The attribute value shall be a string. It shall be the path to the
-    component of the used parts within the referenced work.  The path format is
-    specific to the referenced work.  An example is the path to a page or a
-    part of resource locator.
+    component of the used parts within the referenced work. The path format is
+    specific to the referenced work. An example is the path to a page or a part
+    of resource locator.
 
 .. _SpecTypeReferenceLocationLinkRole:
 
@@ -1422,10 +1421,10 @@ SPDX License Expression
 =======================
 
 The value shall be a string. It shall be an SPDX license expression as defined
-by SPDX 2.3, section "SPDX license expressions".  Every identifier shall be on
+by SPDX 2.3, section "SPDX license expressions". Every identifier shall be on
 the SPDX License List or it shall be a license reference such as
-``LicenseRef-ECSS``.  Every identifier shall be in its canonical form, so a
-deprecated form such as ``GPL-2.0+`` is invalid.  A work takes one license, so
+``LicenseRef-ECSS``. Every identifier shall be in its canonical form, so a
+deprecated form such as ``GPL-2.0+`` is invalid. A work takes one license, so
 an expression of ``A AND B`` permits no work.
 
 This type is used by the following types:
@@ -1437,7 +1436,7 @@ This type is used by the following types:
 SPDX License Identifier
 =======================
 
-The value shall be a string. It shall be a single SPDX license identifier.  The
+The value shall be a string. It shall be a single SPDX license identifier. The
 identifier shall be on the SPDX License List or it shall be a license reference
 such as ``LicenseRef-ECSS``.
 
@@ -1522,12 +1521,12 @@ attribute is mandatory. The explicit attributes for this type are:
 
 assert
     The attribute value shall be a boolean. This optional attribute defines the
-    value constraint of the specified boolean value.  If the value of the
-    assert attribute is true, then the value of the specified boolean value
-    shall be true.  If the value of the assert attribute is false, then the
-    value of the specified boolean value shall be false.  In case the assert
-    attribute is not present, then the value of the specified boolean value may
-    be true or false.
+    value constraint of the specified boolean value. If the value of the assert
+    attribute is true, then the value of the specified boolean value shall be
+    true. If the value of the assert attribute is false, then the value of the
+    specified boolean value shall be false. In case the assert attribute is not
+    present, then the value of the specified boolean value may be true or
+    false.
 
 description
     The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
@@ -1555,10 +1554,10 @@ The explicit attributes for this type are:
 
 scope
     The attribute value shall be a string. It shall be the formatting scope.
-    The scope ``file`` formats the value as it is.  The scope ``function``
+    The scope ``file`` formats the value as it is. The scope ``function``
     formats the value in a function definition and returns the text of the
-    function body.  The scope ``declaration`` formats the value as it is and
-    returns it as a single line without a trailing newline.  The value stays
+    function body. The scope ``declaration`` formats the value as it is and
+    returns it as a single line without a trailing newline. The value stays
     unchanged where the result of the tool has more than one line.
 
 skip
@@ -1576,7 +1575,7 @@ Specification C Language Format Skip
 ====================================
 
 This set of attributes specifies the condition under which a C language source
-code formatting is skipped.  A value of a language for which the clang-format
+code formatting is skipped. A value of a language for which the clang-format
 tool has no valid interpretation needs such a condition. All explicit
 attributes shall be specified. The explicit attributes for this type are:
 
@@ -1601,7 +1600,7 @@ Specification Explicit Attributes
 Generic attributes may be specified. Each generic attribute key shall be a
 :ref:`SpecTypeName`. Each generic attribute value shall be a
 :ref:`SpecTypeSpecificationAttributeValue`. Each generic attribute specifies an
-explicit attribute of the attribute set.  The key of the each generic attribute
+explicit attribute of the attribute set. The key of the each generic attribute
 defines the attribute key of the explicit attribute.
 
 This type is used by the following types:
@@ -1694,7 +1693,7 @@ are:
 assert
     The attribute value shall be a
     :ref:`SpecTypeSpecificationFloatingPointAssert`. This optional attribute
-    defines the value constraints of the specified floating-point value.  In
+    defines the value constraints of the specified floating-point value. In
     case the assert attribute is not present, then the value of the specified
     floating-point value may be every valid floating-point number.
 
@@ -1711,9 +1710,9 @@ This type is used by the following types:
 Specification Generic Attributes
 ================================
 
-This set of attributes specifies generic attributes.  Generic attributes are
+This set of attributes specifies generic attributes. Generic attributes are
 attributes which are not explicitly specified by
-:ref:`SpecTypeSpecificationExplicitAttributes`.  They are restricted to uniform
+:ref:`SpecTypeSpecificationExplicitAttributes`. They are restricted to uniform
 attribute key and value types. All explicit attributes shall be specified. The
 explicit attributes for this type are:
 
@@ -1890,7 +1889,7 @@ attribute is mandatory. The explicit attributes for this type are:
 assert
     The attribute value shall be a :ref:`SpecTypeSpecificationIntegerAssert`.
     This optional attribute defines the value constraints of the specified
-    integer value.  In case the assert attribute is not present, then the value
+    integer value. In case the assert attribute is not present, then the value
     of the specified integer value may be every valid integer number.
 
 description
@@ -1967,7 +1966,7 @@ A value of this type shall be of one of the following variants:
   The list defines the mandatory attributes through their key names.
 
 - The value may be a string. It defines how many explicit attributes are
-  mandatory.  If ``none`` is used, then none of the explicit attributes is
+  mandatory. If ``none`` is used, then none of the explicit attributes is
   mandatory, they are all optional. The value shall be an element of
 
   - "``all``",
@@ -2139,9 +2138,9 @@ is mandatory. The explicit attributes for this type are:
 
 assert
     The attribute value shall be a :ref:`SpecTypeSpecificationStringAssert`.
-    This optional attribute defines the constraints of the specified string.
-    In case the assert attribute is not present, then the specified string may
-    be every valid string.
+    This optional attribute defines the constraints of the specified string. In
+    case the assert attribute is not present, then the specified string may be
+    every valid string.
 
 description
     The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
@@ -2318,7 +2317,7 @@ Tool Inline Item
 ================
 
 This set of attributes specifies an item which the configuration adds to the
-item cache.  An example is a package item which a tree refers to and which only
+item cache. An example is a package item which a tree refers to and which only
 a package build provides. All explicit attributes shall be specified. The
 explicit attributes for this type are:
 
@@ -2353,7 +2352,7 @@ This type is used by the following types:
 Tool Item Cache
 ===============
 
-This set of attributes specifies the item cache of a configuration.  A
+This set of attributes specifies the item cache of a configuration. A
 configuration which states no path states an empty item cache. None of the
 explicit attributes is mandatory, they are all optional. The explicit
 attributes for this type are:
@@ -2372,8 +2371,8 @@ initialize-links
 
 paths
     The attribute value shall be a :ref:`SpecTypeToolItemCachePaths`. It shall
-    be the specification item directories.  A dictionary maps a directory to
-    the UID prefix of the items which it holds.
+    be the specification item directories. A dictionary maps a directory to the
+    UID prefix of the items which it holds.
 
 permissive-type-errors
     The attribute value shall be a boolean. It shall be true, if a type error
@@ -2404,7 +2403,7 @@ A value of this type shall be of one of the following variants:
   attribute value shall be a string.
 
 - The value may be a list. Each list element shall be a string. A list gives
-  the specification item directories.  The items of a directory take the UID
+  the specification item directories. The items of a directory take the UID
   prefix which their path gives.
 
 This type is used by the following types:
@@ -2498,8 +2497,8 @@ root-type
 Tool Task
 =========
 
-This set of attributes specifies a task of a tool.  The configuration carries a
-list of tasks.  A tool performs every task of its type. The following explicit
+This set of attributes specifies a task of a tool. The configuration carries a
+list of tasks. A tool performs every task of its type. The following explicit
 attributes are mandatory:
 
 - ``task-name``
@@ -2510,17 +2509,17 @@ The explicit attributes for this type are:
 
 params
     The attribute value may have any type. If the value is present, then it
-    shall be the parameters of the task.  A task uses them as substitution
+    shall be the parameters of the task. A task uses them as substitution
     variables.
 
 task-name
     The attribute value shall be a :ref:`SpecTypeName`. It shall be the name of
-    the task.  The name shall be unique within the configuration.  The messages
+    the task. The name shall be unique within the configuration. The messages
     of a tool use it to name the task.
 
 task-type
     The attribute value shall be a :ref:`SpecTypeName`. It shall be the type of
-    the task.  This attribute is used for type refinements.
+    the task. This attribute is used for type refinements.
 
 This type is refined by the following types:
 

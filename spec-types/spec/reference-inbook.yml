@@ -40,8 +40,7 @@ spec-info:
         spec-type: str
       number:
         description: |
-          It shall be the issue number of the journal, magazine, or
-          tech-report.
+          It shall be the issue number of the journal, magazine, or tech-report.
         spec-type: str
       pages:
         description: |
@@ -49,8 +48,8 @@ spec-info:
         spec-type: str
       publication-type:
         description: |
-          If the attribute is present, it shall be the publication type
-          overriding the default.
+          If the attribute is present, it shall be the publication type overriding the
+          default.
         spec-type: str
       publisher:
         description: |

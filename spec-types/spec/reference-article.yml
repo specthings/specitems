@@ -24,8 +24,8 @@ spec-info:
         spec-type: str
       journal:
         description: |
-          It shall be the name of the journal, magazine, report, or newspaper
-          in which the article was published.
+          It shall be the name of the journal, magazine, report, or newspaper in which
+          the article was published.
         spec-type: str
       month:
         description: |

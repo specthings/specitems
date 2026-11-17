@@ -36,8 +36,8 @@ spec-info:
         spec-type: str
       publication-type:
         description: |
-          If the attribute is present, it shall be the publication type
-          overriding the default.
+          If the attribute is present, it shall be the publication type overriding the
+          default.
         spec-type: str
       year:
         description: |

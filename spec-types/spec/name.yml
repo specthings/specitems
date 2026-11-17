@@ -10,7 +10,7 @@ spec-example: null
 spec-info:
   str:
     assert:
-    - re: '^([a-z][a-z0-9-]*|SPDX-License-Identifier)$'
+    - re: ^([a-z][a-z0-9-]*|SPDX-License-Identifier)$
     description: |
       It shall be an attribute name.
 spec-name: Name

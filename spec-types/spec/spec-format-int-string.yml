@@ -16,8 +16,7 @@ spec-info:
     attributes:
       format:
         description: |
-          It shall be the Python format string used to format the integer
-          value.
+          It shall be the Python format string used to format the integer value.
         spec-type: str
     description: |
       This set of attributes specifies a format string for integer values.

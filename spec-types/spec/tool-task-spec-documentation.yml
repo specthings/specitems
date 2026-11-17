@@ -16,13 +16,13 @@ spec-info:
     attributes:
       accepted-licenses:
         description: |
-          It shall be the licenses which the produced file accepts for a part
-          whose license expression permits not the license.
+          It shall be the licenses which the produced file accepts for a part whose
+          license expression permits not the license.
         spec-type: list-str
       automatically-generated-warning:
         description: |
-          It shall be the warning which the produced file carries.
-          An empty warning adds no comment block to a file.
+          It shall be the warning which the produced file carries. An empty warning adds
+          no comment block to a file.
         spec-type: str
       hierarchy-subsection-name:
         description: |
@@ -34,8 +34,8 @@ spec-info:
         spec-type: str
       ignore:
         description: |
-          It shall be a regular expression.  The documentation leaves out a
-          type whose name it matches.
+          It shall be a regular expression. The documentation leaves out a type whose
+          name it matches.
         spec-type: str
       item-types-subsection-name:
         description: |

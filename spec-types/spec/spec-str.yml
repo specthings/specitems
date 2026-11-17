@@ -12,18 +12,18 @@ spec-info:
     attributes:
       assert:
         description: |
-          This optional attribute defines the constraints of the specified
-          string.  In case the assert attribute is not present, then the
-          specified string may be every valid string.
+          This optional attribute defines the constraints of the specified string. In
+          case the assert attribute is not present, then the specified string may be
+          every valid string.
         spec-type: spec-assert-str
-      format:
-        description: |
-          This optional attribute defines the format of the string.
-        spec-type: spec-format
       description:
         description: |
           It shall be the description of the specified string attribute.
         spec-type: optional-myst
+      format:
+        description: |
+          This optional attribute defines the format of the string.
+        spec-type: spec-format
     description: |
       This set of attributes specifies a string.
     mandatory-attributes:

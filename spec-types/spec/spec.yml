@@ -50,8 +50,7 @@ spec-info:
         spec-type: optional-myst
       spec-example:
         description: |
-          If the value is present, then it shall be an example of the
-          specification type.
+          If the value is present, then it shall be an example of the specification type.
         spec-type: optional-str
       spec-info:
         description: null

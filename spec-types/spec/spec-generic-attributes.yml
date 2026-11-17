@@ -23,10 +23,9 @@ spec-info:
           It shall be the specification type of the generic attribute values.
         spec-type: name
     description: |
-      This set of attributes specifies generic attributes.  Generic attributes
-      are attributes which are not explicitly specified by
-      ${spec-attributes:/spec-name}.  They are restricted to uniform attribute
-      key and value types.
+      This set of attributes specifies generic attributes. Generic attributes are
+      attributes which are not explicitly specified by ${spec-attributes:/spec-name}.
+      They are restricted to uniform attribute key and value types.
     mandatory-attributes: all
 spec-name: Specification Generic Attributes
 spec-type: spec-generic-attributes

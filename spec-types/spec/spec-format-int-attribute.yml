@@ -16,18 +16,17 @@ spec-info:
     attributes:
       default:
         description: |
-          It shall be the optional default Python format string used to format
-          an integer value.
+          It shall be the optional default Python format string used to format an integer
+          value.
         spec-type: str
       path:
         description: |
-          It shall be the path to the item attribute providing the Python
-          format string used to format an integer value.
+          It shall be the path to the item attribute providing the Python format string
+          used to format an integer value.
         spec-type: str
     description: |
-      This set of attributes specifies a Python format string for integer
-      values through an attribute path and an optional default Python format
-      string.
+      This set of attributes specifies a Python format string for integer values
+      through an attribute path and an optional default Python format string.
     mandatory-attributes:
     - path
 spec-name: Specification Integer Format Attribute

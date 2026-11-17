@@ -16,13 +16,13 @@ spec-info:
     attributes:
       accepted-licenses:
         description: |
-          It shall be the licenses which the produced files accept for a part
-          whose license expression permits not the license.
+          It shall be the licenses which the produced files accept for a part whose
+          license expression permits not the license.
         spec-type: list-str
       automatically-generated-warning:
         description: |
-          It shall be the warning which every produced file carries.
-          An empty warning adds no comment block to a file.
+          It shall be the warning which every produced file carries. An empty warning
+          adds no comment block to a file.
         spec-type: str
       documents:
         description: |
@@ -42,8 +42,8 @@ spec-info:
         spec-type: str
       project-target:
         description: |
-          If the value is present, then it shall be the target file of the
-          project glossary.
+          If the value is present, then it shall be the target file of the project
+          glossary.
         spec-type: optional-str
     description: |
       This set of attributes specifies a glossary task.

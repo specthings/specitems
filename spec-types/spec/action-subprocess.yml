@@ -12,24 +12,23 @@ spec-info:
     attributes:
       command:
         description: |
-          It shall be the command and argument list to run as a subprocess.  A
-          variable substitution is performed on the list elements.  For
-          example, you can use ``$${.:/input-file}.bin`` or
-          `$${.:/output-file}`.
+          It shall be the command and argument list to run as a subprocess. A variable
+          substitution is performed on the list elements. For example, you can use
+          `$${.:/input-file}.bin` or `$${.:/output-file}`.
         spec-type: list-str
       env:
         description: null
         spec-type: action-subprocess-env-list
       expected-return-code:
         description: |
-          If the value is present, then it shall be the expected return code of
-          the subprocess.
+          If the value is present, then it shall be the expected return code of the
+          subprocess.
         spec-type: optional-int
       stdout:
         description: |
-          If the value is present, then it shall be the path of the file which
-          takes the standard output stream of the subprocess.  A relative path
-          is relative to the working directory of the subprocess.
+          If the value is present, then it shall be the path of the file which takes the
+          standard output stream of the subprocess. A relative path is relative to the
+          working directory of the subprocess.
         spec-type: str
       working-directory:
         description: |

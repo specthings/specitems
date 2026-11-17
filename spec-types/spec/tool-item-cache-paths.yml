@@ -11,8 +11,8 @@ spec-info:
   dict:
     attributes: {}
     description: |
-      A dictionary maps a specification item directory to the UID prefix of
-      the items which it holds.
+      A dictionary maps a specification item directory to the UID prefix of the items
+      which it holds.
     generic-attributes:
       description: null
       key-spec-type: str
@@ -20,8 +20,8 @@ spec-info:
     mandatory-attributes: none
   list:
     description: |
-      A list gives the specification item directories.  The items of a
-      directory take the UID prefix which their path gives.
+      A list gives the specification item directories. The items of a directory take
+      the UID prefix which their path gives.
     spec-type: str
 spec-name: Tool Item Cache Paths
 spec-type: tool-item-cache-paths

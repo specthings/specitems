@@ -11,13 +11,13 @@ spec-info:
   dict:
     attributes: {}
     description: |
-      This set of attributes specifies a mapping from one string to another
-      string or a list of strings.
-    mandatory-attributes: all
+      This set of attributes specifies a mapping from one string to another string or
+      a list of strings.
     generic-attributes:
       description: null
       key-spec-type: str
       value-spec-type: str-or-list-str
+    mandatory-attributes: all
 spec-name: String to String or List of Strings Mapping
 spec-type: str-to-str-or-list-str
 type: spec
