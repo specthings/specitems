@@ -4,7 +4,9 @@ copyrights:
 - Copyright (C) 2025 embedded brains GmbH & Co. KG
 enabled-by: true
 howpublished: How published
-links: []
+links:
+- role: citation-group-member
+  uid: group-any
 month: January
 note: Note
 reference-type: booklet

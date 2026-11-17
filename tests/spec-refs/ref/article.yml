@@ -11,6 +11,9 @@ links:
 - citation-group-key: another-citation-group-key
   role: citation-group-member
   uid: other
+- kind: second
+  role: citation-group-member
+  uid: group
 month: January
 note: Note ${other:/name}
 number: 1 ${other:/name}

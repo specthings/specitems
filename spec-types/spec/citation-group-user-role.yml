@@ -1,0 +1,32 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: role
+  spec-value: citation-group-user
+  uid: link
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      citation-group-key:
+        description: |
+          It shall be the key of the citation group. The key selects a group of an item
+          which hosts several citation groups. A link to a ${citation-group:/spec-name}
+          item shall not have a key.
+        spec-type: str
+    description: |
+      This set of attributes specifies a citation group user role of links. The link
+      source relies on the areas cited by the members of the citation group. The link
+      states the same as a link with the ${reference-role:/spec-name} to each member
+      area. The user of the citation group defines the meaning of the `kind`
+      attribute of the members.
+    mandatory-attributes: none
+spec-name: Citation Group User Link Role
+spec-type: citation-group-user-role
+type: spec

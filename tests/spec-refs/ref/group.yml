@@ -1,0 +1,12 @@
+SPDX-License-Identifier: CC-BY-SA-4.0
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links: []
+member-kinds:
+- first
+- second
+name: Group
+text: |
+  The group groups the cited areas.
+type: citation-group

@@ -140,6 +140,32 @@ def get_reference_target(item: Item,
     return ReferenceTarget(work, name, label, location, path, anchor, url)
 
 
+def get_citation_group_members(item: Item,
+                               key: Optional[str] = None) -> list[Link]:
+    """
+    Get the member links of the citation group.
+
+    The item is either a citation group item or an item which hosts several
+    citation groups.  The key selects a group of the hosting item.  If the
+    citation group defines the kinds of its members, then the members are
+    ordered by their kind.
+    """
+    members = [
+        link for link in item.links_to_children("citation-group-member")
+        if link.data.get("citation-group-key", None) == key
+    ]
+    kinds = item.get("member-kinds", None)
+    if kinds is None:
+        return members
+    for link in members:
+        kind = link.data.get("kind", None)
+        if kind not in kinds:
+            raise ValueError(
+                f"{link.item.uid}: the member of citation group {item.uid} "
+                f"has the kind {kind!r}, expected {list_terms(kinds, 'or')}")
+    return sorted(members, key=lambda link: kinds.index(link["kind"]))
+
+
 def _get_fields(item: Item) -> tuple[str, _Fields]:
     _, _, publication_type = item.type.partition("/")
     fields: _Fields = dict(
@@ -163,19 +189,22 @@ class BibTeXCitationProvider(ItemValueProvider):
                              self._get_cite_location)
         mapper.add_get_value("reference-location:/cite-long",
                              self._get_cite_long_location)
+        mapper.add_get_value("citation-group:/cite-group", self.get_cite_group)
 
     def reset(self) -> None:
         self._citations.clear()
 
     def get_cite_group(self, ctx: ItemGetValueContext) -> str:
         """
-        Get the citations associated with the citation group key provided by
-        the arguments of the context.
+        Get the citations of the citation group.
+
+        The arguments of the context provide the key of a citation group
+        hosted by the item.  A citation group item needs no arguments.
         """
-        citations: list[str] = []
-        for link in ctx.item.links_to_children("citation-group-member"):
-            if link["citation-group-key"] == ctx.args:
-                citations.append(f"${{{link.uid}:/cite}}")
+        citations = [
+            f"${{{link.uid}:/cite}}"
+            for link in get_citation_group_members(ctx.item, ctx.args)
+        ]
         return ctx.substitute(list_terms(citations))
 
     def get_bibtex_entries(self, ctx: ItemGetValueContext) -> str:
