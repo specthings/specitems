@@ -13,7 +13,7 @@ spec-info:
       description:
         description: |
           It shall be the description of the generic attributes.
-        spec-type: optional-str
+        spec-type: optional-myst
       key-spec-type:
         description: |
           It shall be the specification type of the generic attribute keys.

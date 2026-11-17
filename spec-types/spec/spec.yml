@@ -47,7 +47,7 @@ spec-info:
       spec-description:
         description: |
           It shall be the description of the specification type.
-        spec-type: optional-str
+        spec-type: optional-myst
       spec-example:
         description: |
           If the value is present, then it shall be an example of the

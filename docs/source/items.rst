@@ -917,8 +917,8 @@ specification types. All explicit attributes shall be specified. The explicit
 attributes for this type are:
 
 spec-description
-    The attribute value shall be an optional string. It shall be the
-    description of the specification type.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the specification type.
 
 spec-example
     The attribute value shall be an optional string. If the value is present,
@@ -1325,6 +1325,37 @@ This type is used by the following types:
 
 - :ref:`SpecTypeReference`
 
+.. _SpecTypeOptionalTextInMySTFormat:
+
+Optional Text in MyST Format
+============================
+
+A value of this type shall be of one of the following variants:
+
+- There may be no value (null).
+
+- The value may be a string. It shall be a text in MyST format.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeSpecificationAttributeSet`
+
+- :ref:`SpecTypeSpecificationAttributeValue`
+
+- :ref:`SpecTypeSpecificationBooleanValue`
+
+- :ref:`SpecTypeSpecificationFloatingPointValue`
+
+- :ref:`SpecTypeSpecificationGenericAttributes`
+
+- :ref:`SpecTypeSpecificationIntegerValue`
+
+- :ref:`SpecTypeSpecificationItemType`
+
+- :ref:`SpecTypeSpecificationList`
+
+- :ref:`SpecTypeSpecificationStringValue`
+
 .. _SpecTypeProxyMemberLinkRole:
 
 Proxy Member Link Role
@@ -1440,8 +1471,8 @@ attributes
     explicit attributes of the attribute set.
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the attribute set.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the attribute set.
 
 format
     The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
@@ -1470,8 +1501,8 @@ This set of attributes specifies an attribute value. All explicit attributes
 shall be specified. The explicit attributes for this type are:
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the attribute value.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the attribute value.
 
 spec-type
     The attribute value shall be a :ref:`SpecTypeName`. It shall be the
@@ -1499,8 +1530,8 @@ assert
     be true or false.
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the specified boolean value.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the specified boolean value.
 
 This type is used by the following types:
 
@@ -1668,8 +1699,8 @@ assert
     floating-point value may be every valid floating-point number.
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the specified floating-point value.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the specified floating-point value.
 
 This type is used by the following types:
 
@@ -1687,8 +1718,8 @@ attribute key and value types. All explicit attributes shall be specified. The
 explicit attributes for this type are:
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the generic attributes.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the generic attributes.
 
 key-spec-type
     The attribute value shall be a :ref:`SpecTypeName`. It shall be the
@@ -1863,8 +1894,8 @@ assert
     of the specified integer value may be every valid integer number.
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the specified integer value.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the specified integer value.
 
 format
     The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
@@ -1889,8 +1920,8 @@ explicit attributes are mandatory:
 The explicit attributes for this type are:
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the list.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the list.
 
 format
     The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
@@ -2113,8 +2144,8 @@ assert
     be every valid string.
 
 description
-    The attribute value shall be an optional string. It shall be the
-    description of the specified string attribute.
+    The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
+    shall be the description of the specified string attribute.
 
 format
     The attribute value shall be a :ref:`SpecTypeSpecificationValueFormat`.
