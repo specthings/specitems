@@ -295,12 +295,17 @@ def _maybe_document_assert(content: TextContent, type_info: Any) -> None:
 
 class _Documenter:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, mapper: ItemMapper, item: Item,
-                 documenter_map: _DocumenterMap, label_prefix: str,
-                 content: TextContent):
+    def __init__(self,
+                 mapper: ItemMapper,
+                 item: Item,
+                 documenter_map: _DocumenterMap,
+                 label_prefix: str,
+                 content: TextContent,
+                 ignored: bool = False):
         # pylint: disable=too-many-arguments
         # pylint: disable=too-many-positional-arguments
-        self._present = False
+        self.ignored = ignored
+        self._present = ignored
         self._mapper = mapper
         self._name = item["spec-type"]
         self.section = item["spec-name"]
@@ -318,7 +323,12 @@ class _Documenter:
         return self._mapper.substitute(text, self._item)
 
     def get_section_reference(self) -> str:
-        """ Return the section reference. """
+        """
+        Return the section reference.  An ignored type has no section, so
+        the reference is its name.
+        """
+        if self.ignored:
+            return self.section
         return self._content.reference(self._label_prefix +
                                        make_label(self.section))
 
@@ -516,8 +526,9 @@ class _Documenter:
                 type_name = element_type_name
         if type_name not in _PRIMITIVE_TYPES:
             documenter = self._documenter_map[type_name]
-            documenter.used_by.add(self.get_section_reference())
-            documenter.resolve_used_by(ignore)
+            if not documenter.ignored:
+                documenter.used_by.add(self.get_section_reference())
+                documenter.resolve_used_by(ignore)
 
     def resolve_used_by(self, ignore: Pattern[Any]) -> None:
         """ Resolve type uses in attribute sets. """
@@ -569,11 +580,15 @@ def add_specification_documentation(content: TextContent,
                                   config.label_prefix, content)
     ignore = re.compile(config.ignore)
     for member in root_item.children("spec-member"):
-        if ignore.search(member["spec-type"]) is None:
-            _Documenter(mapper, member, documenter_map, config.label_prefix,
-                        content)
+        _Documenter(mapper, member, documenter_map, config.label_prefix,
+                    content,
+                    ignore.search(member["spec-type"]) is not None)
     root_documenter.resolve_used_by(ignore)
-    documenter_names = set(documenter_map)
+    documenter_names = {
+        name
+        for name, documenter in documenter_map.items()
+        if not documenter.ignored
+    }
     content.push_label(config.section_label_prefix)
     with content.section(config.section_name):
         content.push_label(config.section_label_prefix)
