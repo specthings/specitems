@@ -9,10 +9,10 @@ spec-description: null
 spec-example: null
 spec-info:
   str:
-    format:
-      type: myst
     description: |
       It shall be a text in MyST format.
+    format:
+      type: myst
 spec-name: Text in MyST Format
 spec-type: myst
 type: spec

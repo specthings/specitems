@@ -16,13 +16,11 @@ spec-info:
         spec-type: str
       md-source-paths:
         description: |
-          It shall be the paths of the Markdown sources which the glossary
-          covers.
+          It shall be the paths of the Markdown sources which the glossary covers.
         spec-type: list-str
       rest-source-paths:
         description: |
-          It shall be the paths of the reST sources which the glossary
-          covers.
+          It shall be the paths of the reST sources which the glossary covers.
         spec-type: list-str
       target:
         description: |

@@ -25,30 +25,28 @@ spec-info:
         spec-type: links
       type:
         description: |
-          It shall be the item type.  The selection of types and the level of
-          detail depends on a particular standard and product model.  We need
-          enough flexibility to be in line with the European Cooperation for
-          Space Standardization standard ECSS-E-ST-10-06 and possible future
-          applications of other standards.  This attribute is used for type
-          refinements.
+          It shall be the item type. The selection of types and the level of detail
+          depends on a particular standard and product model. We need enough flexibility
+          to be in line with the European Cooperation for Space Standardization standard
+          ECSS-E-ST-10-06 and possible future applications of other standards. This
+          attribute is used for type refinements.
         spec-type: name
     description: |
       This is the root specification item type.
 
       Specification items consist of a defined set of key-value pairs called
-      attributes.  Each attribute key name shall be a ${name:/spec-name}.  Item
+      attributes. Each attribute key name shall be a ${name:/spec-name}. Item
       attributes may have dictionary, list, integer, floating-point number, and
-      string values or a combination of them.  The format of items is defined
-      by the type hierarchy rooting in this type.
+      string values or a combination of them. The format of items is defined by the
+      type hierarchy rooting in this type.
 
       The `type` attribute allows a specialization into domain-specific type
-      hierarchies.  For example, for a software specification possible type
+      hierarchies. For example, for a software specification possible type
       refinements may be created to specify requirements, specializations of
-      requirements, interfaces, test suites, test cases, and requirement
-      validations.
+      requirements, interfaces, test suites, test cases, and requirement validations.
 
-      The specification items may be stored in or loaded from files in JSON or
-      YAML format.
+      The specification items may be stored in or loaded from files in JSON or YAML
+      format.
     mandatory-attributes: all
 spec-name: Root Item Type
 spec-type: root

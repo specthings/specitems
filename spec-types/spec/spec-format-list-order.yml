@@ -16,16 +16,16 @@ spec-info:
     attributes:
       key:
         description: |
-          It shall be the key to the value of a list element which matches with a dictionary key.
+          It shall be the key to the value of a list element which matches with a
+          dictionary key.
         spec-type: str
       path:
         description: |
           It shall be the path to the list defining the dictionary key order.
         spec-type: str
     description: |
-      This set of attributes specifies an ordering of dictionary keys according
-      to a list with one attribute having values matching with the dictionary
-      keys.
+      This set of attributes specifies an ordering of dictionary keys according to a
+      list with one attribute having values matching with the dictionary keys.
     mandatory-attributes: all
 spec-name: Specification List Order Format
 spec-type: spec-format-list-order

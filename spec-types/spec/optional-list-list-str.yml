@@ -8,10 +8,10 @@ links:
 spec-description: null
 spec-example: null
 spec-info:
-  none: null
   list:
     description: null
     spec-type: list-str
+  none: null
 spec-name: Optional List of String Lists
 spec-type: optional-list-list-str
 type: spec

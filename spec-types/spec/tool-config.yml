@@ -14,22 +14,22 @@ spec-example: null
 spec-info:
   dict:
     attributes:
-      item-cache:
-        description: |
-          It shall be the item cache of the configuration.
-        spec-type: tool-item-cache
       inline-items:
         description: |
           It shall be the items which the configuration adds to the item cache.
         spec-type: tool-inline-item-list
+      item-cache:
+        description: |
+          It shall be the item cache of the configuration.
+        spec-type: tool-item-cache
       tasks:
         description: |
           It shall be the tasks of the configuration.
         spec-type: tool-task-list
     description: |
-      This set of attributes specifies the configuration of the tools.  The
-      file specitems.yml of a tree holds one such item.  A tool reads the
-      item cache and performs every task of its own type.
+      This set of attributes specifies the configuration of the tools. The file
+      specitems.yml of a tree holds one such item. A tool reads the item cache and
+      performs every task of its own type.
     mandatory-attributes:
     - item-cache
     - tasks

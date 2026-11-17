@@ -15,13 +15,12 @@ spec-info:
   dict:
     attributes: {}
     description: |
-      Items of similar characteristics may link to a proxy item through links
-      with the ${proxy-member:/spec-name}.  A proxy item resolves to the first
-      member item which is enabled.  Proxies may be used to provide an
-      interface with a common name and implementations which depend on
-      configuration options.  For example, in one configuration a constant
-      could be a compile time constant and in another configuration it could be
-      a read-only object.
+      Items of similar characteristics may link to a proxy item through links with
+      the ${proxy-member:/spec-name}. A proxy item resolves to the first member item
+      which is enabled. Proxies may be used to provide an interface with a common
+      name and implementations which depend on configuration options. For example, in
+      one configuration a constant could be a compile time constant and in another
+      configuration it could be a read-only object.
     mandatory-attributes: all
 spec-name: Proxy Item Type
 spec-type: proxy

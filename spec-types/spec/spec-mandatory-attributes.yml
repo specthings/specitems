@@ -22,9 +22,8 @@ spec-info:
       - exactly-one
       - none
     description: |
-      It defines how many explicit attributes are mandatory.  If `none` is
-      used, then none of the explicit attributes is mandatory, they are all
-      optional.
+      It defines how many explicit attributes are mandatory. If `none` is used, then
+      none of the explicit attributes is mandatory, they are all optional.
 spec-name: Specification Mandatory Attributes
 spec-type: spec-mandatory-attributes
 type: spec

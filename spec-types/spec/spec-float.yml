@@ -12,10 +12,10 @@ spec-info:
     attributes:
       assert:
         description: |
-          This optional attribute defines the value constraints of the
-          specified floating-point value.  In case the assert attribute is not
-          present, then the value of the specified floating-point value may be
-          every valid floating-point number.
+          This optional attribute defines the value constraints of the specified
+          floating-point value. In case the assert attribute is not present, then the
+          value of the specified floating-point value may be every valid floating-point
+          number.
         spec-type: spec-assert-float
       description:
         description: |

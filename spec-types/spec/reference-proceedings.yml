@@ -16,8 +16,7 @@ spec-info:
     attributes:
       editor:
         description: |
-          It shall be the editor or the list of editors of the conference
-          proceedings.
+          It shall be the editor or the list of editors of the conference proceedings.
         spec-type: str-or-list-str
       month:
         description: |
@@ -41,8 +40,7 @@ spec-info:
         spec-type: str
       series:
         description: |
-          It shall be the series of the conference proceedings the article was
-          published.
+          It shall be the series of the conference proceedings the article was published.
         spec-type: str
       volume:
         description: |

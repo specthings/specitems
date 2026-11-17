@@ -11,9 +11,8 @@ spec-info:
   str:
     assert: []
     description: |
-      It shall be a single SPDX license identifier.  The identifier shall be
-      on the SPDX License List or it shall be a license reference such as
-      ``LicenseRef-ECSS``.
+      It shall be a single SPDX license identifier. The identifier shall be on the
+      SPDX License List or it shall be a license reference such as `LicenseRef-ECSS`.
 spec-name: SPDX License Identifier
 spec-type: spdx-license-identifier
 type: spec

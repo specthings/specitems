@@ -13,8 +13,7 @@ spec-info:
     assert:
     - re: ^[A-Za-z0-9+_=-]{24}$
     description: |
-      If the value is present, then it shall be a MD5 digest encoded in
-      base64url.
+      If the value is present, then it shall be a MD5 digest encoded in base64url.
 spec-name: Optional MD5 Digest
 spec-type: optional-md5
 type: spec

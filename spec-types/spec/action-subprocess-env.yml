@@ -16,17 +16,15 @@ spec-info:
         spec-type: str
       name:
         description: |
-          If the value is present, then it shall be the environment variable
-          name.
+          If the value is present, then it shall be the environment variable name.
         spec-type: optional-str
       value:
         description: |
-          If the value is present, then it shall be the environment variable
-          value.
+          If the value is present, then it shall be the environment variable value.
         spec-type: optional-str
     description: |
-      This set of attributes specifies an action to alter the subprocess
-      execution environment.
+      This set of attributes specifies an action to alter the subprocess execution
+      environment.
     mandatory-attributes: all
 spec-name: Subprocess Environment Action
 spec-type: action-subprocess-env

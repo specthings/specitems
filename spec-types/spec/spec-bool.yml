@@ -12,13 +12,12 @@ spec-info:
     attributes:
       assert:
         description: |
-          This optional attribute defines the value constraint of the specified
-          boolean value.  If the value of the assert attribute is true, then
-          the value of the specified boolean value shall be true.  If the value
-          of the assert attribute is false, then the value of the specified
-          boolean value shall be false.  In case the assert attribute is not
-          present, then the value of the specified boolean value may be true or
-          false.
+          This optional attribute defines the value constraint of the specified boolean
+          value. If the value of the assert attribute is true, then the value of the
+          specified boolean value shall be true. If the value of the assert attribute is
+          false, then the value of the specified boolean value shall be false. In case
+          the assert attribute is not present, then the value of the specified boolean
+          value may be true or false.
         spec-type: bool
       description:
         description: |

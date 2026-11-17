@@ -19,9 +19,9 @@ spec-info:
           It shall be the UID of the item.
         spec-type: absolute-uid
     description: |
-      This set of attributes specifies an item which the configuration adds to
-      the item cache.  An example is a package item which a tree refers to and
-      which only a package build provides.
+      This set of attributes specifies an item which the configuration adds to the
+      item cache. An example is a package item which a tree refers to and which only
+      a package build provides.
     mandatory-attributes: all
 spec-name: Tool Inline Item
 spec-type: tool-inline-item

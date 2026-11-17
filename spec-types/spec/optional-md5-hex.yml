@@ -13,8 +13,8 @@ spec-info:
     assert:
     - re: ^[A-Fa-f0-9]{32}$
     description: |
-      If the value is present, then it shall be a MD5 digest encoded in
-      hexadecimal digits.
+      If the value is present, then it shall be a MD5 digest encoded in hexadecimal
+      digits.
 spec-name: Optional MD5 Hex Digest
 spec-type: optional-md5-hex
 type: spec

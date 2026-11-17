@@ -7,9 +7,9 @@ links:
   uid: root
 spec-description: |
   A value of this type shall be an expression which defines under which
-  conditions the specification item or parts of it are enabled.  The expression
-  is evaluated with the use of an *enabled set*.  This is a set of strings
-  which indicate enabled features.
+  conditions the specification item or parts of it are enabled. The expression is
+  evaluated with the use of an *enabled set*. This is a set of strings which
+  indicate enabled features.
 spec-example: |
   enabled-by:
     and:
@@ -23,24 +23,23 @@ spec-info:
     attributes:
       and:
         description: |
-          The *and* operator evaluates to the *logical and* of the evaluation
-          results of the expressions in the list.
+          The *and* operator evaluates to the *logical and* of the evaluation results of
+          the expressions in the list.
         spec-type: enabled-by-list
       eq:
         description: |
-          The *eq* operator evaluates a list of strings with at least one
-          element.  If all strings are equal, then the evaluation result is
-          true, otherwise false.
+          The *eq* operator evaluates a list of strings with at least one element. If all
+          strings are equal, then the evaluation result is true, otherwise false.
         spec-type: list-str
       not:
         description: |
-          The *not* operator evaluates to the *logical not* of the evaluation
-          results of the expression.
+          The *not* operator evaluates to the *logical not* of the evaluation results of
+          the expression.
         spec-type: enabled-by
       or:
         description: |
-          The *or* operator evaluates to the *logical or* of the evaluation
-          results of the expressions in the list.
+          The *or* operator evaluates to the *logical or* of the evaluation results of
+          the expressions in the list.
         spec-type: enabled-by-list
     description: |
       Each attribute defines an operator.
