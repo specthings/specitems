@@ -16,7 +16,7 @@ spec-info:
         description: |
           The *and* operator evaluates to the *logical and* of the evaluation results of
           the expressions in the list.
-        spec-type: spec-assert-str-list
+        spec-type: assert-str-list
       contains:
         description: |
           The *contains* operator evaluates to true, if the string to check converted to
@@ -63,12 +63,12 @@ spec-info:
         description: |
           The *not* operator evaluates to the *logical not* of the evaluation results of
           the expression.
-        spec-type: spec-assert-str
+        spec-type: assert-str
       or:
         description: |
           The *or* operator evaluates to the *logical or* of the evaluation results of
           the expressions in the list.
-        spec-type: spec-assert-str-list
+        spec-type: assert-str-list
       re:
         description: |
           The *re* operator evaluates to true, if the string to check matches with the
@@ -86,7 +86,7 @@ spec-info:
     description: |
       This list of expressions evaluates to the *logical or* of the evaluation
       results of the expressions in the list.
-    spec-type: spec-assert-str
-spec-name: Specification String Assert
-spec-type: spec-assert-str
+    spec-type: assert-str
+spec-name: String Assert
+spec-type: assert-str
 type: spec

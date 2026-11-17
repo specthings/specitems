@@ -15,7 +15,7 @@ spec-info:
           This optional attribute defines the constraints of the specified string. In
           case the assert attribute is not present, then the specified string may be
           every valid string.
-        spec-type: spec-assert-str
+        spec-type: assert-str
       description:
         description: |
           It shall be the description of the specified string attribute.

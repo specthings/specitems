@@ -195,7 +195,7 @@ def evaluate_str_assert(value: str,
                         expression: Any,
                         item: Optional[Item] = None) -> bool:
     """
-    Evaluate the expression of the type spec-assert-str for the string value.
+    Evaluate the expression of the type assert-str for the string value.
 
     The uid operator resolves the value relative to the item.  Without an
     item, an expression with the uid operator raises a KeyError.

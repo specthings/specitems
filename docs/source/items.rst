@@ -1233,6 +1233,76 @@ Please have a look at the following example:
       - SOME_FEATURE
       - not: ANOTHER_FEATURE
 
+.. _SpecTypeFloatingPointAssert:
+
+Floating-Point Assert
+=====================
+
+A value of this type shall be an expression which asserts that the
+floating-point value of the specified attribute satisfies the required
+constraints.
+
+A value of this type shall be of one of the following variants:
+
+- The value may be a set of attributes. Each attribute defines an operator.
+  Exactly one of the explicit attributes shall be specified. The explicit
+  attributes for this type are:
+
+  and
+      The attribute value shall be a list. Each list element shall be a
+      :ref:`SpecTypeFloatingPointAssert`. The **and** operator evaluates to the
+      **logical and** of the evaluation results of the expressions in the list.
+
+  eq
+      The attribute value shall be a floating-point number. The **eq** operator
+      evaluates to true, if the value to check is equal to the value of this
+      attribute, otherwise to false.
+
+  ge
+      The attribute value shall be a floating-point number. The **ge** operator
+      evaluates to true, if the value to check is greater than or equal to the
+      value of this attribute, otherwise to false.
+
+  gt
+      The attribute value shall be a floating-point number. The **gt** operator
+      evaluates to true, if the value to check is greater than the value of
+      this attribute, otherwise to false.
+
+  le
+      The attribute value shall be a floating-point number. The **le** operator
+      evaluates to true, if the value to check is less than or equal to the
+      value of this attribute, otherwise to false.
+
+  lt
+      The attribute value shall be a floating-point number. The **lt** operator
+      evaluates to true, if the value to check is less than the value of this
+      attribute, otherwise to false.
+
+  ne
+      The attribute value shall be a floating-point number. The **ne** operator
+      evaluates to true, if the value to check is not equal to the value of
+      this attribute, otherwise to false.
+
+  not
+      The attribute value shall be a :ref:`SpecTypeFloatingPointAssert`. The
+      **not** operator evaluates to the **logical not** of the evaluation
+      results of the expression.
+
+  or
+      The attribute value shall be a list. Each list element shall be a
+      :ref:`SpecTypeFloatingPointAssert`. The **or** operator evaluates to the
+      **logical or** of the evaluation results of the expressions in the list.
+
+- The value may be a list. Each list element shall be a
+  :ref:`SpecTypeFloatingPointAssert`. This list of expressions evaluates to the
+  **logical or** of the evaluation results of the expressions in the list.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeFloatingPointAssert`
+
+- :ref:`SpecTypeSpecificationFloatingPointValue`
+
 .. _SpecTypeGlossaryLinkRole:
 
 Glossary Link Role
@@ -1257,6 +1327,75 @@ Glossary Refinement Link Role
 This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
 value is ``glossary-refinement``. It defines the glossary refinement role of
 links.
+
+.. _SpecTypeIntegerAssert:
+
+Integer Assert
+==============
+
+A value of this type shall be an expression which asserts that the integer
+value of the specified attribute satisfies the required constraints.
+
+A value of this type shall be of one of the following variants:
+
+- The value may be a set of attributes. Each attribute defines an operator.
+  Exactly one of the explicit attributes shall be specified. The explicit
+  attributes for this type are:
+
+  and
+      The attribute value shall be a list. Each list element shall be an
+      :ref:`SpecTypeIntegerAssert`. The **and** operator evaluates to the
+      **logical and** of the evaluation results of the expressions in the list.
+
+  eq
+      The attribute value shall be an integer number. The **eq** operator
+      evaluates to true, if the value to check is equal to the value of this
+      attribute, otherwise to false.
+
+  ge
+      The attribute value shall be an integer number. The **ge** operator
+      evaluates to true, if the value to check is greater than or equal to the
+      value of this attribute, otherwise to false.
+
+  gt
+      The attribute value shall be an integer number. The **gt** operator
+      evaluates to true, if the value to check is greater than the value of
+      this attribute, otherwise to false.
+
+  le
+      The attribute value shall be an integer number. The **le** operator
+      evaluates to true, if the value to check is less than or equal to the
+      value of this attribute, otherwise to false.
+
+  lt
+      The attribute value shall be an integer number. The **lt** operator
+      evaluates to true, if the value to check is less than the value of this
+      attribute, otherwise to false.
+
+  ne
+      The attribute value shall be an integer number. The **ne** operator
+      evaluates to true, if the value to check is not equal to the value of
+      this attribute, otherwise to false.
+
+  not
+      The attribute value shall be an :ref:`SpecTypeIntegerAssert`. The **not**
+      operator evaluates to the **logical not** of the evaluation results of
+      the expression.
+
+  or
+      The attribute value shall be a list. Each list element shall be an
+      :ref:`SpecTypeIntegerAssert`. The **or** operator evaluates to the
+      **logical or** of the evaluation results of the expressions in the list.
+
+- The value may be a list. Each list element shall be an
+  :ref:`SpecTypeIntegerAssert`. This list of expressions evaluates to the
+  **logical or** of the evaluation results of the expressions in the list.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeIntegerAssert`
+
+- :ref:`SpecTypeSpecificationIntegerValue`
 
 .. _SpecTypeLink:
 
@@ -1692,80 +1831,6 @@ This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationAttributeSet`
 
-.. _SpecTypeSpecificationFloatingPointAssert:
-
-Specification Floating-Point Assert
-===================================
-
-A value of this type shall be an expression which asserts that the
-floating-point value of the specified attribute satisfies the required
-constraints.
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a set of attributes. Each attribute defines an operator.
-  Exactly one of the explicit attributes shall be specified. The explicit
-  attributes for this type are:
-
-  and
-      The attribute value shall be a list. Each list element shall be a
-      :ref:`SpecTypeSpecificationFloatingPointAssert`. The **and** operator
-      evaluates to the **logical and** of the evaluation results of the
-      expressions in the list.
-
-  eq
-      The attribute value shall be a floating-point number. The **eq** operator
-      evaluates to true, if the value to check is equal to the value of this
-      attribute, otherwise to false.
-
-  ge
-      The attribute value shall be a floating-point number. The **ge** operator
-      evaluates to true, if the value to check is greater than or equal to the
-      value of this attribute, otherwise to false.
-
-  gt
-      The attribute value shall be a floating-point number. The **gt** operator
-      evaluates to true, if the value to check is greater than the value of
-      this attribute, otherwise to false.
-
-  le
-      The attribute value shall be a floating-point number. The **le** operator
-      evaluates to true, if the value to check is less than or equal to the
-      value of this attribute, otherwise to false.
-
-  lt
-      The attribute value shall be a floating-point number. The **lt** operator
-      evaluates to true, if the value to check is less than the value of this
-      attribute, otherwise to false.
-
-  ne
-      The attribute value shall be a floating-point number. The **ne** operator
-      evaluates to true, if the value to check is not equal to the value of
-      this attribute, otherwise to false.
-
-  not
-      The attribute value shall be a
-      :ref:`SpecTypeSpecificationFloatingPointAssert`. The **not** operator
-      evaluates to the **logical not** of the evaluation results of the
-      expression.
-
-  or
-      The attribute value shall be a list. Each list element shall be a
-      :ref:`SpecTypeSpecificationFloatingPointAssert`. The **or** operator
-      evaluates to the **logical or** of the evaluation results of the
-      expressions in the list.
-
-- The value may be a list. Each list element shall be a
-  :ref:`SpecTypeSpecificationFloatingPointAssert`. This list of expressions
-  evaluates to the **logical or** of the evaluation results of the expressions
-  in the list.
-
-This type is used by the following types:
-
-- :ref:`SpecTypeSpecificationFloatingPointAssert`
-
-- :ref:`SpecTypeSpecificationFloatingPointValue`
-
 .. _SpecTypeSpecificationFloatingPointValue:
 
 Specification Floating-Point Value
@@ -1776,11 +1841,11 @@ This set of attributes specifies a floating-point value. Only the
 are:
 
 assert
-    The attribute value shall be a
-    :ref:`SpecTypeSpecificationFloatingPointAssert`. This optional attribute
-    defines the value constraints of the specified floating-point value. In
-    case the assert attribute is not present, then the value of the specified
-    floating-point value may be every valid floating-point number.
+    The attribute value shall be a :ref:`SpecTypeFloatingPointAssert`. This
+    optional attribute defines the value constraints of the specified
+    floating-point value. In case the assert attribute is not present, then the
+    value of the specified floating-point value may be every valid
+    floating-point number.
 
 description
     The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
@@ -1857,78 +1922,6 @@ This type is used by the following types:
 
 - :ref:`SpecTypeSpecificationItemType`
 
-.. _SpecTypeSpecificationIntegerAssert:
-
-Specification Integer Assert
-============================
-
-A value of this type shall be an expression which asserts that the integer
-value of the specified attribute satisfies the required constraints.
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a set of attributes. Each attribute defines an operator.
-  Exactly one of the explicit attributes shall be specified. The explicit
-  attributes for this type are:
-
-  and
-      The attribute value shall be a list. Each list element shall be a
-      :ref:`SpecTypeSpecificationIntegerAssert`. The **and** operator evaluates
-      to the **logical and** of the evaluation results of the expressions in
-      the list.
-
-  eq
-      The attribute value shall be an integer number. The **eq** operator
-      evaluates to true, if the value to check is equal to the value of this
-      attribute, otherwise to false.
-
-  ge
-      The attribute value shall be an integer number. The **ge** operator
-      evaluates to true, if the value to check is greater than or equal to the
-      value of this attribute, otherwise to false.
-
-  gt
-      The attribute value shall be an integer number. The **gt** operator
-      evaluates to true, if the value to check is greater than the value of
-      this attribute, otherwise to false.
-
-  le
-      The attribute value shall be an integer number. The **le** operator
-      evaluates to true, if the value to check is less than or equal to the
-      value of this attribute, otherwise to false.
-
-  lt
-      The attribute value shall be an integer number. The **lt** operator
-      evaluates to true, if the value to check is less than the value of this
-      attribute, otherwise to false.
-
-  ne
-      The attribute value shall be an integer number. The **ne** operator
-      evaluates to true, if the value to check is not equal to the value of
-      this attribute, otherwise to false.
-
-  not
-      The attribute value shall be a :ref:`SpecTypeSpecificationIntegerAssert`.
-      The **not** operator evaluates to the **logical not** of the evaluation
-      results of the expression.
-
-  or
-      The attribute value shall be a list. Each list element shall be a
-      :ref:`SpecTypeSpecificationIntegerAssert`. The **or** operator evaluates
-      to the **logical or** of the evaluation results of the expressions in the
-      list.
-
-- The value may be a list. Each list element shall be a
-  :ref:`SpecTypeSpecificationIntegerAssert`. This list of expressions evaluates
-  to the **logical or** of the evaluation results of the expressions in the
-  list.
-
-This type is used by the following types:
-
-- :ref:`SpecTypeSpecificationIntegerAssert`
-
-- :ref:`SpecTypeSpecificationIntegerValue`
-
 .. _SpecTypeSpecificationIntegerFormatAttribute:
 
 Specification Integer Format Attribute
@@ -1972,10 +1965,10 @@ This set of attributes specifies an integer value. Only the ``description``
 attribute is mandatory. The explicit attributes for this type are:
 
 assert
-    The attribute value shall be a :ref:`SpecTypeSpecificationIntegerAssert`.
-    This optional attribute defines the value constraints of the specified
-    integer value. In case the assert attribute is not present, then the value
-    of the specified integer value may be every valid integer number.
+    The attribute value shall be an :ref:`SpecTypeIntegerAssert`. This optional
+    attribute defines the value constraints of the specified integer value. In
+    case the assert attribute is not present, then the value of the specified
+    integer value may be every valid integer number.
 
 description
     The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
@@ -2121,98 +2114,6 @@ This type refines the following types:
 
 This set of attributes specifies the sorted and unique formatting for lists.
 
-.. _SpecTypeSpecificationStringAssert:
-
-Specification String Assert
-===========================
-
-A value of this type shall be an expression which asserts that the string of
-the specified attribute satisfies the required constraints.
-
-A value of this type shall be of one of the following variants:
-
-- The value may be a set of attributes. Each attribute defines an operator.
-  Exactly one of the explicit attributes shall be specified. The explicit
-  attributes for this type are:
-
-  and
-      The attribute value shall be a list. Each list element shall be a
-      :ref:`SpecTypeSpecificationStringAssert`. The **and** operator evaluates
-      to the **logical and** of the evaluation results of the expressions in
-      the list.
-
-  contains
-      The attribute value shall be a list of strings. The **contains** operator
-      evaluates to true, if the string to check converted to lower case with
-      all white space characters converted to a single space character contains
-      a string of the list of strings of this attribute, otherwise to false.
-
-  eq
-      The attribute value shall be a string. The **eq** operator evaluates to
-      true, if the string to check is equal to the value of this attribute,
-      otherwise to false.
-
-  ge
-      The attribute value shall be a string. The **ge** operator evaluates to
-      true, if the string to check is greater than or equal to the value of
-      this attribute, otherwise to false.
-
-  gt
-      The attribute value shall be a string. The **gt** operator evaluates to
-      true, if the string to check is greater than the value of this attribute,
-      otherwise to false.
-
-  in
-      The attribute value shall be a list of strings. The **in** operator
-      evaluates to true, if the string to check is contained in the list of
-      strings of this attribute, otherwise to false.
-
-  le
-      The attribute value shall be a string. The **le** operator evaluates to
-      true, if the string to check is less than or equal to the value of this
-      attribute, otherwise to false.
-
-  lt
-      The attribute value shall be a string. The **lt** operator evaluates to
-      true, if the string to check is less than the value of this attribute,
-      otherwise to false.
-
-  ne
-      The attribute value shall be a string. The **ne** operator evaluates to
-      true, if the string to check is not equal to the value of this attribute,
-      otherwise to false.
-
-  not
-      The attribute value shall be a :ref:`SpecTypeSpecificationStringAssert`.
-      The **not** operator evaluates to the **logical not** of the evaluation
-      results of the expression.
-
-  or
-      The attribute value shall be a list. Each list element shall be a
-      :ref:`SpecTypeSpecificationStringAssert`. The **or** operator evaluates
-      to the **logical or** of the evaluation results of the expressions in the
-      list.
-
-  re
-      The attribute value shall be a string. The **re** operator evaluates to
-      true, if the string to check matches with the regular expression of this
-      attribute, otherwise to false.
-
-  uid
-      The attribute shall have no value. The **uid** operator evaluates to
-      true, if the string is a valid UID, otherwise to false.
-
-- The value may be a list. Each list element shall be a
-  :ref:`SpecTypeSpecificationStringAssert`. This list of expressions evaluates
-  to the **logical or** of the evaluation results of the expressions in the
-  list.
-
-This type is used by the following types:
-
-- :ref:`SpecTypeSpecificationStringAssert`
-
-- :ref:`SpecTypeSpecificationStringValue`
-
 .. _SpecTypeSpecificationStringValue:
 
 Specification String Value
@@ -2222,10 +2123,10 @@ This set of attributes specifies a string. Only the ``description`` attribute
 is mandatory. The explicit attributes for this type are:
 
 assert
-    The attribute value shall be a :ref:`SpecTypeSpecificationStringAssert`.
-    This optional attribute defines the constraints of the specified string. In
-    case the assert attribute is not present, then the specified string may be
-    every valid string.
+    The attribute value shall be a :ref:`SpecTypeStringAssert`. This optional
+    attribute defines the constraints of the specified string. In case the
+    assert attribute is not present, then the specified string may be every
+    valid string.
 
 description
     The attribute value shall be an :ref:`SpecTypeOptionalTextInMySTFormat`. It
@@ -2274,6 +2175,95 @@ This type is used by the following types:
 - :ref:`SpecTypeSpecificationList`
 
 - :ref:`SpecTypeSpecificationStringValue`
+
+.. _SpecTypeStringAssert:
+
+String Assert
+=============
+
+A value of this type shall be an expression which asserts that the string of
+the specified attribute satisfies the required constraints.
+
+A value of this type shall be of one of the following variants:
+
+- The value may be a set of attributes. Each attribute defines an operator.
+  Exactly one of the explicit attributes shall be specified. The explicit
+  attributes for this type are:
+
+  and
+      The attribute value shall be a list. Each list element shall be a
+      :ref:`SpecTypeStringAssert`. The **and** operator evaluates to the
+      **logical and** of the evaluation results of the expressions in the list.
+
+  contains
+      The attribute value shall be a list of strings. The **contains** operator
+      evaluates to true, if the string to check converted to lower case with
+      all white space characters converted to a single space character contains
+      a string of the list of strings of this attribute, otherwise to false.
+
+  eq
+      The attribute value shall be a string. The **eq** operator evaluates to
+      true, if the string to check is equal to the value of this attribute,
+      otherwise to false.
+
+  ge
+      The attribute value shall be a string. The **ge** operator evaluates to
+      true, if the string to check is greater than or equal to the value of
+      this attribute, otherwise to false.
+
+  gt
+      The attribute value shall be a string. The **gt** operator evaluates to
+      true, if the string to check is greater than the value of this attribute,
+      otherwise to false.
+
+  in
+      The attribute value shall be a list of strings. The **in** operator
+      evaluates to true, if the string to check is contained in the list of
+      strings of this attribute, otherwise to false.
+
+  le
+      The attribute value shall be a string. The **le** operator evaluates to
+      true, if the string to check is less than or equal to the value of this
+      attribute, otherwise to false.
+
+  lt
+      The attribute value shall be a string. The **lt** operator evaluates to
+      true, if the string to check is less than the value of this attribute,
+      otherwise to false.
+
+  ne
+      The attribute value shall be a string. The **ne** operator evaluates to
+      true, if the string to check is not equal to the value of this attribute,
+      otherwise to false.
+
+  not
+      The attribute value shall be a :ref:`SpecTypeStringAssert`. The **not**
+      operator evaluates to the **logical not** of the evaluation results of
+      the expression.
+
+  or
+      The attribute value shall be a list. Each list element shall be a
+      :ref:`SpecTypeStringAssert`. The **or** operator evaluates to the
+      **logical or** of the evaluation results of the expressions in the list.
+
+  re
+      The attribute value shall be a string. The **re** operator evaluates to
+      true, if the string to check matches with the regular expression of this
+      attribute, otherwise to false.
+
+  uid
+      The attribute shall have no value. The **uid** operator evaluates to
+      true, if the string is a valid UID, otherwise to false.
+
+- The value may be a list. Each list element shall be a
+  :ref:`SpecTypeStringAssert`. This list of expressions evaluates to the
+  **logical or** of the evaluation results of the expressions in the list.
+
+This type is used by the following types:
+
+- :ref:`SpecTypeSpecificationStringValue`
+
+- :ref:`SpecTypeStringAssert`
 
 .. _SpecTypeStringOrStringList:
 

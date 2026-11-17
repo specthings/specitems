@@ -10,7 +10,7 @@ spec-example: null
 spec-info:
   list:
     description: null
-    spec-type: spec-assert-float
-spec-name: Specification Floating-Point Assert List
-spec-type: spec-assert-float-list
+    spec-type: assert-float
+spec-name: Floating-Point Assert List
+spec-type: assert-float-list
 type: spec

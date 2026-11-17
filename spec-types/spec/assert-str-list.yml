@@ -10,7 +10,7 @@ spec-example: null
 spec-info:
   list:
     description: null
-    spec-type: spec-assert-int
-spec-name: Specification Integer Assert List
-spec-type: spec-assert-int-list
+    spec-type: assert-str
+spec-name: String Assert List
+spec-type: assert-str-list
 type: spec
