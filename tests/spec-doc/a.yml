@@ -24,6 +24,9 @@ spec-info:
       d:
         description: null
         spec-type: d
+      f:
+        description: null
+        spec-type: f
     description: null
     mandatory-attributes: []
 spec-name: A

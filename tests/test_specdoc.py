@@ -230,6 +230,9 @@ c
 d
     The attribute value shall be a :ref:`SpecTypeD`.
 
+f
+    The attribute value shall be a F.
+
 This type is used by the following types:
 
 - :ref:`SpecTypeA`
@@ -523,6 +526,9 @@ c
 
 d
 : The attribute value shall be a {ref}`SpecTypeD`.
+
+f
+: The attribute value shall be a F.
 
 This type is used by the following types:
 
