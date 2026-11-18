@@ -24,6 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# REUSE-IgnoreStart
+
 import dataclasses
 
 import pytest
@@ -1148,3 +1150,6 @@ def test_check_license_items():
                               "may take: BSD-2-Clause")
     ContentContext(LicenseAggregate("MIT"), None,
                    LicenseProvider([item])).check_license_items()
+
+
+# REUSE-IgnoreEnd
