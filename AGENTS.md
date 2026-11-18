@@ -62,5 +62,6 @@ log through `get_and_clear_log(caplog)`.
 
 A commit message follows Conventional Commits with a sentence-case subject. The
 scope is the module name, or `spec` for `spec-types/`. Add the `Assisted-by:`
-and `Signed-off-by:` trailers as `CONTRIBUTING.md` prescribes. Only a
+and `Signed-off-by:` trailers as `CONTRIBUTING.md` prescribes. Run
+`make commitlint` before a push. Only a
 maintainer runs `make publish` or `make devel-publish`.
