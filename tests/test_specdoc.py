@@ -24,6 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# REUSE-IgnoreStart
+
 import os
 
 from specitems.contentmarkdown import MarkdownContent, MarkdownMapper
@@ -649,3 +651,6 @@ This type is used by the following types:
 - {ref}`SpecTypeRoot`
 """
         assert content == src.read()
+
+
+# REUSE-IgnoreEnd

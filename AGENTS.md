@@ -26,6 +26,10 @@ Git tracks two generated files. Regenerate them with `make` after each edit of
 | `src/specitems/spec.pickle` | `specpickle` from `spec-types/spec/*.yml` |
 | `docs/source/items.rst` | `specdocitems` from `spec.pickle` |
 
+`make analyse` runs `reuse lint`. A new file needs an SPDX header or an entry
+in `REUSE.toml`. Enclose license identifiers which a file holds as data in
+`REUSE-IgnoreStart` and `REUSE-IgnoreEnd` comments.
+
 ## Item model
 
 Each YAML file of a specification tree is one item. Its path below the tree

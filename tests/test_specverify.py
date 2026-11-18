@@ -24,6 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# REUSE-IgnoreStart
+
 import logging
 from pathlib import Path
 
@@ -2222,3 +2224,6 @@ def test_evaluate_str_assert(caplog):
     assert get_and_clear_log(caplog) == ""
     assert not evaluate("/c", {"uid": None}, item)
     assert get_and_clear_log(caplog) == "WARNING /a: cannot resolve UID: /c"
+
+
+# REUSE-IgnoreEnd

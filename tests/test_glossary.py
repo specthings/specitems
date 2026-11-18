@@ -24,6 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# REUSE-IgnoreStart
+
 import functools
 import os
 
@@ -260,3 +262,6 @@ def test_glossary_term_added_after_augment(tmpdir):
         content = src.read()
         assert "Not so General - SubLate" in content
         assert "\n    Late\n" in content
+
+
+# REUSE-IgnoreEnd

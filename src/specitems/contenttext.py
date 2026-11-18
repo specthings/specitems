@@ -115,10 +115,12 @@ class TextContent(Content):
             self.prepend("")
             self.prepend(
                 [f"{self._comment_prefix} {stm}" for stm in statements])
+        # REUSE-IgnoreStart
         self.prepend([
             f"{self._comment_prefix} SPDX-License-Identifier: {self.license}",
             ""
         ])
+        # REUSE-IgnoreEnd
 
     @property
     def section_level(self) -> int:

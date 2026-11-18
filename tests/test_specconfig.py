@@ -24,6 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# REUSE-IgnoreStart
+
 import contextlib
 import os
 from pathlib import Path
@@ -285,3 +287,6 @@ def test_inline_item_invalid(tmp_path):
         _write_inline_items(path, inline_items)
         with pytest.raises(ValueError, match="is invalid"):
             load_config_item(str(path), _provider())
+
+
+# REUSE-IgnoreEnd
