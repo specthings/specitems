@@ -256,9 +256,16 @@ This type refines the following types:
 
 - :ref:`SpecTypeRoot` through the ``type`` attribute if the value is ``b``
 
-Generic attributes may be specified. Each generic attribute key shall be a
-:ref:`SpecTypeName`. Each generic attribute value shall be a list. Each list
-element shall be a string.
+All explicit attributes shall be specified. The explicit attributes for this
+type are:
+
+nested
+    The attribute value shall be a list. Each list element shall be a list.
+    Each list element shall be a string. It shall be a nested list.
+
+In addition to the explicit attributes, generic attributes may be specified.
+Each generic attribute key shall be a :ref:`SpecTypeName`. Each generic
+attribute value shall be a list. Each list element shall be a string.
 
 .. _SpecTypeGlossaryItemType:
 
@@ -552,9 +559,16 @@ This type refines the following types:
 
 - {ref}`SpecTypeRoot` through the `type` attribute if the value is `b`
 
-Generic attributes may be specified. Each generic attribute key shall be a
-{ref}`SpecTypeName`. Each generic attribute value shall be a list. Each list
-element shall be a string.
+All explicit attributes shall be specified. The explicit attributes for this
+type are:
+
+nested
+: The attribute value shall be a list. Each list element shall be a list. Each
+  list element shall be a string. It shall be a nested list.
+
+In addition to the explicit attributes, generic attributes may be specified.
+Each generic attribute key shall be a {ref}`SpecTypeName`. Each generic
+attribute value shall be a list. Each list element shall be a string.
 
 (SpecTypeGlossaryItemType)=
 
