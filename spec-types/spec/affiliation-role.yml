@@ -1,0 +1,36 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: role
+  spec-value: affiliation
+  uid: link
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      from:
+        description: |
+          If the attribute is present, then its value shall be the first date
+          of the affiliation, otherwise the affiliation has no start.
+        spec-type: date
+      until:
+        description: |
+          If the attribute is present, then its value shall be the last date of
+          the affiliation, otherwise the affiliation lasts.
+        spec-type: date
+    description: |
+      This set of attributes specifies the affiliation role of links. A person
+      item links to the organization items of which the person is a member. A
+      work refers to the affiliations which are valid at the date or the year
+      of the work. A work without a date and a year refers to the affiliations
+      without an end.
+    mandatory-attributes: none
+spec-name: Affiliation Link Role
+spec-type: affiliation-role
+type: spec

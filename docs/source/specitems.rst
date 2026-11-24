@@ -77,6 +77,14 @@ specitems.items module
    :show-inheritance:
    :undoc-members:
 
+specitems.person module
+-----------------------
+
+.. automodule:: specitems.person
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 specitems.specdoc module
 ------------------------
 

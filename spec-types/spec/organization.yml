@@ -1,0 +1,28 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: organization
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      name:
+        description: |
+          It shall be the name of the organization.
+        spec-type: str
+    description: |
+      This set of attributes specifies an organization. Items such as persons
+      and references refer to the organization item, so that its name is stated
+      at one place.
+    mandatory-attributes: all
+spec-name: Organization Item Type
+spec-type: organization
+type: spec
