@@ -161,6 +161,7 @@ from .specconfig import (CONFIG_FILE, CONFIG_UID, add_inline_items,
                          check_license_items, create_content_context,
                          create_type_provider, find_config_file,
                          load_config_item, yield_tasks)
+from .person import Person, get_affiliations, is_valid_affiliation
 from .specdoc import (SpecDocumentConfig, add_specification_documentation,
                       generate_specification_documentation)
 from .specformatter import SpecYAMLFormatter
@@ -224,6 +225,7 @@ __all__ = [
     "MARKDOWN_ROLES",
     "MarkdownContent",
     "MarkdownMapper",
+    "Person",
     "ROW_SPAN",
     "ReferenceTarget",
     "RelicensingRule",
@@ -257,6 +259,7 @@ __all__ = [
     "from_clang_variables",
     "generate_glossary",
     "generate_specification_documentation",
+    "get_affiliations",
     "get_arguments",
     "get_bool_arg",
     "get_citation_group_members",
@@ -278,6 +281,7 @@ __all__ = [
     "init_logging",
     "is_enabled",
     "is_enabled_with_ops",
+    "is_valid_affiliation",
     "evaluate_str_assert",
     "item_is_enabled",
     "latex_escape",

@@ -30,6 +30,10 @@ The specification item types have the following hierarchy:
 
   - :ref:`SpecTypeLicenseItemType`
 
+  - :ref:`SpecTypeOrganizationItemType`
+
+  - :ref:`SpecTypePersonItemType`
+
   - :ref:`SpecTypeProxyItemType`
 
   - :ref:`SpecTypeReference`
@@ -123,6 +127,10 @@ This type is refined by the following types:
 - :ref:`SpecTypeInlineItemType`
 
 - :ref:`SpecTypeLicenseItemType`
+
+- :ref:`SpecTypeOrganizationItemType`
+
+- :ref:`SpecTypePersonItemType`
 
 - :ref:`SpecTypeProxyItemType`
 
@@ -296,6 +304,46 @@ text
 uri
     The attribute value shall be an optional string. If the value is present,
     then it shall be the uniform resource identifier of the license.
+
+.. _SpecTypeOrganizationItemType:
+
+Organization Item Type
+======================
+
+This type refines the :ref:`SpecTypeRootItemType` through the ``type``
+attribute if the value is ``organization``. This set of attributes specifies an
+organization. Items such as persons and references refer to the organization
+item, so that its name is stated at one place. All explicit attributes shall be
+specified. The explicit attributes for this type are:
+
+name
+    The attribute value shall be a string. It shall be the name of the
+    organization.
+
+.. _SpecTypePersonItemType:
+
+Person Item Type
+================
+
+This type refines the :ref:`SpecTypeRootItemType` through the ``type``
+attribute if the value is ``person``. This set of attributes specifies a
+person. Items such as inspections, documents and references refer to the person
+item, so that the data of the person is stated at one place. A change of the
+item, for example a rectification or a pseudonymisation, reaches each document
+which the build produces again. The item contains only the name, since the
+documents need nothing more. The UID of the item shall not contain the name, so
+that a pseudonymisation reaches each link to the item. Only the ``name``
+attribute is mandatory. The explicit attributes for this type are:
+
+first-name
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the first names of the person, otherwise the person has
+    only the name.
+
+name
+    The attribute value shall be a string. It shall be the last name of the
+    person, a role, or a pseudonym. The documents refer to the person by the
+    first names and this name.
 
 .. _SpecTypeProxyItemType:
 
@@ -1072,6 +1120,29 @@ This type is used by the following types:
 
 - :ref:`SpecTypeToolInlineItem`
 
+.. _SpecTypeAffiliationLinkRole:
+
+Affiliation Link Role
+=====================
+
+This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
+value is ``affiliation``. This set of attributes specifies the affiliation role
+of links. A person item links to the organization items of which the person is
+a member. A work refers to the affiliations which are valid at the date or the
+year of the work. A work without a date and a year refers to the affiliations
+without an end. None of the explicit attributes is mandatory, they are all
+optional. The explicit attributes for this type are:
+
+from
+    The attribute value shall be a :ref:`SpecTypeDate`. If the attribute is
+    present, then its value shall be the first date of the affiliation,
+    otherwise the affiliation has no start.
+
+until
+    The attribute value shall be a :ref:`SpecTypeDate`. If the attribute is
+    present, then its value shall be the last date of the affiliation,
+    otherwise the affiliation lasts.
+
 .. _SpecTypeCitationGroupMemberLinkRole:
 
 Citation Group Member Link Role
@@ -1169,6 +1240,8 @@ regular expression
 "``^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(Z|(\+|-)([01][0-9]|2[0-3]):([0-5][0-9]))?)?\Z``".
 
 This type is used by the following types:
+
+- :ref:`SpecTypeAffiliationLinkRole`
 
 - :ref:`SpecTypeReference`
 
@@ -1416,6 +1489,8 @@ uid
     absolute or relative UID of the link target item.
 
 This type is refined by the following types:
+
+- :ref:`SpecTypeAffiliationLinkRole`
 
 - :ref:`SpecTypeCitationGroupMemberLinkRole`
 

@@ -1,0 +1,15 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+first-name: Erika
+links:
+- from: '2020-01-01'
+  role: affiliation
+  uid: ../organization/o0001
+  until: '2025-12-31'
+- from: '2026-01-01'
+  role: affiliation
+  uid: ../organization/o0002
+name: Mustermann
+type: person

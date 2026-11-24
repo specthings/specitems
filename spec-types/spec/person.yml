@@ -1,0 +1,39 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: type
+  spec-value: person
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      first-name:
+        description: |
+          If the attribute is present, then its value shall be the first names
+          of the person, otherwise the person has only the name.
+        spec-type: str
+      name:
+        description: |
+          It shall be the last name of the person, a role, or a pseudonym. The
+          documents refer to the person by the first names and this name.
+        spec-type: str
+    description: |
+      This set of attributes specifies a person. Items such as inspections,
+      documents and references refer to the person item, so that the data of
+      the person is stated at one place. A change of the item, for example a
+      rectification or a pseudonymisation, reaches each document which the
+      build produces again. The item contains only the name, since the
+      documents need nothing more. The UID of the item shall not contain the
+      name, so that a pseudonymisation reaches each link to the item.
+    mandatory-attributes:
+    - name
+spec-name: Person Item Type
+spec-type: person
+type: spec
