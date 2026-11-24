@@ -1,0 +1,13 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+author: An Author
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links: []
+organization: An Organization
+others: true
+reference-type: manual
+title: Attributes
+type: reference
+work-hash: null
+work-url: null

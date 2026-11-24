@@ -16,7 +16,9 @@ spec-info:
     attributes:
       author:
         description: |
-          It shall be the author or the list of authors of the book.
+          If the attribute is present, then its value shall be the author or
+          the list of authors of the book. The reference contributor links with
+          the field `author` take precedence over the value.
         spec-type: str-or-list-str
       edition:
         description: |
@@ -24,7 +26,9 @@ spec-info:
         spec-type: str
       editor:
         description: |
-          It shall be the editor or the list of editors of the book.
+          If the attribute is present, then its value shall be the editor or
+          the list of editors of the book. The reference contributor links with
+          the field `editor` take precedence over the value.
         spec-type: str-or-list-str
       month:
         description: |
@@ -40,7 +44,9 @@ spec-info:
         spec-type: str
       publisher:
         description: |
-          It shall be the name of the publisher.
+          If the attribute is present, then its value shall be the name of the
+          publisher. The reference contributor links with the field `publisher`
+          take precedence over the value.
         spec-type: str
       series:
         description: |
@@ -57,8 +63,6 @@ spec-info:
     description: |
       This set of attributes specifies a reference to a book.
     mandatory-attributes:
-    - author
-    - publisher
     - year
 spec-name: Book Reference
 spec-type: reference-book

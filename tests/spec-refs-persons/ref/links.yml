@@ -1,0 +1,19 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+date: '2026-09-07'
+enabled-by: true
+links:
+- field: author
+  role: reference-contributor
+  uid: ../person/p0001
+- field: author
+  role: reference-contributor
+  uid: ../organization/o0001
+organization: An Ignored Organization
+others: true
+reference-type: manual
+title: Links
+type: reference
+work-hash: null
+work-url: null

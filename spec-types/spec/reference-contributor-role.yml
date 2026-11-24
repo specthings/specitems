@@ -1,0 +1,37 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+- role: spec-refinement
+  spec-key: role
+  spec-value: reference-contributor
+  uid: link
+spec-description: null
+spec-example: null
+spec-info:
+  dict:
+    attributes:
+      field:
+        description: |
+          It shall be the field of the reference to which the contributor
+          contributes.
+        spec-type: reference-contributor-field
+    description: |
+      This set of attributes specifies the reference contributor role of links.
+      A reference item links to the ${person:/spec-name} and
+      ${organization:/spec-name} items which contribute to the work. The order
+      of the links with the same field is the order of the contributors in the
+      field. The links of a field take precedence over the attribute of the
+      field. A manual without links for the organization field refers to the
+      affiliations of its authors, if there are any. These take precedence
+      over the attribute. A technical report does the same for the
+      institution field. The author field of a manual leaves out the
+      organizations of its organization field. The author field of a technical
+      report leaves out the organizations of its institution field.
+    mandatory-attributes: all
+spec-name: Reference Contributor Link Role
+spec-type: reference-contributor-role
+type: spec

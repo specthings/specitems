@@ -1,0 +1,24 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2026 embedded brains GmbH & Co. KG
+enabled-by: true
+links:
+- role: spec-member
+  uid: root
+spec-description: null
+spec-example: null
+spec-info:
+  str:
+    assert:
+    - in:
+      - author
+      - editor
+      - institution
+      - organization
+      - publisher
+      - school
+    description: |
+      It shall be the field of a reference to which a contributor contributes.
+spec-name: Reference Contributor Field
+spec-type: reference-contributor-field
+type: spec

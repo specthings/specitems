@@ -319,3 +319,87 @@ def test_reference_location(tmpdir):
     assert "@misc{RefWeb," in text
     assert "@misc{RefMisc," in text
     assert "Area" not in text
+
+
+def test_cite_contributors(tmpdir):
+    config = ItemCacheConfig(
+        paths=[os.path.join(os.path.dirname(__file__), "spec-refs-persons")],
+        spec_type_root_uid="/spec/root",
+        cache_directory=os.path.join(tmpdir, "cache"))
+    cache = ItemCache(config, type_provider=SpecTypeProvider({}))
+    info = verify_specification_format(cache)
+    assert info.critical == 0
+    assert info.error == 0
+    assert info.warning == 0
+    mapper = SphinxMapper(cache["/ref/links"], "CC-BY-SA-4.0")
+    provider = BibTeXCitationProvider(mapper)
+    for name in ("links", "direct", "past", "no-date", "report", "book",
+                 "attributes", "affiliated", "same"):
+        mapper.substitute(f"${{/ref/{name}:/cite}}")
+    content = mapper.create_content()
+    provider.add_bibtex_entries(content)
+    assert str(content) == _EXPECTED_CONTRIBUTORS
+    with pytest.raises(ValueError,
+                       match=("^/ref/no-author: the reference needs the "
+                              "author attribute or a reference contributor "
+                              "link for the field$")):
+        provider.get_fields(cache["/ref/no-author"])
+    with pytest.raises(ValueError,
+                       match=("^/ref/no-author: a reference contributor "
+                              "shall be a person or an organization$")):
+        provider.get_fields(cache["/ref/bad-contributor"])
+
+
+_EXPECTED_CONTRIBUTORS = """@manual{RefAffiliated,
+  author = {Mustermann, Erika},
+  organization = {{Some Company \\& Co.}},
+  title = {{Affiliated}},
+  year = {2024},
+}
+@manual{RefAttributes,
+  author = {{An Author} and others},
+  organization = {{An Organization}},
+  title = {{Attributes}},
+}
+@book{RefBook,
+  author = {von der Brüggen, Georg},
+  editor = {Mustermann, Erika and {Reviewer A}},
+  publisher = {{Other Organization}},
+  title = {{Book}},
+  year = {2024},
+}
+@manual{RefDirect,
+  author = {Mustermann, Erika},
+  date = {2026-09-07},
+  organization = {{Some Company \\& Co.}},
+  title = {{Direct}},
+}
+@manual{RefLinks,
+  author = {Mustermann, Erika and {Some Company \\& Co.} and others},
+  date = {2026-09-07},
+  organization = {{Other Organization}},
+  title = {{Links}},
+}
+@manual{RefNoDate,
+  author = {Mustermann, Erika},
+  organization = {{Other Organization}},
+  title = {{No-date}},
+}
+@manual{RefPast,
+  author = {Mustermann, Erika},
+  organization = {{Some Company \\& Co.}},
+  title = {{Past}},
+  year = {2024},
+}
+@techreport{RefReport,
+  author = {von der Brüggen, Georg},
+  institution = {{Some Company \\& Co.}},
+  title = {{Report}},
+  year = {2024},
+}
+@manual{RefSame,
+  organization = {{Other Organization}},
+  title = {{Same}},
+  year = {2024},
+}
+"""

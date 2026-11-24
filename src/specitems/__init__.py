@@ -33,9 +33,9 @@ from .attributepath import (
     resolve_attribute_path,
     select_attribute_path,
 )
-from .cite import (BibTeXCitationProvider, get_citation_group_members,
-                   get_reference_target, get_reference_work, make_anchor,
-                   ReferenceTarget)
+from .cite import (BibTeXCitationProvider, BibTeXName,
+                   get_citation_group_members, get_reference_target,
+                   get_reference_work, make_anchor, ReferenceTarget)
 from .clangformat import ClangFormatter
 from .cliutil import (
     LoggingStatus,
@@ -180,6 +180,7 @@ __all__ = [
     "AttributePathMatch",
     "AttributePathSegment",
     "BibTeXCitationProvider",
+    "BibTeXName",
     "CONFIG_FILE",
     "CONFIG_UID",
     "COL_SPAN",

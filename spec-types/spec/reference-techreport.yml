@@ -16,11 +16,16 @@ spec-info:
     attributes:
       author:
         description: |
-          It shall be the author or the list of authors of the technical report.
+          If the attribute is present, then its value shall be the author or
+          the list of authors of the technical report. The reference
+          contributor links with the field `author` take precedence over the
+          value.
         spec-type: str-or-list-str
       institution:
         description: |
-          It shall be the institution that was involved in the publishing.
+          If the attribute is present, then its value shall be the institution
+          that was involved in the publishing. The reference contributor links
+          with the field `institution` take precedence over the value.
         spec-type: str
       month:
         description: |
@@ -46,8 +51,6 @@ spec-info:
     description: |
       This set of attributes specifies a reference to a technical report.
     mandatory-attributes:
-    - author
-    - institution
     - year
 spec-name: Technical Report Reference
 spec-type: reference-techreport

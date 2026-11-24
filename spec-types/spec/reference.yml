@@ -19,6 +19,11 @@ spec-info:
           It shall be the date of the referenced work. A work identified by a commit
           needs a date, since a change of the version control system rewrites the commit.
         spec-type: date
+      others:
+        description: |
+          If the attribute is present and its value is true, then the list of
+          authors of the work shall end with "and others".
+        spec-type: bool
       reference-type:
         description: |
           It shall be the reference type.

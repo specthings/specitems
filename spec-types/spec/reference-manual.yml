@@ -16,7 +16,9 @@ spec-info:
     attributes:
       author:
         description: |
-          It shall be the author or the list of authors of the manual.
+          If the attribute is present, then its value shall be the author or
+          the list of authors of the manual. The reference contributor links
+          with the field `author` take precedence over the value.
         spec-type: str-or-list-str
       edition:
         description: |
@@ -32,7 +34,9 @@ spec-info:
         spec-type: str
       organization:
         description: |
-          It shall be the associated organization.
+          If the attribute is present, then its value shall be the associated
+          organization. The reference contributor links with the field
+          `organization` take precedence over the value.
         spec-type: str
       year:
         description: |

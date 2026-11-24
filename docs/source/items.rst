@@ -384,6 +384,11 @@ date
     the referenced work. A work identified by a commit needs a date, since a
     change of the version control system rewrites the commit.
 
+others
+    The attribute value shall be a boolean. If the attribute is present and its
+    value is true, then the list of authors of the work shall end with "and
+    others".
+
 reference-type
     The attribute value shall be a string. It shall be the reference type.
 
@@ -437,8 +442,6 @@ This type refines the :ref:`SpecTypeReference` through the ``reference-type``
 attribute if the value is ``article``. This set of attributes specifies a
 reference to an article. The following explicit attributes are mandatory:
 
-- ``author``
-
 - ``journal``
 
 - ``year``
@@ -446,8 +449,10 @@ reference to an article. The following explicit attributes are mandatory:
 The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the article.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the article. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 doi
     The attribute value shall be a string. It shall be the digital object
@@ -487,26 +492,23 @@ Book Reference
 
 This type refines the :ref:`SpecTypeReference` through the ``reference-type``
 attribute if the value is ``book``. This set of attributes specifies a
-reference to a book. The following explicit attributes are mandatory:
-
-- ``author``
-
-- ``publisher``
-
-- ``year``
-
-The explicit attributes for this type are:
+reference to a book. Only the ``year`` attribute is mandatory. The explicit
+attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the book.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the book. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 edition
     The attribute value shall be a string. It shall be the edition of the book.
 
 editor
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the editor or the list of editors of the book.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the editor or the list of
+    editors of the book. The reference contributor links with the field
+    ``editor`` take precedence over the value.
 
 month
     The attribute value shall be a :ref:`SpecTypeMonth`. It shall be the month
@@ -521,8 +523,9 @@ number
     book.
 
 publisher
-    The attribute value shall be a string. It shall be the name of the
-    publisher.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the name of the publisher. The reference contributor
+    links with the field ``publisher`` take precedence over the value.
 
 series
     The attribute value shall be a string. It shall be the series of books the
@@ -546,8 +549,10 @@ reference to a booklet. None of the explicit attributes is mandatory, they are
 all optional. The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the booklet.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the booklet. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 howpublished
     The attribute value shall be a string. It shall be the publishing method.
@@ -574,8 +579,10 @@ reference to the proceedings of a conference. Only the ``year`` attribute is
 mandatory. The explicit attributes for this type are:
 
 editor
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the editor or the list of editors of the conference proceedings.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the editor or the list of
+    editors of the conference proceedings. The reference contributor links with
+    the field ``editor`` take precedence over the value.
 
 month
     The attribute value shall be a :ref:`SpecTypeMonth`. It shall be the month
@@ -590,12 +597,14 @@ number
     conference proceedings.
 
 organization
-    The attribute value shall be a string. It shall be the associated
-    organization.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the associated organization. The reference contributor
+    links with the field ``organization`` take precedence over the value.
 
 publisher
-    The attribute value shall be a string. It shall be the name of the
-    publisher.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the name of the publisher. The reference contributor
+    links with the field ``publisher`` take precedence over the value.
 
 series
     The attribute value shall be a string. It shall be the series of the
@@ -617,21 +626,19 @@ This type refines the :ref:`SpecTypeReference` through the ``reference-type``
 attribute if the value is ``inbook``. This set of attributes specifies a
 reference to a work in a book. The following explicit attributes are mandatory:
 
-- ``author``
-
 - ``chapter``
 
 - ``pages``
-
-- ``publisher``
 
 - ``year``
 
 The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the book.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the book. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 chapter
     The attribute value shall be a string. It shall be the chapter number.
@@ -640,8 +647,10 @@ edition
     The attribute value shall be a string. It shall be the edition of the book.
 
 editor
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the editor or the list of editors of the book.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the editor or the list of
+    editors of the book. The reference contributor links with the field
+    ``editor`` take precedence over the value.
 
 month
     The attribute value shall be a :ref:`SpecTypeMonth`. It shall be the month
@@ -664,8 +673,9 @@ publication-type
     shall be the publication type overriding the default.
 
 publisher
-    The attribute value shall be a string. It shall be the name of the
-    publisher.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the name of the publisher. The reference contributor
+    links with the field ``publisher`` take precedence over the value.
 
 series
     The attribute value shall be a string. It shall be the series of books the
@@ -687,19 +697,17 @@ This type refines the :ref:`SpecTypeReference` through the ``reference-type``
 attribute if the value is ``incollection``. This set of attributes specifies a
 reference to a work in a book. The following explicit attributes are mandatory:
 
-- ``author``
-
 - ``booktitle``
-
-- ``publisher``
 
 - ``year``
 
 The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the book.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the book. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 booktitle
     The attribute value shall be a string. It shall be the title of the book.
@@ -711,8 +719,10 @@ edition
     The attribute value shall be a string. It shall be the edition of the book.
 
 editor
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the editor or the list of editors of the book.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the editor or the list of
+    editors of the book. The reference contributor links with the field
+    ``editor`` take precedence over the value.
 
 month
     The attribute value shall be a :ref:`SpecTypeMonth`. It shall be the month
@@ -735,8 +745,9 @@ publication-type
     shall be the publication type overriding the default.
 
 publisher
-    The attribute value shall be a string. It shall be the name of the
-    publisher.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the name of the publisher. The reference contributor
+    links with the field ``publisher`` take precedence over the value.
 
 series
     The attribute value shall be a string. It shall be the series of books the
@@ -759,8 +770,6 @@ attribute if the value is ``inproceedings``. This set of attributes specifies a
 reference to an article in a conference proceedings. The following explicit
 attributes are mandatory:
 
-- ``author``
-
 - ``booktitle``
 
 - ``year``
@@ -768,8 +777,10 @@ attributes are mandatory:
 The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the article.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the article. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 booktitle
     The attribute value shall be a string. It shall be the title of the
@@ -780,8 +791,10 @@ doi
     identifier (DOI) of the article.
 
 editor
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the editor or the list of editors of the article.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the editor or the list of
+    editors of the article. The reference contributor links with the field
+    ``editor`` take precedence over the value.
 
 month
     The attribute value shall be a :ref:`SpecTypeMonth`. It shall be the month
@@ -796,16 +809,18 @@ number
     conference proceedings.
 
 organization
-    The attribute value shall be a string. It shall be the associated
-    organization.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the associated organization. The reference contributor
+    links with the field ``organization`` take precedence over the value.
 
 pages
     The attribute value shall be a string. It shall be the page numbers,
     separated either by commas or double-hyphens.
 
 publisher
-    The attribute value shall be a string. It shall be the name of the
-    publisher.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the name of the publisher. The reference contributor
+    links with the field ``publisher`` take precedence over the value.
 
 series
     The attribute value shall be a string. It shall be the series of the
@@ -829,8 +844,10 @@ reference to a manual. None of the explicit attributes is mandatory, they are
 all optional. The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the manual.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the manual. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 edition
     The attribute value shall be a string. It shall be the edition of the
@@ -845,8 +862,9 @@ note
     information.
 
 organization
-    The attribute value shall be a string. It shall be the associated
-    organization.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the associated organization. The reference contributor
+    links with the field ``organization`` take precedence over the value.
 
 year
     The attribute value shall be a string. It shall be the year of publication.
@@ -864,20 +882,14 @@ This type refines the following types:
 - :ref:`SpecTypeReference` through the ``reference-type`` attribute if the
   value is ``phdthesis``
 
-This set of attributes specifies a reference to a masters or Ph.D. thesis. The
-following explicit attributes are mandatory:
-
-- ``author``
-
-- ``school``
-
-- ``year``
-
-The explicit attributes for this type are:
+This set of attributes specifies a reference to a masters or Ph.D. thesis. Only
+the ``year`` attribute is mandatory. The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the thesis.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the thesis. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 month
     The attribute value shall be a :ref:`SpecTypeMonth`. It shall be the month
@@ -892,8 +904,9 @@ publication-type
     shall be the publication type overriding the default.
 
 school
-    The attribute value shall be a string. It shall be the school where the
-    thesis was written.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the school where the thesis was written. The reference
+    contributor links with the field ``school`` take precedence over the value.
 
 year
     The attribute value shall be a string. It shall be the year of publication.
@@ -909,8 +922,10 @@ reference to a work. None of the explicit attributes is mandatory, they are all
 optional. The explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the work.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the work. The reference contributor links with the field
+    ``author`` take precedence over the value.
 
 howpublished
     The attribute value shall be a string. It shall be the publishing method.
@@ -933,24 +948,20 @@ Technical Report Reference
 
 This type refines the :ref:`SpecTypeReference` through the ``reference-type``
 attribute if the value is ``techreport``. This set of attributes specifies a
-reference to a technical report. The following explicit attributes are
-mandatory:
-
-- ``author``
-
-- ``institution``
-
-- ``year``
-
-The explicit attributes for this type are:
+reference to a technical report. Only the ``year`` attribute is mandatory. The
+explicit attributes for this type are:
 
 author
-    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. It shall
-    be the author or the list of authors of the technical report.
+    The attribute value shall be a :ref:`SpecTypeStringOrStringList`. If the
+    attribute is present, then its value shall be the author or the list of
+    authors of the technical report. The reference contributor links with the
+    field ``author`` take precedence over the value.
 
 institution
-    The attribute value shall be a string. It shall be the institution that was
-    involved in the publishing.
+    The attribute value shall be a string. If the attribute is present, then
+    its value shall be the institution that was involved in the publishing. The
+    reference contributor links with the field ``institution`` take precedence
+    over the value.
 
 month
     The attribute value shall be a :ref:`SpecTypeMonth`. It shall be the month
@@ -1504,6 +1515,8 @@ This type is refined by the following types:
 
 - :ref:`SpecTypeProxyMemberLinkRole`
 
+- :ref:`SpecTypeReferenceContributorLinkRole`
+
 - :ref:`SpecTypeReferenceLinkRole`
 
 - :ref:`SpecTypeReferenceLocationLinkRole`
@@ -1669,6 +1682,53 @@ This type refines the following types:
 
 It defines the proxy member role of links. Items may use this role to link to
 :ref:`SpecTypeProxyItemType` items.
+
+.. _SpecTypeReferenceContributorField:
+
+Reference Contributor Field
+===========================
+
+The value shall be a string. It shall be the field of a reference to which a
+contributor contributes. The value shall be an element of
+
+- "``author``",
+
+- "``editor``",
+
+- "``institution``",
+
+- "``organization``",
+
+- "``publisher``", and
+
+- "``school``".
+
+This type is used by the following types:
+
+- :ref:`SpecTypeReferenceContributorLinkRole`
+
+.. _SpecTypeReferenceContributorLinkRole:
+
+Reference Contributor Link Role
+===============================
+
+This type refines the :ref:`SpecTypeLink` through the ``role`` attribute if the
+value is ``reference-contributor``. This set of attributes specifies the
+reference contributor role of links. A reference item links to the
+:ref:`SpecTypePersonItemType` and :ref:`SpecTypeOrganizationItemType` items
+which contribute to the work. The order of the links with the same field is the
+order of the contributors in the field. The links of a field take precedence
+over the attribute of the field. A manual without links for the organization
+field refers to the affiliations of its authors, if there are any. These take
+precedence over the attribute. A technical report does the same for the
+institution field. The author field of a manual leaves out the organizations of
+its organization field. The author field of a technical report leaves out the
+organizations of its institution field. All explicit attributes shall be
+specified. The explicit attributes for this type are:
+
+field
+    The attribute value shall be a :ref:`SpecTypeReferenceContributorField`. It
+    shall be the field of the reference to which the contributor contributes.
 
 .. _SpecTypeReferenceLinkRole:
 
