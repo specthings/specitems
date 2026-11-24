@@ -17,7 +17,11 @@ spec-description: null
 spec-example: null
 spec-info:
   dict:
-    attributes: {}
+    attributes:
+      nested:
+        description: |
+          It shall be a nested list.
+        spec-type: nested-list
     description: null
     generic-attributes:
       description: null

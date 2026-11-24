@@ -343,14 +343,14 @@ class _Documenter:
         return ""
 
     def get_list_phrase(self, value: str, shall: str, type_name: str) -> str:
-        """ Return a list phrase. """
-        if type_name in _PRIMITIVE_TYPES:
-            type_phrase = _PRIMITIVE_TYPES[type_name].format(
-                "Each list element", "shall")
-        else:
-            documenter = self._documenter_map[type_name]
-            ref = documenter.get_a_section_reference()
-            type_phrase = f"Each list element shall be {ref}."
+        """
+        Return a list phrase.
+
+        A list only type has no section, so the phrase of an element of such a
+        type describes the element list in place.
+        """
+        type_phrase = self.get_value_type_phrase("Each list element", "shall",
+                                                 type_name)
         return f"{value} {shall} be a list. {type_phrase}"
 
     def get_value_type_phrase(self, value: str, shall: str,
