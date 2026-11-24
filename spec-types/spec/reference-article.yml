@@ -16,7 +16,9 @@ spec-info:
     attributes:
       author:
         description: |
-          It shall be the author or the list of authors of the article.
+          If the attribute is present, then its value shall be the author or
+          the list of authors of the article. The reference contributor links
+          with the field `author` take precedence over the value.
         spec-type: str-or-list-str
       doi:
         description: |
@@ -54,7 +56,6 @@ spec-info:
     description: |
       This set of attributes specifies a reference to an article.
     mandatory-attributes:
-    - author
     - journal
     - year
 spec-name: Article Reference

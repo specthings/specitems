@@ -16,7 +16,9 @@ spec-info:
     attributes:
       author:
         description: |
-          It shall be the author or the list of authors of the work.
+          If the attribute is present, then its value shall be the author or
+          the list of authors of the work. The reference contributor links with
+          the field `author` take precedence over the value.
         spec-type: str-or-list-str
       howpublished:
         description: |

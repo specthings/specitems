@@ -16,7 +16,9 @@ spec-info:
     attributes:
       author:
         description: |
-          It shall be the author or the list of authors of the article.
+          If the attribute is present, then its value shall be the author or
+          the list of authors of the article. The reference contributor links
+          with the field `author` take precedence over the value.
         spec-type: str-or-list-str
       booktitle:
         description: |
@@ -28,7 +30,9 @@ spec-info:
         spec-type: str
       editor:
         description: |
-          It shall be the editor or the list of editors of the article.
+          If the attribute is present, then its value shall be the editor or
+          the list of editors of the article. The reference contributor links
+          with the field `editor` take precedence over the value.
         spec-type: str-or-list-str
       month:
         description: |
@@ -44,7 +48,9 @@ spec-info:
         spec-type: str
       organization:
         description: |
-          It shall be the associated organization.
+          If the attribute is present, then its value shall be the associated
+          organization. The reference contributor links with the field
+          `organization` take precedence over the value.
         spec-type: str
       pages:
         description: |
@@ -52,7 +58,9 @@ spec-info:
         spec-type: str
       publisher:
         description: |
-          It shall be the name of the publisher.
+          If the attribute is present, then its value shall be the name of the
+          publisher. The reference contributor links with the field `publisher`
+          take precedence over the value.
         spec-type: str
       series:
         description: |
@@ -70,7 +78,6 @@ spec-info:
       This set of attributes specifies a reference to an article in a conference
       proceedings.
     mandatory-attributes:
-    - author
     - booktitle
     - year
 spec-name: In Conference Proceedings Reference

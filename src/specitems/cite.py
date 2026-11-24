@@ -32,9 +32,7 @@ from .items import Item, Link
 from .itemmapper import ItemGetValueContext, ItemType, ItemValueProvider
 from .content import list_terms
 from .contenttext import TextContent, TextMapper, latex_escape
-
-_Fields = dict[str, str | list[str]]
-_GetFields = Callable[[Item], tuple[str, _Fields]]
+from .person import Person, get_affiliations
 
 _FIELDS = {
     "author", "booktitle", "chapter", "date", "doi", "edition", "editor",
@@ -166,14 +164,96 @@ def get_citation_group_members(item: Item,
     return sorted(members, key=lambda link: kinds.index(link["kind"]))
 
 
+@dataclasses.dataclass(frozen=True)
+class BibTeXName:
+    """ Represents the name of a person or an organization of a work. """
+
+    #: The name of the person or organization.
+    name: str
+
+    #: The first names of the person.
+    first_name: Optional[str] = None
+
+    #: If true, then the name is the name of an organization.
+    is_organization: bool = False
+
+
+_Fields = dict[str, str | list[str] | list[BibTeXName]]
+_GetFields = Callable[[Item], tuple[str, _Fields]]
+
+#: The fields which each publication type needs.
+_NEEDED_FIELDS = {
+    "article": ("author", ),
+    "book": ("author", "publisher"),
+    "inbook": ("author", "publisher"),
+    "incollection": ("author", "publisher"),
+    "inproceedings": ("author", ),
+    "mastersthesis": ("author", "school"),
+    "phdthesis": ("author", "school"),
+    "techreport": ("author", "institution")
+}
+
+#: The field which the affiliations of the authors provide.
+_AFFILIATION_FIELDS = {"manual": "organization", "techreport": "institution"}
+
+
+def _get_bibtex_name(contributor: Item) -> BibTeXName:
+    if contributor.type == "organization":
+        return BibTeXName(contributor["name"], is_organization=True)
+    if contributor.type == "person":
+        person = Person(contributor)
+        return BibTeXName(person.name, person.first_name)
+    raise ValueError(f"{contributor.uid}: a reference contributor shall be a "
+                     "person or an organization")
+
+
+def _add_contributors(item: Item, fields: _Fields) -> None:
+    contributors: dict[str, list[Item]] = {}
+    for link in item.links_to_parents("reference-contributor"):
+        contributors.setdefault(link["field"], []).append(link.item)
+    _, _, publication_type = item.type.partition("/")
+    field = _AFFILIATION_FIELDS.get(publication_type, None)
+    if field is not None and field not in contributors:
+        date = item.get("date", item.get("year", None))
+        date = None if date is None else str(date)[:10]
+        affiliations = get_affiliations(contributors.get("author", []), date)
+        if affiliations:
+            contributors[field] = affiliations
+    if field in contributors and "author" in contributors:
+        authors = [
+            author for author in contributors["author"]
+            if author not in contributors[field]
+        ]
+        if authors:
+            contributors["author"] = authors
+        else:
+            del contributors["author"]
+    for field, items in contributors.items():
+        fields[field] = [
+            _get_bibtex_name(contributor) for contributor in items
+        ]
+
+
 def _get_fields(item: Item) -> tuple[str, _Fields]:
     _, _, publication_type = item.type.partition("/")
     fields: _Fields = dict(
         (key, item[key]) for key in _FIELDS.intersection(item.data.keys()))
+    _add_contributors(item, fields)
+    for field in _NEEDED_FIELDS.get(publication_type, ()):
+        if field not in fields:
+            raise ValueError(f"{item.uid}: the reference needs the {field} "
+                             "attribute or a reference contributor link for "
+                             "the field")
     url = item.get("work-url", None)
     if url is not None:
         fields["url"] = url
     return publication_type, fields
+
+
+def _format_name(name: BibTeXName) -> str:
+    if name.is_organization or name.first_name is None:
+        return f"{{{name.name}}}"
+    return f"{name.name}, {name.first_name}"
 
 
 class BibTeXCitationProvider(ItemValueProvider):
@@ -248,19 +328,40 @@ class BibTeXCitationProvider(ItemValueProvider):
         """ Add BibTeX entries for the collected citations to the content. """
         for item in sorted(self._citations):
             publication_type, fields = self.get_fields(item)
-            for key in _PERSONS.intersection(fields.keys()):
-                if isinstance(fields[key], list):
-                    fields[key] = " and ".join(fields[key])
             content.append(f"@{publication_type}{{{item.ident},")
             for field, value in sorted(fields.items()):
-                assert isinstance(value, str)
-                value = self.mapper.substitute(value)
-                if field not in _NO_LATEX_ESCAPE:
-                    value = latex_escape(value)
-                if field in _DOUBLE_QUOTE:
-                    value = f"{{{value}}}"
-                content.append(f"  {field} = {{{value}}},")
+                text = self._format(field, value)
+                if field == "author" and item.get("others", False):
+                    text = f"{text} and others"
+                content.append(f"  {field} = {{{text}}},")
             content.append("}")
+
+    def _format(self, field: str,
+                value: str | list[str] | list[BibTeXName]) -> str:
+        if isinstance(value, list) and value and isinstance(
+                value[0], BibTeXName):
+            names = [
+                dataclasses.replace(name,
+                                    name=self._escape(name.name),
+                                    first_name=None if name.first_name is None
+                                    else self._escape(name.first_name))
+                for name in value if isinstance(name, BibTeXName)
+            ]
+            if field in _PERSONS:
+                return " and ".join(_format_name(name) for name in names)
+            return f"{{{' and '.join(name.name for name in names)}}}"
+        if isinstance(value, list):
+            assert field in _PERSONS
+            value = " and ".join(str(element) for element in value)
+        value = self.mapper.substitute(value)
+        if field not in _NO_LATEX_ESCAPE:
+            value = latex_escape(value)
+        if field in _DOUBLE_QUOTE:
+            value = f"{{{value}}}"
+        return value
+
+    def _escape(self, text: str) -> str:
+        return latex_escape(self.mapper.substitute(text))
 
     def _cite(self, work: Item) -> str:
         self._citations.add(work)

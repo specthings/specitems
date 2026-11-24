@@ -20,7 +20,9 @@ spec-info:
     attributes:
       author:
         description: |
-          It shall be the author or the list of authors of the thesis.
+          If the attribute is present, then its value shall be the author or
+          the list of authors of the thesis. The reference contributor links
+          with the field `author` take precedence over the value.
         spec-type: str-or-list-str
       month:
         description: |
@@ -37,7 +39,9 @@ spec-info:
         spec-type: str
       school:
         description: |
-          It shall be the school where the thesis was written.
+          If the attribute is present, then its value shall be the school where
+          the thesis was written. The reference contributor links with the
+          field `school` take precedence over the value.
         spec-type: str
       year:
         description: |
@@ -46,8 +50,6 @@ spec-info:
     description: |
       This set of attributes specifies a reference to a masters or Ph.D. thesis.
     mandatory-attributes:
-    - author
-    - school
     - year
 spec-name: Masters or Ph.D. Thesis Reference
 spec-type: reference-thesis

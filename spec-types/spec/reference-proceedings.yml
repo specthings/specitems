@@ -16,7 +16,10 @@ spec-info:
     attributes:
       editor:
         description: |
-          It shall be the editor or the list of editors of the conference proceedings.
+          If the attribute is present, then its value shall be the editor or
+          the list of editors of the conference proceedings. The reference
+          contributor links with the field `editor` take precedence over the
+          value.
         spec-type: str-or-list-str
       month:
         description: |
@@ -32,11 +35,15 @@ spec-info:
         spec-type: str
       organization:
         description: |
-          It shall be the associated organization.
+          If the attribute is present, then its value shall be the associated
+          organization. The reference contributor links with the field
+          `organization` take precedence over the value.
         spec-type: str
       publisher:
         description: |
-          It shall be the name of the publisher.
+          If the attribute is present, then its value shall be the name of the
+          publisher. The reference contributor links with the field `publisher`
+          take precedence over the value.
         spec-type: str
       series:
         description: |
