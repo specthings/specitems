@@ -334,7 +334,7 @@ def test_cite_contributors(tmpdir):
     mapper = SphinxMapper(cache["/ref/links"], "CC-BY-SA-4.0")
     provider = BibTeXCitationProvider(mapper)
     for name in ("links", "direct", "past", "no-date", "report", "book",
-                 "attributes", "affiliated", "same"):
+                 "attributes", "affiliated", "same", "organizations"):
         mapper.substitute(f"${{/ref/{name}:/cite}}")
     content = mapper.create_content()
     provider.add_bibtex_entries(content)
@@ -384,6 +384,13 @@ _EXPECTED_CONTRIBUTORS = """@manual{RefAffiliated,
   author = {Mustermann, Erika},
   organization = {{Other Organization}},
   title = {{No-date}},
+}
+@manual{RefOrganizations,
+  author = {Mustermann, Erika and von der Brüggen, Georg},
+  organization = {{Other Organization, Some Company \\& Co.}},
+  publisher = {{Other Organization, Some Company \\& Co.}},
+  title = {{Organizations}},
+  year = {2026},
 }
 @manual{RefPast,
   author = {Mustermann, Erika},

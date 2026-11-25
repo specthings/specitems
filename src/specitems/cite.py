@@ -349,7 +349,7 @@ class BibTeXCitationProvider(ItemValueProvider):
             ]
             if field in _PERSONS:
                 return " and ".join(_format_name(name) for name in names)
-            return f"{{{' and '.join(name.name for name in names)}}}"
+            return f"{{{', '.join(name.name for name in names)}}}"
         if isinstance(value, list):
             assert field in _PERSONS
             value = " and ".join(str(element) for element in value)
